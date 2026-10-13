@@ -1,5 +1,7 @@
 # PocketBoard
 
+https://github.com/user-attachments/assets/dc7007c4-f247-4852-83cd-cd2946ee93ff
+
 [English](README.md) | **日本語**
 
 Windows のトレイに常駐する、ガラスのバブルに動画・画像・リンクを並べて置いておけるボードアプリです。
