@@ -14,6 +14,12 @@ A Windows tray app that keeps videos, images and links on a board of glass bubbl
 - **Microsoft Store**: [PocketBoard を入手](https://apps.microsoft.com/detail/9MZDTC61K4HM)（自動アップデートあり / auto-updates）
 - **インストーラ / Installer**: [Releases](../../releases) から `PocketBoardSetup.exe` をダウンロード
 
+## 応援 / Support
+PocketBoard は無料で使えます。気に入っていただけたら、コーヒー1杯分の応援をいただけると開発の励みになります ☕
+PocketBoard is free. If you like it, you can buy me a coffee to support development.
+
+[![Ko-fi で応援する / Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-studio__peach-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/studio_peach)
+
 ## ビルド / Build
 動作確認している環境: Windows 11 / MSYS2 MINGW64 / Qt 6 / CMake
 
