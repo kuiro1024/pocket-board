@@ -37,7 +37,7 @@ libmpv の場所が既定（`C:/msys64/mingw64`）と違う場合は、CMake に
 
 ## プラグイン / Plugins
 プラグインで、扱えるメディアの種類や機能を増やせます。
-インストール方法・できること・作り方は **[Plugin Guide](docs/plugins.md)** を参照してください。
+インストール方法・できること・作り方は **Plugin Guide**（[English](docs/plugins.md) / [日本語](docs/plugins.ja.md)）を参照してください。
 
 - サンプル: `plugins/DummyTestPlugin`
 - API: `src/plugin/`

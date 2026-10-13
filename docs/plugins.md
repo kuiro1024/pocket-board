@@ -1,99 +1,99 @@
 # PocketBoard Plugin Guide
 
-PocketBoard はプラグインで機能を足せます。本体は「バブルを並べて再生・表示する」ことだけを受け持ち、
-**どこから何を持ってくるか** はプラグインが決めます。
+**English** | [日本語](plugins.ja.md)
 
-> English: This guide is currently written in Japanese. The API headers in `src/plugin/` are the source of truth.
+PocketBoard can be extended with plugins. The app itself only takes care of laying out bubbles and playing or showing them —
+**where the media comes from** is up to the plugin.
 
-- [プラグインを使う（インストール）](#プラグインを使うインストール)
-- [プラグインでできること](#プラグインでできること)
-- [プラグインを作る](#プラグインを作る)
-- [各インターフェースの詳細](#各インターフェースの詳細)
-- [注意点・ルール](#注意点ルール)
-
----
-
-## プラグインを使う（インストール）
-
-### インストール
-1. プラグインの `.zip` ファイルを、起動中の PocketBoard にドラッグ＆ドロップする
-2. 確認の表示が出るので、内容を確かめて承認する
-
-`.zip` の中身は次の場所へ展開されます。
-
-```
-%APPDATA%\PocketBoard\PocketBoard\Plugins\<zipの名前>\
-```
-
-### 更新
-同じ名前の `.zip` をもう一度ドロップすると上書きされます（設定は残ります）。
-使用中の DLL は Windows がロックしているため、失敗した場合は PocketBoard を再起動してからドロップし直してください。
-
-### 削除
-PocketBoard を終了して、上の場所にあるプラグインのフォルダを削除してください。
-
-### 読み込まれる場所
-起動時に、次の2か所が（サブフォルダも含めて）読み込まれます。同じ ID のプラグインがある場合は 1 が優先されます。
-
-1. `%APPDATA%\PocketBoard\PocketBoard\Plugins\`（.zip ドロップでのインストール先）
-2. `PocketBoard.exe` と同じ場所の `Plugins\`（開発時の手動配置用）
-
-### 設定
-プラグインが設定項目を持っている場合、PocketBoard の設定画面の **プラグイン** タブに表示されます。
-
-> ⚠️ プラグインは PocketBoard の中でそのまま動くプログラム（DLL）です。信頼できる配布元のものだけを入れてください。
+- [Using plugins (installation)](#using-plugins-installation)
+- [What plugins can do](#what-plugins-can-do)
+- [Writing a plugin](#writing-a-plugin)
+- [Interface reference](#interface-reference)
+- [Rules and notes](#rules-and-notes)
 
 ---
 
-## プラグインでできること
+## Using plugins (installation)
 
-| やりたいこと | 使うインターフェース | 必須 |
+### Install
+1. Drag and drop the plugin's `.zip` file onto a running PocketBoard window
+2. A confirmation appears — check it and accept
+
+The contents of the `.zip` are extracted to:
+
+```
+%APPDATA%\PocketBoard\PocketBoard\Plugins\<zip name>\
+```
+
+### Update
+Drop a `.zip` with the same name again to overwrite it (settings are kept).
+Windows locks DLLs that are in use, so if the update fails, restart PocketBoard and drop the file again.
+
+### Uninstall
+Quit PocketBoard and delete the plugin's folder in the location above.
+
+### Where plugins are loaded from
+On startup, these two folders are scanned (including subfolders). If both contain a plugin with the same ID, the one in 1 wins.
+
+1. `%APPDATA%\PocketBoard\PocketBoard\Plugins\` (where `.zip` installs go)
+2. `Plugins\` next to `PocketBoard.exe` (for manual placement during development)
+
+### Settings
+If a plugin has settings, they appear in the **Plugins** tab of PocketBoard's settings.
+
+> ⚠️ A plugin is a program (DLL) that runs inside PocketBoard. Only install plugins from sources you trust.
+
+---
+
+## What plugins can do
+
+| What you want to do | Interface | Required |
 |---|---|---|
-| URL を受け取って、再生できる動画・音声に変える | `IPbMediaPlugin` | ✅ |
-| タイトル・サムネイル・シークバーの見た目を指定する | `IPbMediaPlugin`（結果の項目） | |
-| 再生が終わったら次の動画へ続ける | `IPbMediaPlugin`（`nextUrl`） | |
-| バブル左上に小さなラベル（ロゴ＋文字）を出す | `IPbMediaPlugin`（`labelIconSvg` / `labelText`） | |
-| ラベルを押すと前後の一覧を出す | `IPbPlaylistNavigator` | |
-| ラベル長押しで別のものに切り替える | `IPbLabelHoldActionProvider` | |
-| 起動直後からラベルの絵を最新にする | `IPbLabelPreviewProvider` | |
-| サムネイル画像を自前で用意する | `IPbThumbnailProvider` | |
-| バブルを重ねてリストにまとめる操作を制限する | `IPbFusionPolicyProvider` | |
-| 設定画面に自分の設定項目を出す | `IPbControlProvider` | |
+| Turn a URL into playable video/audio | `IPbMediaPlugin` | ✅ |
+| Set the title, thumbnail and seek bar appearance | `IPbMediaPlugin` (result fields) | |
+| Continue to the next item when playback ends | `IPbMediaPlugin` (`nextUrl`) | |
+| Show a small label (logo + text) at the top-left of a bubble | `IPbMediaPlugin` (`labelIconSvg` / `labelText`) | |
+| Open a list of previous/next items when the label is clicked | `IPbPlaylistNavigator` | |
+| Switch to something else when the label is long-pressed | `IPbLabelHoldActionProvider` | |
+| Show an up-to-date label icon right after startup | `IPbLabelPreviewProvider` | |
+| Provide thumbnail images yourself | `IPbThumbnailProvider` | |
+| Restrict merging bubbles into a list | `IPbFusionPolicyProvider` | |
+| Add your own settings to the settings screen | `IPbControlProvider` | |
 
-`IPbMediaPlugin` だけは必須で、ほかはすべて任意です。実装していないものは「その機能は無し」として扱われます。
+Only `IPbMediaPlugin` is required. Everything else is optional; anything you don't implement is simply treated as "not available".
 
-### 本体とプラグインの役割分担
-| 本体（PocketBoard） | プラグイン |
+### Who does what
+| PocketBoard (host) | Plugin |
 |---|---|
-| バブルの描画・配置・保存 | どの URL を担当するか判断する |
-| 再生（libmpv） | URL を実際に再生できるストリームへ変換する |
-| UI の見た目・操作・アニメーション | 「何を表示するか」の中身（タイトル・ラベル・一覧など） |
-| 設定値の保存 | 設定項目の宣言と、値が変わったときの処理 |
+| Drawing, layout and saving of bubbles | Deciding which URLs it handles |
+| Playback (libmpv) | Converting a URL into a playable stream |
+| UI appearance, interaction and animation | The content to show (title, label, lists, …) |
+| Storing setting values | Declaring settings and reacting to changes |
 
-プラグインが任意のウィジェットや UI コードを注入することはできません。プラグインは **データを返すだけ** で、見せ方は本体が統一します。
+Plugins cannot inject arbitrary widgets or UI code. A plugin **only returns data**; the host keeps the look and feel consistent.
 
-### URL がプラグインに届く順番
-URL をドロップ（または貼り付け）すると、本体は次の順で扱いを決めます。
+### The order in which a URL reaches plugins
+When a URL is dropped (or pasted), the host decides how to handle it in this order:
 
-1. 画像の URL → 本体が画像として表示
-2. **`canHandle()` が `true` を返したプラグイン → プラグインに任せる**
-3. 動画ファイルの直リンク（`.mp4` など） → 本体が再生
-4. それ以外の http(s) URL → Web リンクのバブル
+1. Image URL → shown as an image by the host
+2. **A plugin whose `canHandle()` returns `true` → handed to that plugin**
+3. Direct link to a video file (`.mp4`, etc.) → played by the host
+4. Any other http(s) URL → a web link bubble
 
-つまり、画像以外の URL であれば、プラグインが本体より先に引き受けられます。
+In other words, for anything other than image URLs, plugins get the first chance to take the URL.
 
 ---
 
-## プラグインを作る
+## Writing a plugin
 
-### 必要な環境
-プラグインは **PocketBoard 本体と同じ Qt のバージョン・同じコンパイラ（MSYS2 MINGW64）** でビルドする必要があります（Qt のプラグイン機構の制約です）。
-ビルド環境の用意は [README](../README.md#ビルド--build) を参照してください。
+### Requirements
+A plugin must be built with **the same Qt version and the same compiler (MSYS2 MINGW64) as PocketBoard itself** (a limitation of Qt's plugin system).
+See the [README](../README.md#ビルド--build) for setting up the build environment.
 
-API は **Qt6::Core だけ** に依存します。Qt6::Gui や Widgets をリンクする必要はありません。
+The API depends on **Qt6::Core only**. You do not need to link Qt6::Gui or Widgets.
 
-### 最小のプラグイン
-`plugins/DummyTestPlugin/` が動くサンプルです。ここでは最小限の形を示します。
+### A minimal plugin
+`plugins/DummyTestPlugin/` is a working sample. Here is the bare minimum.
 
 **MyPlugin.json**
 ```json
@@ -133,7 +133,7 @@ public:
 
 bool MyPlugin::canHandle(const QString &url) const
 {
-    // 軽い判定だけを行う（ネットワークアクセスはしない）。
+    // Keep this check cheap (no network access).
     return QUrl(url).scheme() == QStringLiteral("myscheme");
 }
 
@@ -141,11 +141,11 @@ void MyPlugin::resolve(const QString &url, int targetHeight,
                        const PbResolveCallback &callback)
 {
     Q_UNUSED(targetHeight)
-    // 時間のかかる処理は非同期で行い、結果は必ずメインスレッドで1回だけ返す。
+    // Do slow work asynchronously, and always return the result exactly once on the main thread.
     QTimer::singleShot(0, [url, callback]() {
         PbResolvedMedia r;
         r.success   = true;
-        r.streamUrl = QStringLiteral("https://example.com/video.mp4"); // libmpv に渡す URL
+        r.streamUrl = QStringLiteral("https://example.com/video.mp4"); // URL passed to libmpv
         r.title     = QStringLiteral("Example");
         callback(r);
     });
@@ -161,32 +161,32 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
-# PocketBoard のソースの場所（src/ にある API ヘッダーを使う）
+# Location of the PocketBoard sources (the API headers live in src/)
 set(POCKETBOARD_SOURCE_DIR "C:/path/to/pocket-board" CACHE PATH "")
 
 add_library(MyPlugin MODULE MyPlugin.cpp MyPlugin.h)
 target_include_directories(MyPlugin PRIVATE ${POCKETBOARD_SOURCE_DIR}/src)
 target_link_libraries(MyPlugin PRIVATE Qt6::Core)
-set_target_properties(MyPlugin PROPERTIES PREFIX "")   # libMyPlugin.dll ではなく MyPlugin.dll にする
+set_target_properties(MyPlugin PROPERTIES PREFIX "")   # MyPlugin.dll instead of libMyPlugin.dll
 ```
 
-### 動作確認と配布
-1. ビルドしてできた `MyPlugin.dll` を `.zip` にまとめる
-2. 起動中の PocketBoard にドロップしてインストールする
-3. `canHandle()` が `true` を返す URL をドロップして確かめる
+### Testing and distribution
+1. Put the built `MyPlugin.dll` into a `.zip`
+2. Drop it onto a running PocketBoard to install it
+3. Drop a URL for which `canHandle()` returns `true` and check the result
 
-プラグインが Qt6::Core 以外の DLL（追加の Qt モジュールや外部ライブラリ）に依存する場合は、**それらの DLL も同じ .zip に入れてください**。
-本体は、プラグインを読み込む間だけプラグインのフォルダを DLL の検索先に加えます。
+If your plugin depends on DLLs other than Qt6::Core (extra Qt modules or third-party libraries), **put those DLLs in the same `.zip`**.
+While loading a plugin, the host temporarily adds the plugin's folder to the DLL search path.
 
 ```
 MyPlugin.zip
 ├─ MyPlugin.dll
-└─ SomeDependency.dll   ← 依存 DLL は同じ階層に置く
+└─ SomeDependency.dll   ← put dependencies at the same level
 ```
 
-ログは `%APPDATA%\PocketBoard\PocketBoard\log.txt` に、`[Plugin]` で始まる行として出力されます。
-読み込みの失敗などの警告は、配布版（Release ビルド）でも記録されます。
-自分でビルドした Debug ビルドの本体で動かすと、読み込みに成功したときに、どの任意インターフェースが有効になったかも1行で表示されます。
+Logs are written to `%APPDATA%\PocketBoard\PocketBoard\log.txt` as lines starting with `[Plugin]`.
+Warnings such as load failures are recorded even in the distributed (Release) build.
+If you run a Debug build of PocketBoard that you built yourself, a successful load also prints one line showing which optional interfaces were detected.
 
 ```
 [Plugin] com.example.myplugin optional interfaces: thumbnail=no playlist=no fusion=no labelHold=no controls=yes labelPreview=no
@@ -194,73 +194,73 @@ MyPlugin.zip
 
 ---
 
-## 各インターフェースの詳細
+## Interface reference
 
-すべての定義は `src/plugin/` にあります。ここでは要点だけをまとめます。
+All definitions live in `src/plugin/`. The headers have detailed comments (in Japanese); this section is a summary.
 
-### `IPbMediaPlugin`（必須）— `PbPluginApi.h`
-| メソッド | 内容 |
+### `IPbMediaPlugin` (required) — `PbPluginApi.h`
+| Method | Description |
 |---|---|
-| `pluginId()` | プラグインを一意に識別する ID。JSON の `Keys` と同じにする |
-| `displayName()` | 表示名（設定画面の見出しなどに使われる） |
-| `pluginVersion()` | バージョン文字列 |
-| `canHandle(url)` | この URL を担当するか。**すぐ返すこと**（ネットワーク禁止） |
-| `resolve(url, targetHeight, callback)` | URL を再生できる形に変換して `callback` を **1回だけ** 呼ぶ |
+| `pluginId()` | Unique plugin ID. Must match `Keys` in the JSON |
+| `displayName()` | Display name (used e.g. as the heading in settings) |
+| `pluginVersion()` | Version string |
+| `canHandle(url)` | Whether this plugin handles the URL. **Must return immediately** (no network) |
+| `resolve(url, targetHeight, callback)` | Convert the URL into something playable and call `callback` **exactly once** |
 
-`targetHeight` は希望する画質の高さ（px）です。0 は指定なし。対応しなくても構いません。
+`targetHeight` is the preferred video height in pixels. 0 means no preference. Supporting it is optional.
 
-#### `PbResolvedMedia`（resolve の結果）
-| 項目 | 内容 |
+#### `PbResolvedMedia` (the result of resolve)
+| Field | Description |
 |---|---|
-| `success` / `errorMessage` / `errorCode` | 成功したか、失敗の理由（ログ用）、失敗の分類 |
-| `streamUrl` | libmpv に渡す再生用の URL（必須） |
-| `audioStreamUrl` | 映像と音声が別々のときの音声 URL（空なら `streamUrl` に音声も含まれる） |
-| `httpHeaders` | 取得に必要な HTTP ヘッダー（例: `Referer: ...`） |
-| `title` / `thumbnailUrl` | 表示用のタイトルとサムネイル |
-| `resolvedWidth` / `resolvedHeight` | 実際に選んだ解像度（分かれば） |
-| `seekBarVisible` / `seekBarTimeMode` / `seekBarTimeModeLocked` / `seekBarColor` | シークバーの表示（ライブ配信向けの残り時間表示など） |
-| `liveEdgeBufferMs` | ライブ配信で、最新の位置からどれだけ遅らせて再生するか |
-| `nextUrl` / `nextUrlPending` | 再生が終わったら続けて開く URL（連続再生） |
-| `labelIconSvg` / `labelText` | バブル左上のラベル（SVG ロゴ＋短い文字）。ロゴは円形に切り抜かれる |
-| `labelHoverable` / `labelPinnable` / `labelProgress` | ラベルが反応するか・固定できるか・再生位置を縁に表示するか |
+| `success` / `errorMessage` / `errorCode` | Whether it succeeded, the failure reason (for logs), and the failure category |
+| `streamUrl` | Playback URL passed to libmpv (required) |
+| `audioStreamUrl` | Audio URL when video and audio are separate (empty = `streamUrl` contains audio too) |
+| `httpHeaders` | HTTP headers needed to fetch the stream (e.g. `Referer: ...`) |
+| `title` / `thumbnailUrl` | Title and thumbnail for display |
+| `resolvedWidth` / `resolvedHeight` | The resolution actually chosen (if known) |
+| `seekBarVisible` / `seekBarTimeMode` / `seekBarTimeModeLocked` / `seekBarColor` | Seek bar display (e.g. a countdown for live streams) |
+| `liveEdgeBufferMs` | For live streams, how far behind the live edge to play |
+| `nextUrl` / `nextUrlPending` | URL to open next when playback ends (continuous playback) |
+| `labelIconSvg` / `labelText` | Label at the top-left of the bubble (SVG logo + short text). The logo is clipped to a circle |
+| `labelHoverable` / `labelPinnable` / `labelProgress` | Whether the label reacts to hover, can be pinned, and shows playback progress on its border |
 
-失敗の分類（`PbResolveErrorCode`）は、画面には3桁の数字だけが表示されます。
+For failure categories (`PbResolveErrorCode`), only a 3-digit number is shown on screen.
 
-| 値 | 意味 |
+| Value | Meaning |
 |---|---|
-| `NotFound` (3) | 対象が存在しない |
-| `Unsupported` (4) | 再生できる形式が見つからない |
-| `Network` (5) | ネットワークエラー |
-| `ToolMissing` (2) | 必要な外部ツールが見つからない |
-| `PluginError` (6) | その他のプラグイン内部のエラー |
+| `NotFound` (3) | The item does not exist |
+| `Unsupported` (4) | No playable format found |
+| `Network` (5) | Network error |
+| `ToolMissing` (2) | A required external tool was not found |
+| `PluginError` (6) | Any other internal plugin error |
 
-### `IPbControlProvider`（設定項目）— `PbControlApi.h` / `PbControlSpec.h`
-`controlSpecs()` で設定項目を宣言するだけで、設定画面の部品は本体が作り、値も本体が保存します。
+### `IPbControlProvider` (settings) — `PbControlApi.h` / `PbControlSpec.h`
+Declare your settings in `controlSpecs()`; the host builds the UI and stores the values.
 
-- 使える部品：`Toggle` / `Slider` / `SpinBox` / `Choice` / `Button` / `Label` / `TextInput` / `KeyInput`
-- `sameRowAsPrevious = true` で、直前の部品と同じ行に並べられます（1行に3個まで）
-- 1つのプラグインにつき最大12個まで。ID は64文字、表示名は48文字まで
-- 値はプラグインのフォルダ内の `plugin_config.json` に本体が保存します（プラグインは直接触らないこと）
-- 起動時には `onControlValueRestored()` で保存値が渡されます
-- `onControlHostReady()` で受け取る `PbControlHost` を使うと、項目の有効/無効や文字を後から変えられます
+- Available controls: `Toggle` / `Slider` / `SpinBox` / `Choice` / `Button` / `Label` / `TextInput` / `KeyInput`
+- `sameRowAsPrevious = true` places a control on the same row as the previous one (up to 3 per row)
+- Up to 12 controls per plugin. IDs up to 64 characters, labels up to 48
+- Values are saved by the host to `plugin_config.json` in the plugin's folder (do not edit it directly)
+- On startup, saved values are passed to `onControlValueRestored()`
+- The `PbControlHost` received in `onControlHostReady()` lets you enable/disable controls or change their text later
 
-### `IPbPlaylistNavigator`（前後の一覧）— `PbPlaylistApi.h`
-ラベルを押したときに出る一覧の中身を返します。一覧の描画や操作は本体が行います。
-`playlistContext()` は **すぐ返すこと**。まだ分からなければ `pending = true` を返すと、本体が控えめに聞き直します。
+### `IPbPlaylistNavigator` (previous/next list) — `PbPlaylistApi.h`
+Returns the contents of the list shown when the label is clicked. The host draws and handles the list.
+`playlistContext()` **must return immediately**. If you don't know yet, return `pending = true` and the host will ask again at a modest interval.
 
 ### `IPbLabelHoldActionProvider` / `IPbLabelPreviewProvider` — `PbLabelActionApi.h`
-- ラベルを長押しして、たまりきったときの動作を決められます（`None` / `Core` / `Plugin`）
-- `Plugin` の場合は `runLabelHoldAction()` が呼ばれ、切り替え先の URL を返します。`keepPlaying = true` にすると、再生を止めずに切り替えられます
-- `IPbLabelPreviewProvider` を実装すると、保存していたバブルを開いた直後から最新のラベルの絵を出せます
+- Decide what happens when the label is long-pressed until the gauge fills (`None` / `Core` / `Plugin`)
+- With `Plugin`, `runLabelHoldAction()` is called and returns the URL to switch to. Set `keepPlaying = true` to switch without interrupting playback
+- Implementing `IPbLabelPreviewProvider` lets restored bubbles show the latest label icon right away
 
-### `IPbThumbnailProvider`（サムネイル）— `PbThumbnailApi.h`
-サムネイル画像のデータ（PNG / JPEG など）を自前で返せます。実装しない場合は、`thumbnailUrl` から本体が取得します。
+### `IPbThumbnailProvider` (thumbnails) — `PbThumbnailApi.h`
+Return thumbnail image data (PNG, JPEG, etc.) yourself. If not implemented, the host fetches `thumbnailUrl`.
 
-### `IPbFusionPolicyProvider`（リストへのまとめ）— `PbFusionApi.h`
-バブルを別のバブルに重ねてリストにまとめる操作を、このメディアでは受け付けない・加わらない、と断れます。
+### `IPbFusionPolicyProvider` (merging into lists) — `PbFusionApi.h`
+Decline merging: refuse to accept other bubbles into this media's list, or refuse to join another bubble's list.
 
-### 複数のインターフェースを実装する
-`IPbMediaPlugin` と多重継承し、`Q_INTERFACES` に並べて書きます。
+### Implementing several interfaces
+Inherit from them alongside `IPbMediaPlugin` and list them all in `Q_INTERFACES`.
 
 ```cpp
 class MyPlugin : public QObject, public IPbMediaPlugin, public IPbControlProvider
@@ -274,24 +274,24 @@ class MyPlugin : public QObject, public IPbMediaPlugin, public IPbControlProvide
 
 ---
 
-## 注意点・ルール
+## Rules and notes
 
-### スレッド
-- 本体からの呼び出しは、すべて Qt のメインスレッドから行われます
-- `callback` も **必ずメインスレッドで** 呼んでください。ワーカースレッドから直接呼ばず、`QMetaObject::invokeMethod(..., Qt::QueuedConnection)` などで戻します
-- 次のメソッドは画面の更新中に何度も呼ばれます。**ネットワーク・外部プロセス・ファイル I/O を行わず、すぐ返してください**
+### Threads
+- Every call from the host comes from the Qt main thread
+- Always invoke `callback` **on the main thread**. Don't call it directly from a worker thread; marshal it back with `QMetaObject::invokeMethod(..., Qt::QueuedConnection)` or similar
+- The following methods are called repeatedly while the screen updates. **Do not do network, external process or file I/O — return immediately:**
   - `canHandle()` / `playlistContext()` / `fusionPolicy()` / `labelHoldAction()` / `labelPreview()`
 
-### API のバージョン（IID）
-各インターフェースには `"com.pocketboard.IPbMediaPlugin/2.1"` のようなバージョン付きの ID があります。
-**本体と同じバージョンのヘッダーでビルドしたプラグインだけが読み込まれます。**
-本体を更新して ID が変わった場合は、プラグインを新しいヘッダーでビルドし直してください。
+### API versions (IIDs)
+Each interface has a versioned ID such as `"com.pocketboard.IPbMediaPlugin/2.1"`.
+**Only plugins built against headers with the same version as the host are loaded.**
+If an update to PocketBoard changes an ID, rebuild your plugin with the new headers.
 
-任意インターフェースの ID だけが違う場合は、その機能だけが無効になり、プラグイン自体は読み込まれます。
+If only an optional interface's ID differs, just that feature is disabled; the plugin itself still loads.
 
-### やってはいけないこと
-- `plugin_config.json` を直接書き換える（本体が管理しています）
-- `callback` を呼ばない、または2回以上呼ぶ
-- 利用規約や法律に反する方法でコンテンツを取得する
+### Don'ts
+- Don't edit `plugin_config.json` directly (the host manages it)
+- Don't skip calling `callback`, or call it more than once
+- Don't obtain content in ways that violate terms of service or the law
 
-プラグインは、作った人の責任で配布してください。PocketBoard 本体は、個々のプラグインの動作や配布について責任を負いません。
+Plugins are distributed under their authors' own responsibility. PocketBoard is not responsible for the behaviour or distribution of individual plugins.
