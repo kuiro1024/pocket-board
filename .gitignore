@@ -79,6 +79,5 @@ desktop.ini
 # 移動後に残った空フォルダ（中身は private/ へ移動済み）
 /promo/
 /tools/ytdiag/
-# 初回チュートリアル用のサンプル動画（容量が大きいので公開リポジトリには含めない。
-# 手元にあればインストーラには同梱される。tools/package-portable.ps1 参照）
+# 旧サンプル動画（使っていない。手元に残っていても上げない）
 /image/samplevideo/

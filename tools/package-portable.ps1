@@ -105,16 +105,11 @@ foreach ($ico in @("ico_light.ico", "ico_dark.ico")) {
     }
 }
 
-# 初回起動チュートリアル用サンプル動画（Tutorial.cpp の findSampleVideos() が
-# exe横の samplevideo/ を参照する。インストーラはこのPortableフォルダを
-# 丸ごと取り込むため、ここでコピーしておけば両方の配布物に含まれる）
-$SampleVideoSrc = Join-Path $Root "image/samplevideo"
-if (Test-Path $SampleVideoSrc) {
-    $SampleVideoDst = Join-Path $PortablePath "samplevideo"
-    New-Item -ItemType Directory -Force -Path $SampleVideoDst | Out-Null
-    Copy-Item -Path (Join-Path $SampleVideoSrc "*") -Destination $SampleVideoDst -Force
-} else {
-    Write-Warning "Sample videos not found: $SampleVideoSrc (first-run tutorial will fall back to image bubbles)"
+# 2026-10-13: サンプル動画（image/samplevideo）の同梱は廃止。本体はもう参照していない。
+# 以前のビルドで残った samplevideo/ があれば消しておく（インストーラに巻き込まないため）。
+$OldSampleVideo = Join-Path $PortablePath "samplevideo"
+if (Test-Path $OldSampleVideo) {
+    Remove-Item -LiteralPath $OldSampleVideo -Recurse -Force
 }
 
 Write-Host "Portable package ready: $PortablePath"
