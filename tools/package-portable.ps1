@@ -1,5 +1,5 @@
 param(
-    [string]$BuildDir = "build/Msys2_MinGW_64bit_Debug",
+    [string]$BuildDir = "build/Msys2_MinGW_64bit_Release",
     [string]$OutputDir = "dist/PocketBoardPortable",
     [string]$SourceExeName = "PocketBoard.exe",
     [string]$AppExeName = "PocketBoard.exe",

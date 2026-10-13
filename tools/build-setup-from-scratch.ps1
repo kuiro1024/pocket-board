@@ -8,7 +8,10 @@ $ErrorActionPreference = "Stop"
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $InstallerDir = Join-Path $Root "installer"
 $IssPath = Join-Path $InstallerDir "PocketBoard.iss"
-$BuildDir = Join-Path $Root "build/Msys2_MinGW_64bit_Debug"
+# 2026-10-13: 配布用なので Release ビルドを使う（以前は Debug を使っていた）。
+# Qt Creator の Release キットのビルドフォルダと同じ場所。
+$BuildDirName = "build/Msys2_MinGW_64bit_Release"
+$BuildDir = Join-Path $Root $BuildDirName
 $SetupPath = Join-Path $Root "dist/installer/PocketBoardSetup.exe"
 
 function Find-FirstExistingPath {
@@ -87,13 +90,13 @@ if (-not (Test-Path $BuildDir)) {
 }
 
 Write-Host "Building application..."
-& $cmake --build $BuildDir
+& $cmake --build $BuildDir --config Release --parallel
 if ($LASTEXITCODE -ne 0) {
     throw "cmake build failed with exit code $LASTEXITCODE"
 }
 
 Write-Host "Packaging portable app..."
-& (Join-Path $PSScriptRoot "package-portable.ps1")
+& (Join-Path $PSScriptRoot "package-portable.ps1") -BuildDir $BuildDirName
 if ($LASTEXITCODE -ne 0) {
     throw "Portable packaging failed with exit code $LASTEXITCODE"
 }
