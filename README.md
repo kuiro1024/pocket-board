@@ -36,8 +36,11 @@ libmpv の場所が既定（`C:/msys64/mingw64`）と違う場合は、CMake に
 `-DMPV_INCLUDE_DIR=... -DMPV_LIB=...` を渡してください。
 
 ## プラグイン / Plugins
-`plugins/DummyTestPlugin` がプラグインの最小サンプルです。
-インターフェースは `src/plugin/PbPluginApi.h` を参照してください。
+プラグインで、扱えるメディアの種類や機能を増やせます。
+インストール方法・できること・作り方は **[Plugin Guide](docs/plugins.md)** を参照してください。
+
+- サンプル: `plugins/DummyTestPlugin`
+- API: `src/plugin/`
 
 ## ライセンス / License
 PocketBoard のソースコードは [MIT License](LICENSE) です。
