@@ -1,0 +1,84 @@
+# ビルド成果物
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+*.pdb
+*.ilk
+*.exp
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.creator
+*.creator.user
+*.config
+*.files
+*.includes
+.qmake.stash
+
+# QtCreator CMakeユーザーファイル
+CMakeLists.txt.user*
+
+# IDEキャッシュ
+.vs/
+.vscode/
+*.orig
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+*.egg
+pip-log.txt
+.env
+venv/
+.venv/
+
+# Python版の一時ファイル
+glass_pip/__pycache__/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 一時ファイル
+*.tmp
+*.bak
+*.swp
+*~
+
+# ---- 公開リポジトリから外すもの ----
+# private/ は別の非公開リポジトリ（pb-private）。開発メモ・旧コード・
+# 非公開プラグイン（private/plugins/）を置く。CMakeLists.txt は
+# private/plugins/ がある場合だけプラグインをビルドに加える。
+/private/
+# 旧リポジトリ（new-pb-store）の履歴。手元に残しておくだけ
+/.git-old/
+# Qt Creator の個人設定
+/.qtcreator/
+# 移動後に残った空フォルダ（中身は private/ へ移動済み）
+/promo/
+/tools/ytdiag/
+# 初回チュートリアル用のサンプル動画（容量が大きいので公開リポジトリには含めない。
+# 手元にあればインストーラには同梱される。tools/package-portable.ps1 参照）
+/image/samplevideo/

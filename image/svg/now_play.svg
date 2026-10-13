@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_レイヤー_2" data-name="レイヤー 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+  <defs>
+    <clipPath id="clippath">
+      <polygon points="10.916 9.805 10.916 9.805 14.305 9.805 14.305 22.195 10.916 22.195 10.916 9.805" fill="none"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <polygon points="21.084 9.805 21.084 9.805 17.695 9.805 17.695 22.195 21.084 22.195 21.084 9.805" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="_リピートミラー_" data-name="&amp;lt;リピートミラー&amp;gt;">
+    <g clip-path="url(#clippath)">
+      <rect x="10.916" y="9.805" width="3.39" height="12.39" rx="1.432" ry="1.432" fill="#fff"/>
+    </g>
+  </g>
+  <g id="_リピートミラー_-2" data-name="&amp;lt;リピートミラー&amp;gt;">
+    <g clip-path="url(#clippath-1)">
+      <rect x="17.695" y="9.805" width="3.39" height="12.39" rx="1.432" ry="1.432" transform="translate(38.779 32) rotate(180)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,60 @@
+<RCC>
+    <!-- アプリ/トレイアイコン。main.cpp が exe横の ico_light.ico → この
+         リソース(:/ico/ico_light.ico) の順でフォールバックする。
+         Portable/インストーラ版で exe横に .ico が無くてもトレイアイコンが
+         表示されるよう、リソースにも必ず埋め込んでおく（2026-07-09:
+         インストール版でトレイアイコンが不可視になる不具合の恒久対策）。 -->
+    <qresource prefix="/ico">
+        <file alias="ico_light.ico">../../ico/ico_light.ico</file>
+        <file alias="ico_dark.ico">../../ico/ico_dark.ico</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file alias="ico_Sound_0.svg">ico_Sound_0.svg</file>
+        <file alias="ico_Sound_1.svg">ico_Sound_1.svg</file>
+        <file alias="ico_Sound_2.svg">ico_Sound_2.svg</file>
+        <file alias="ico_Sound_3.svg">ico_Sound_3.svg</file>
+        <file alias="exit.svg">exit.svg</file>
+        <file alias="fullscreen.svg">fullscreen.svg</file>
+        <file alias="min.svg">min.svg</file>
+        <file alias="ico_x2.svg">ico_x2.svg</file>
+        <file alias="now_play.svg">now_play.svg</file>
+        <file alias="now_stop.svg">now_stop.svg</file>
+        <file alias="back.svg">back.svg</file>
+        <file alias="skip_prev.svg">skip_prev.svg</file>
+        <file alias="skip_next.svg">skip_next.svg</file>
+        <!-- 2026-09-18: 設定タブのアイコン（単色。白でティントして使う）。
+             幅が足りないときは文字を消してこのアイコンだけを出す。 -->
+        <file alias="tab_general.svg">tab_general.svg</file>
+        <file alias="tab_controls.svg">tab_controls.svg</file>
+        <file alias="tab_other.svg">tab_other.svg</file>
+        <file alias="tab_help.svg">tab_help.svg</file>
+        <file alias="tab_plugins.svg">tab_plugins.svg</file>
+        <!-- ヘルプタブの操作ガイド用。
+             help_* は入力の補足記号（青のまま描く）。マウスの図は
+             押す場所・クリック回数の組み合わせが多いため SVG ではなく
+             IslandHelpGuide.cpp で直接描いている。 -->
+        <file alias="help_updown.svg">help_updown.svg</file>
+        <file alias="help_move.svg">help_move.svg</file>
+        <file alias="help_drag.svg">help_drag.svg</file>
+        <file alias="help_hold.svg">help_hold.svg</file>
+        <!-- res_* は操作の結果を表すアイコン（白。描画時にティント）。
+             音量は本体UIと同じ ico_Sound_3.svg を使う（上で登録済み）。 -->
+        <file alias="res_gear.svg">res_gear.svg</file>
+        <file alias="res_pan.svg">res_pan.svg</file>
+        <file alias="res_zoom.svg">res_zoom.svg</file>
+        <file alias="res_zoomreset.svg">res_zoomreset.svg</file>
+        <file alias="res_select.svg">res_select.svg</file>
+        <file alias="res_rubber.svg">res_rubber.svg</file>
+        <file alias="res_arrange.svg">res_arrange.svg</file>
+        <file alias="res_sortname.svg">res_sortname.svg</file>
+        <file alias="res_export.svg">res_export.svg</file>
+        <file alias="res_focus.svg">res_focus.svg</file>
+        <file alias="res_unfocus.svg">res_unfocus.svg</file>
+        <file alias="res_playpause.svg">res_playpause.svg</file>
+        <file alias="res_speed.svg">res_speed.svg</file>
+        <file alias="res_resize.svg">res_resize.svg</file>
+        <file alias="res_trash.svg">res_trash.svg</file>
+        <file alias="res_undo.svg">res_undo.svg</file>
+        <file alias="res_redo.svg">res_redo.svg</file>
+    </qresource>
+</RCC>
