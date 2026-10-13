@@ -1,51 +1,51 @@
 # PocketBoard
 
-Windows のトレイに常駐する、ガラスのバブルに動画・画像・リンクを並べて置いておけるボードアプリです。
-A Windows tray app that keeps videos, images and links on a board of glass bubbles.
+**English** | [日本語](README.ja.md)
 
-## 主な機能 / Features
-- ローカル動画・画像、Web 画像・Web 動画、Web リンクをドラッグ＆ドロップでバブルとして配置
-- 複数の動画を同時に再生（libmpv）
-- グローバルショートカットキーでいつでも呼び出し、Windows 起動時にトレイへ常駐
-- ガラス表現（シンプル／中間／品質優先、グミなどのスタイル）
-- プラグイン機構（`plugins/` と `src/plugin/`）で対応メディアを拡張可能
+A Windows tray app that keeps your videos, images and links on a board of glass bubbles.
 
-## ダウンロード / Download
-- **Microsoft Store**: [PocketBoard を入手](https://apps.microsoft.com/detail/9MZDTC61K4HM)（自動アップデートあり / auto-updates）
-- **インストーラ / Installer**: [Releases](../../releases) から `PocketBoardSetup.exe` をダウンロード
+## Features
+- Drag and drop local videos and images, web images and videos, and web links to place them as bubbles
+- Play multiple videos at the same time (libmpv)
+- Bring it up anytime with a global shortcut, and have it wait in the tray from Windows startup
+- Glass effects (Simple / Balanced / Quality, plus styles such as Gummy)
+- Extend supported media with plugins (`plugins/` and `src/plugin/`)
 
-## 応援 / Support
-PocketBoard は無料で使えます。気に入っていただけたら、コーヒー1杯分の応援をいただけると開発の励みになります ☕
-PocketBoard is free. If you like it, you can buy me a coffee to support development.
+## Download
+- **Microsoft Store**: [Get PocketBoard](https://apps.microsoft.com/detail/9MZDTC61K4HM) (auto-updates)
+- **Installer**: download `PocketBoardSetup.exe` from [Releases](../../releases)
 
-[![Ko-fi で応援する / Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-studio__peach-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/studio_peach)
+## Support
+PocketBoard is free. If you like it, you can buy me a coffee to support development ☕
 
-## ビルド / Build
-動作確認している環境: Windows 11 / MSYS2 MINGW64 / Qt 6 / CMake
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-studio__peach-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/studio_peach)
 
-1. [MSYS2](https://www.msys2.org/) を入れ、MINGW64 で必要なパッケージを入れる
+## Build
+Tested with: Windows 11 / MSYS2 MINGW64 / Qt 6 / CMake
+
+1. Install [MSYS2](https://www.msys2.org/) and the required packages in the MINGW64 shell
    ```
    pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-svg mingw-w64-x86_64-mpv
    ```
-2. Qt Creator で `CMakeLists.txt` を開いてビルドする
-   （または `cmake -S . -B build -G Ninja && cmake --build build`）
-3. インストーラを作る場合は [Inno Setup 6](https://jrsoftware.org/isinfo.php) を入れて
-   `build-pocketboard-setup.bat` を実行する（バージョン番号を聞かれます）
+2. Open `CMakeLists.txt` in Qt Creator and build
+   (or `cmake -S . -B build -G Ninja && cmake --build build`)
+3. To create the installer, install [Inno Setup 6](https://jrsoftware.org/isinfo.php) and
+   run `build-pocketboard-setup.bat` (it asks for the version number)
 
-libmpv の場所が既定（`C:/msys64/mingw64`）と違う場合は、CMake に
-`-DMPV_INCLUDE_DIR=... -DMPV_LIB=...` を渡してください。
+If libmpv is not in the default location (`C:/msys64/mingw64`), pass
+`-DMPV_INCLUDE_DIR=... -DMPV_LIB=...` to CMake.
 
-## プラグイン / Plugins
-プラグインで、扱えるメディアの種類や機能を増やせます。
-インストール方法・できること・作り方は **Plugin Guide**（[English](docs/plugins.md) / [日本語](docs/plugins.ja.md)）を参照してください。
+## Plugins
+Plugins can add new kinds of media and features.
+See the **[Plugin Guide](docs/plugins.md)** for how to install, what plugins can do, and how to write one.
 
-- サンプル: `plugins/DummyTestPlugin`
+- Sample: `plugins/DummyTestPlugin`
 - API: `src/plugin/`
 
-## ライセンス / License
-PocketBoard のソースコードは [MIT License](LICENSE) です。
+## License
+The PocketBoard source code is licensed under the [MIT License](LICENSE).
 
-配布しているバイナリには、以下のサードパーティ製ライブラリが含まれます。それぞれのライセンスに従います。
+The distributed binaries include the following third-party libraries, each under its own license:
 - [Qt](https://www.qt.io/) — LGPL v3
-- [mpv / libmpv](https://mpv.io/) — GPL v2 以降（MSYS2 のビルド）
-- [FFmpeg](https://ffmpeg.org/) — LGPL / GPL（MSYS2 のビルド）
+- [mpv / libmpv](https://mpv.io/) — GPL v2 or later (MSYS2 build)
+- [FFmpeg](https://ffmpeg.org/) — LGPL / GPL (MSYS2 build)

@@ -88,7 +88,7 @@ In other words, for anything other than image URLs, plugins get the first chance
 
 ### Requirements
 A plugin must be built with **the same Qt version and the same compiler (MSYS2 MINGW64) as PocketBoard itself** (a limitation of Qt's plugin system).
-See the [README](../README.md#ビルド--build) for setting up the build environment.
+See the [README](../README.md#build) for setting up the build environment.
 
 The API depends on **Qt6::Core only**. You do not need to link Qt6::Gui or Widgets.
 
