@@ -1,5 +1,7 @@
 # PocketBoard
 
+https://github.com/user-attachments/assets/dc7007c4-f247-4852-83cd-cd2946ee93ff
+
 **English** | [日本語](README.ja.md)
 
 A Windows tray app that keeps your videos, images and links on a board of glass bubbles.
