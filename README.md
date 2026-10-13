@@ -11,7 +11,8 @@ A Windows tray app that keeps videos, images and links on a board of glass bubbl
 - プラグイン機構（`plugins/` と `src/plugin/`）で対応メディアを拡張可能
 
 ## ダウンロード / Download
-[Releases](../../releases) からインストーラ（`PocketBoardSetup.exe`）をダウンロードしてください。
+- **Microsoft Store**: [PocketBoard を入手](https://apps.microsoft.com/detail/9MZDTC61K4HM)（自動アップデートあり / auto-updates）
+- **インストーラ / Installer**: [Releases](../../releases) から `PocketBoardSetup.exe` をダウンロード
 
 ## ビルド / Build
 動作確認している環境: Windows 11 / MSYS2 MINGW64 / Qt 6 / CMake
