@@ -782,7 +782,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   const topbar = document.getElementById('topbar');
   const onScroll = () => topbar.classList.toggle('scrolled', scrollY > 24);
   // 訪問数（YouTube の再生回数のように、開くたびに 1 回）。同じタブでのリロードでは数え直さない
-  const COUNTER_URL = '';   // ← Worker を公開したら https://pb-counter.◯◯.workers.dev を入れる（空なら表示しない）
+  const COUNTER_URL = 'https://pb-counter.peach-dev.workers.dev';   // ← Worker を公開したら https://pb-counter.◯◯.workers.dev を入れる（空なら表示しない）
   const visitsEl = document.getElementById('visits');
   if (COUNTER_URL && visitsEl) {
     visitsEl.hidden = false;   // 先に場所だけ取る（数が届いたときに下の動画がずれないように）
