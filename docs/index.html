@@ -216,6 +216,7 @@ footer a:hover{color:var(--ink)}
 /* ---------- 触れるデモ ---------- */
 .try{position:relative;isolation:isolate;overflow:hidden;background:#a9b9f5 url(assets/bg.jpg) center/cover}
 .try > .wrap{position:relative;z-index:1}
+.dark .try,.dark .download{background:#18181a}   /* 背景は canvas に描く。万一すき間があっても明るい画像が見えないように */
 .sec-head.center{margin-inline:auto;text-align:center;justify-items:center}
 .demo{position:relative;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:980px){.demo{grid-template-columns:210px minmax(0,1fr) 200px;align-items:center;gap:22px}}
@@ -932,21 +933,21 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   function drawSet(s, ts) {
     if (!s.w) return;
     const dark = root.classList.contains('dark'), vw = innerWidth / 100, vh = innerHeight / 100, vmax = Math.max(vw, vh), dk = dark ? .85 : 1;
-    const c = s.c, W = s.w, H = s.h, sc = 1 / DS;
+    const c = s.c, W = s.w, H = s.h, sx = c.canvas.width / W, sy = c.canvas.height / H;   // canvas の大きさ（切り上げ）にぴったり合わせて描く（端にすき間を作らない）
     if (!s.sec) {   // 固定の背景（ヒーロー）: 光だけ。背景画像と暗い幕は CSS 側
-      c.setTransform(sc, 0, 0, sc, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, W, H); c.globalCompositeOperation = 'screen';
+      c.setTransform(sx, 0, 0, sy, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, W, H); c.globalCompositeOperation = 'screen';
       drawOrbsTo(c, s, ts, vw, vh, vmax, dk); return;
     }
     // 光は別の canvas に描いてから重ねる（光どうしは screen、背景にはふつうに重なる。以前の CSS と同じ合成）
     const o = s.o.getContext('2d');
-    if (s.flip) o.setTransform(-sc, 0, 0, sc, s.o.width, 0); else o.setTransform(sc, 0, 0, sc, 0, 0);   // ダウンロードは光を左右反転
+    if (s.flip) o.setTransform(-sx, 0, 0, sy, s.o.width, 0); else o.setTransform(sx, 0, 0, sy, 0, 0);   // ダウンロードは光を左右反転
     o.globalCompositeOperation = 'source-over'; o.clearRect(0, 0, W, H); o.globalCompositeOperation = 'screen';
     drawOrbsTo(o, s, ts, vw, vh, vmax, dk);
     // 変わらない部分（背景画像＋暗い幕／上下のなじませ）は大きさ・テーマが変わったときだけ作り直し、毎コマは貼るだけ
     const key = `${s.o.width}x${s.o.height}|${dark}|${bgImg.naturalWidth}`;
     if (s.key !== key) {
       s.key = key;
-      const mk = () => { const x = document.createElement('canvas'); x.width = s.o.width; x.height = s.o.height; const cx = x.getContext('2d'); cx.setTransform(sc, 0, 0, sc, 0, 0); return [x, cx]; };
+      const mk = () => { const x = document.createElement('canvas'); x.width = s.o.width; x.height = s.o.height; const cx = x.getContext('2d'); cx.setTransform(sx, 0, 0, sy, 0, 0); return [x, cx]; };
       const [base, bx] = mk(), [top, tx] = mk();
       if (bgImg.naturalWidth) {   // 背景画像（center / cover）
         const k = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight), dw = bgImg.naturalWidth * k, dh = bgImg.naturalHeight * k;
