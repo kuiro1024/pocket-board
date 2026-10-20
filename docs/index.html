@@ -85,6 +85,9 @@ p{margin:0}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(20,30,90,.3)}
 .facts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-size:var(--step--1);opacity:.9}
 .facts span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:8px;vertical-align:middle;opacity:.8}
+/* 隠しネタ */
+.egg-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:10001;transition:bottom .3s;padding:10px 20px;border-radius:999px;background:var(--ink);color:var(--paper);font:500 .92rem/1.5 var(--body);box-shadow:0 14px 34px -12px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+#visits.kiri .v-in{background:linear-gradient(90deg,rgba(255,210,63,.35),rgba(255,143,199,.35),rgba(127,216,255,.35));border-color:rgba(255,230,140,.8)}
 /* 訪問数（緑の点＋「◯回目の訪問者です！」）。数が届くまでは場所だけ取っておき、届いたらふわっと出す */
 .visits{display:flex;justify-content:center;font-size:var(--step--1)}
 .visits[hidden]{display:none}
@@ -769,6 +772,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     requestAnimationFrame(frame);
   }
   themeBtns.forEach(b => b.addEventListener('click', () => inkSwitch(b.dataset.theme, b)));
+  window.pbFlipTheme = btn => { const go = () => inking ? setTimeout(go, 80) : inkSwitch(root.classList.contains('dark') ? 'light' : 'dark', btn); go(); };   // 隠しネタ（連打でアヒル）用
 
   // 動画の音
   const v = document.getElementById('promo'), snd = document.getElementById('sound');
@@ -789,12 +793,14 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   if (COUNTER_URL && visitsEl) {
     visitsEl.hidden = false;   // 先に場所だけ取る（数が届いたときに下の動画がずれないように）
     (async () => {
-      let n = 0; try { n = +sessionStorage.getItem('pb-visit') || 0; } catch (e) {}
+      let n = 0, fresh = false; try { n = +sessionStorage.getItem('pb-visit') || 0; } catch (e) {}
       if (!n) {
+        fresh = true;
         const r = await fetch(COUNTER_URL + '/visit', {method: 'POST'}); n = (await r.json()).n;
         try { sessionStorage.setItem('pb-visit', n); } catch (e) {}
       }
       if (!n) throw 0;
+      window.PB_VISIT = {n, fresh}; dispatchEvent(new CustomEvent('pbvisit', {detail: window.PB_VISIT}));   // キリ番の隠しネタ用
       const nums = visitsEl.querySelectorAll('.v-n'), show = v => { const t = Math.round(v).toLocaleString('en-US'); nums[0].textContent = t; nums[1].textContent = '#' + t; };
       show(0); visitsEl.classList.add('on');
       const t0 = performance.now(), D = 1100;   // 0 からカウントアップ
@@ -991,6 +997,194 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     run.finished.then(() => { run = null; }).catch(() => {});
     if (big) { d.classList.add('awake', 'awaking'); setTimeout(() => d.classList.remove('awaking'), 800); }
   });
+})();
+</script>
+<script>
+(() => {   // 隠しネタいろいろ。普段は何も動かさず、起きたときだけ演出用の canvas を一時的に置く
+  const root = document.documentElement, T = (j, e) => root.classList.contains('lang-ja') ? j : e;
+
+  /* ---------- 共通: 画面いっぱいの演出用 canvas ---------- */
+  let fx = null, parts = [], raf = 0, last = 0;
+  function fxStart() {
+    if (!fx) {
+      const c = document.createElement('canvas');
+      c.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:10000;pointer-events:none';   // 墨の演出（9999）より上
+      document.body.appendChild(c); fx = {c, x: c.getContext('2d')};
+    }
+    fx.d = Math.min(2, devicePixelRatio || 1);
+    const w = Math.round(innerWidth * fx.d), h = Math.round(innerHeight * fx.d);
+    if (fx.c.width !== w || fx.c.height !== h) { fx.c.width = w; fx.c.height = h; }
+    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+  function tick(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const {c, x, d} = fx, W = innerWidth, H = innerHeight;
+    x.setTransform(d, 0, 0, d, 0, 0); x.clearRect(0, 0, W, H); x.imageSmoothingEnabled = false;
+    parts = parts.filter(p => p.update(dt, W, H) !== false);
+    for (const p of parts) p.draw(x);
+    if (parts.length) raf = requestAnimationFrame(tick); else { raf = 0; c.remove(); fx = null; }   // 終わったら canvas ごと片付ける
+  }
+  function toast(text, ms = 3400) {
+    const t = document.createElement('div'); t.className = 'egg-toast'; t.textContent = text;
+    const prev = [...document.querySelectorAll('.egg-toast')]; t.style.bottom = 28 + prev.length * 52 + 'px';   // 出ている通知があれば上に積む
+    document.body.appendChild(t);
+    t.animate([{opacity: 0, transform: 'translate(-50%,16px) scale(.9)'}, {opacity: 1, transform: 'translate(-50%,0) scale(1)'}], {duration: 380, easing: 'cubic-bezier(.2,1.4,.4,1)', fill: 'forwards'});
+    setTimeout(() => t.animate([{opacity: 1}, {opacity: 0, transform: 'translate(-50%,10px)'}], {duration: 400, fill: 'forwards'}).finished.then(() => t.remove()), ms);
+  }
+
+  /* ---------- アヒルの絵（フッターのドット絵から色違いを作る） ---------- */
+  const px = [...document.querySelectorAll('.duck .d-rb rect')].map(r => [+r.getAttribute('x'), +r.getAttribute('y'), r.getAttribute('fill') ? 2 : r.classList.contains('sh') ? 1 : 0]);
+  const spriteCache = {};
+  function duckSprite(body, shade) {
+    const k = body + shade; if (spriteCache[k]) return spriteCache[k];
+    const c = document.createElement('canvas'); c.width = c.height = 18; const x = c.getContext('2d');
+    for (const [rx, ry, t] of px) { x.fillStyle = t === 2 ? '#0b0b10' : t === 1 ? shade : body; x.fillRect(rx, ry, 1, 1); }
+    return spriteCache[k] = c;
+  }
+  const DUCKS = [['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#fff6dc', '#d8c69c'], ['#ff8fc7', '#d65e9a'], ['#7fd8ff', '#3f9fd0']];
+  const anyDuck = () => { const [b, s] = DUCKS[Math.random() * DUCKS.length | 0]; return duckSprite(b, s); };
+
+  // アヒルが飛び出す（上向きに散って、重力で落ちる）。アヒルは左向きなので、右へ飛ぶものは反転
+  function duckBurst(ox, oy, n) {
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.4, sp = 420 + Math.random() * 640, img = anyDuck(), s = 22 + Math.random() * 30;
+      let x = ox, y = oy, vx = Math.cos(a) * sp, vy = Math.sin(a) * sp, r = 0, vr = (Math.random() - .5) * 9, delay = i * .01;
+      const flip = vx > 0 ? -1 : 1;
+      parts.push({
+        update(dt, W, H) { if ((delay -= dt) > 0) return; vy += 1350 * dt; x += vx * dt; y += vy * dt; r += vr * dt; return y < H + 80; },
+        draw(c) { if (delay > 0) return; c.save(); c.translate(x, y); c.rotate(r); c.scale(flip, 1); c.drawImage(img, -s / 2, -s / 2, s, s); c.restore(); }
+      });
+    }
+    fxStart();
+  }
+  // 紙吹雪
+  function confetti(n = 170) {
+    const cols = ['#ff5c8a', '#ffd23f', '#4fd1c5', '#4f7bff', '#a86bff', '#3ddc84', '#ff9f43'];
+    for (let i = 0; i < n; i++) {
+      let x = Math.random() * innerWidth, y = -20 - Math.random() * innerHeight * .6, vy = 140 + Math.random() * 200, r = Math.random() * 6, t = 0;
+      const vx = (Math.random() - .5) * 140, vr = (Math.random() - .5) * 10, w = 6 + Math.random() * 6, h = 4 + Math.random() * 8, col = cols[i % cols.length], ph = Math.random() * 6;
+      parts.push({
+        update(dt, W, H) { t += dt; vy = Math.min(vy + 300 * dt, 380); x += (vx + Math.sin(t * 3 + ph) * 70) * dt; y += vy * dt; r += vr * dt; return y < H + 30; },
+        draw(c) { c.save(); c.translate(x, y); c.rotate(r); c.scale(1, Math.cos(t * 7 + ph)); c.fillStyle = col; c.fillRect(-w / 2, -h / 2, w, h); c.restore(); }
+      });
+    }
+    fxStart();
+  }
+  // ガラスの泡がはじけ飛ぶ
+  function bubbleBurst(ox, oy, n = 26) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, sp = 140 + Math.random() * 420, rad = 6 + Math.random() * 20, life = 1 + Math.random() * .9;
+      let x = ox, y = oy, vx = Math.cos(a) * sp, vy = Math.sin(a) * sp, t = 0;
+      parts.push({
+        update(dt) { t += dt; vx *= Math.pow(.12, dt); vy = vy * Math.pow(.12, dt) - 60 * dt; x += vx * dt; y += vy * dt; return t < life; },
+        draw(c) {
+          const k = t / life, R = rad * (1 + k * .25); c.globalAlpha = 1 - k * k;
+          const g = c.createRadialGradient(x, y, R * .55, x, y, R);
+          g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.8, 'rgba(190,215,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,.95)');
+          c.fillStyle = g; c.beginPath(); c.arc(x, y, R, 0, 6.2832); c.fill();
+          c.fillStyle = 'rgba(255,255,255,.85)'; c.beginPath(); c.ellipse(x - R * .35, y - R * .4, R * .28, R * .16, -.6, 0, 6.2832); c.fill();
+          c.globalAlpha = 1;
+        }
+      });
+    }
+    fxStart();
+  }
+  // アヒルの行列（親アヒル＋子アヒルが右から左へ横切る）
+  function parade() {
+    const n = 12;
+    for (let i = 0; i < n; i++) {
+      const s = i === 0 ? 52 : 30, img = i === 0 ? duckSprite('#fff6dc', '#d8c69c') : duckSprite('#ffd23f', '#e3a21a');
+      let x = innerWidth + 40 + (i === 0 ? 0 : 30 + i * 40), t = 0;
+      parts.push({
+        update(dt) { t += dt; x -= 230 * dt; return x > -80; },
+        draw(c) { const y = innerHeight - 18 - Math.abs(Math.sin(t * 11 + i * .9)) * (i === 0 ? 7 : 5); c.drawImage(img, x - s / 2, y - s, s, s); }
+      });
+    }
+    fxStart();
+  }
+
+  /* ---------- 1. キリ番 ---------- */
+  const isKiri = n => { const s = String(n); return n === 1 || (n >= 1000 && n % 1000 === 0) || (n >= 100 && n < 1000 && n % 100 === 0) || (s.length >= 3 && /^(\d)\1+$/.test(s)) || (s.length >= 3 && '1234567890'.startsWith(s)); };
+  function onVisit({n, fresh}) {
+    const force = /[?&]egg=kiri/.test(location.search);   // ?egg=kiri で試せる
+    if (!force && !(fresh && isKiri(n))) return;
+    setTimeout(() => {
+      confetti();
+      const b = document.querySelector('#visits .v-in'); if (b) { const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top, 16); }
+      document.getElementById('visits').classList.add('kiri');
+      toast(T(`🎉 キリ番ゲット！ ${n.toLocaleString('en-US')} 回目の訪問者です`, `🎉 Lucky number! You're visitor #${n.toLocaleString('en-US')}`), 5000);
+    }, 1300);   // カウントアップが終わるころに
+  }
+  if (window.PB_VISIT) onVisit(window.PB_VISIT); else addEventListener('pbvisit', e => onVisit(e.detail), {once: true});
+
+  /* ---------- 2. タブを離れるとタイトルが変わる ---------- */
+  const baseTitle = document.title; let backT = 0;
+  document.addEventListener('visibilitychange', () => {
+    clearTimeout(backT);
+    if (document.hidden) document.title = T('🦆 もどってきて…', '🦆 Come back…');
+    else { document.title = T('🦆 おかえり！', '🦆 Welcome back!'); backT = setTimeout(() => { document.title = baseTitle; }, 1800); }
+  });
+
+  /* ---------- 3. ロゴを連打するとぷるぷる → 10回目ではじける ---------- */
+  const logo = document.querySelector('.lockup img');
+  if (logo) {
+    let n = 0, resetT = 0, busy = false;
+    logo.addEventListener('click', () => {
+      if (busy) return;
+      clearTimeout(resetT); resetT = setTimeout(() => { n = 0; }, 1600); n++;
+      if (n < 10) {
+        const k = n * .025;
+        logo.animate([{transform: 'scale(1)'}, {transform: `scale(${1.16 + k},${.84 - k})`, offset: .25}, {transform: `scale(${.9 - k / 2},${1.12 + k})`, offset: .5}, {transform: 'scale(1.04,.97)', offset: .75}, {transform: 'scale(1)'}], {duration: 520, easing: 'ease-out'});
+        return;
+      }
+      n = 0; busy = true;
+      const r = logo.getBoundingClientRect(), mine = [];
+      mine.push(logo.animate([{transform: 'scale(1)', opacity: 1}, {transform: 'scale(1.4)', opacity: 1, offset: .7}, {transform: 'scale(0)', opacity: 0}], {duration: 260, easing: 'ease-in', fill: 'forwards'}));
+      mine[0].finished.then(() => {
+        bubbleBurst(r.left + r.width / 2, r.top + r.height / 2);
+        setTimeout(() => {
+          const g = logo.animate([{transform: 'scale(0)', opacity: 0}, {transform: 'scale(1.15)', opacity: 1, offset: .6}, {transform: 'scale(1)', opacity: 1}], {duration: 650, easing: 'cubic-bezier(.2,1.4,.4,1)'});
+          g.finished.then(() => { mine.forEach(a => a.cancel()); busy = false; });
+        }, 1500);
+      });
+    });
+  }
+
+  /* ---------- 4. コナミコマンドでアヒルの行進 ---------- */
+  const K = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']; let ki = 0;
+  addEventListener('keydown', e => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    ki = k === K[ki] ? ki + 1 : k === 'ArrowUp' ? (ki === 2 ? 2 : 1) : 0;
+    if (ki === K.length) { ki = 0; parade(); toast(T('🦆 アヒル行進中！', '🦆 Duck parade!'), 3000); }
+  });
+
+  /* ---------- 5. 開発者ツールを開いた人へ ---------- */
+  {
+    const g = Array.from({length: 18}, () => Array(18).fill('  '));
+    for (const [x, y, t] of px) g[y][x] = t === 2 ? '■■' : '██';
+    const art = g.map(r => r.join('').replace(/\s+$/, '')).filter(Boolean).join('\n');
+    console.log('%c' + art, 'color:#e3a21a;font-family:monospace;line-height:1;font-size:6px');
+    console.log('%cグワッ！ のぞいてくれてありがとう 🦆%c\nPocket Board はオープンソースです。プラグインも作れます。\nhttps://github.com/kuiro1024/pocket-board',
+      'font:700 14px sans-serif;color:#e3a21a', 'font:12px sans-serif;color:inherit');
+  }
+
+  /* ---------- 6. 深夜（0〜4時）に来た人へ ---------- */
+  if (new Date().getHours() < 4) {
+    let seen = false; try { seen = !!sessionStorage.getItem('pb-night'); sessionStorage.setItem('pb-night', '1'); } catch (e) {}
+    if (!seen) setTimeout(() => toast(T('🌙 夜ふかしですね。ほどほどに 🦆', "🌙 Up late? Don't stay up too long 🦆"), 5000), 3500);
+  }
+
+  /* ---------- 7. テーマ切り替えを連打するとアヒルが大量に飛び出して、テーマが変わる ---------- */
+  let taps = [];
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.theme button'); if (!b) return;
+    const now = performance.now(); taps = taps.filter(t => now - t < 3000); taps.push(now);
+    if (taps.length < 6) return;
+    taps = []; e.stopPropagation();   // この1回は通常の切り替えの代わりに、アヒルに切り替えてもらう
+    const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top + r.height / 2, 70);
+    toast(T('🦆🦆🦆 押しすぎです！', '🦆🦆🦆 Too many clicks!'), 2600);
+    setTimeout(() => window.pbFlipTheme && window.pbFlipTheme(b), 250);
+  }, true);
 })();
 </script>
 <script>/* Pocket Board site — flowing background + interactive demo */
