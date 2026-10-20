@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>迷子 · Pocket Board</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/pocket-board/assets/favicon.png">
+<style>
+:root{--paper:#f4f6fc;--ink:#1a1f3d;--mute:#5c6388;--line:rgba(26,31,61,.12)}
+@media (prefers-color-scheme:dark){:root{--paper:#101011;--ink:#ececec;--mute:#a3a3a6;--line:rgba(255,255,255,.12)}}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;min-height:100svh;display:grid;place-items:center;background:var(--paper);color:var(--ink);font-family:"Zen Kaku Gothic New",system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:24px;overflow:hidden}
+main{display:grid;justify-items:center;gap:14px;max-width:520px}
+.code{font:700 clamp(4rem,14vw,7rem)/1 Questrial,system-ui,sans-serif;letter-spacing:.04em;opacity:.12}
+.lane{position:relative;width:min(420px,80vw);height:90px;margin-top:-56px}
+.lane::after{content:"";position:absolute;left:0;right:0;bottom:6px;border-bottom:2px dashed var(--line)}
+#duck{position:absolute;left:0;bottom:8px;width:54px;image-rendering:pixelated;animation:wander 9s linear infinite}
+@keyframes wander{0%{transform:translateX(0) scaleX(-1)}45%{transform:translateX(calc(min(420px,80vw) - 54px)) scaleX(-1)}50%{transform:translateX(calc(min(420px,80vw) - 54px)) scaleX(1)}95%{transform:translateX(0) scaleX(1)}100%{transform:translateX(0) scaleX(-1)}}
+#duck.look{animation-play-state:paused}
+.q{position:absolute;bottom:72px;font:700 .9rem/1 Questrial,system-ui;color:var(--mute);opacity:0;transition:opacity .3s}
+.q.on{opacity:1}
+h1{font-size:1.25rem;font-weight:700}
+p{color:var(--mute);line-height:1.8}
+a.home{margin-top:6px;display:inline-block;padding:11px 22px;border-radius:999px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:700}
+.got{font-size:.82rem;color:var(--mute);min-height:1.4em}
+[data-l="en"] .ja,[data-l="ja"] .en{display:none}
+</style>
+</head>
+<body>
+<main>
+  <div class="code">404</div>
+  <div class="lane"><img id="duck" alt=""><span class="q" id="q">？</span></div>
+  <h1><span class="ja">ページが見つかりません</span><span class="en">Page not found</span></h1>
+  <p><span class="ja">アヒルも迷子になっています。<br>トップページへ一緒に帰りましょう。</span><span class="en">This duck is lost too.<br>Let's head back to the top page together.</span></p>
+  <a class="home" href="/pocket-board/"><span class="ja">トップへ戻る</span><span class="en">Back to top</span></a>
+  <div class="got" id="got"></div>
+</main>
+<script>
+(() => {
+  let lang = 'ja'; try { lang = localStorage.getItem('pb-lang') || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'); } catch (e) {}
+  document.body.dataset.l = lang; document.documentElement.lang = lang;
+  if (lang === 'en') document.title = 'Lost · Pocket Board';
+  // サイトのフッターと同じドット絵のアヒル（灰色＝迷子アヒル）
+  const PX = [[4,0,0],[5,0,0],[6,0,0],[3,1,0],[4,1,0],[5,1,0],[6,1,0],[7,1,0],[4,2,0],[5,2,0],[7,2,0],[5,3,0],[6,3,0],[7,3,0],[3,4,0],[4,4,0],[5,4,0],[6,4,0],[7,4,0],[3,5,0],[4,5,0],[5,5,0],[6,5,0],[3,6,0],[4,6,0],[5,6,0],[6,6,0],[2,7,0],[3,7,0],[4,7,0],[5,7,0],[6,7,0],[14,7,0],[2,8,0],[3,8,0],[4,8,0],[5,8,0],[6,8,0],[7,8,0],[8,8,0],[13,8,0],[14,8,0],[15,8,0],[1,9,0],[2,9,0],[3,9,0],[4,9,0],[5,9,0],[6,9,0],[7,9,0],[8,9,0],[9,9,0],[10,9,0],[12,9,0],[13,9,0],[14,9,0],[15,9,0],[16,9,0],[1,10,0],[2,10,0],[3,10,0],[4,10,0],[5,10,0],[6,10,0],[7,10,0],[8,10,0],[9,10,0],[10,10,0],[11,10,0],[12,10,0],[13,10,0],[14,10,0],[15,10,0],[16,10,0],[1,11,0],[2,11,0],[3,11,0],[4,11,0],[5,11,0],[6,11,0],[7,11,0],[8,11,0],[9,11,0],[10,11,0],[11,11,0],[12,11,0],[13,11,0],[14,11,0],[15,11,0],[16,11,0],[2,12,0],[3,12,0],[4,12,0],[5,12,0],[6,12,0],[7,12,0],[8,12,0],[9,12,0],[10,12,0],[11,12,0],[12,12,0],[13,12,0],[14,12,0],[15,12,0],[16,12,0],[2,13,0],[3,13,0],[4,13,0],[5,13,0],[6,13,0],[7,13,0],[8,13,0],[9,13,0],[10,13,0],[11,13,0],[12,13,0],[13,13,0],[14,13,0],[15,13,0],[16,13,0],[2,14,0],[3,14,0],[4,14,0],[5,14,0],[6,14,0],[7,14,0],[8,14,0],[9,14,0],[10,14,0],[11,14,0],[12,14,0],[13,14,0],[14,14,0],[15,14,0],[16,14,0],[3,15,0],[4,15,0],[5,15,0],[6,15,0],[7,15,0],[8,15,0],[9,15,0],[10,15,0],[11,15,0],[12,15,0],[13,15,0],[14,15,0],[15,15,0],[16,15,0],[4,16,0],[5,16,0],[6,16,0],[7,16,0],[8,16,0],[9,16,0],[10,16,0],[11,16,0],[12,16,0],[13,16,0],[14,16,0],[15,16,0],[6,17,0],[7,17,0],[8,17,0],[9,17,0],[10,17,0],[11,17,0],[12,17,0],[13,17,0],[6,2,2]];
+  const c = document.createElement('canvas'); c.width = c.height = 18; const x = c.getContext('2d');
+  for (const [px, py, t] of PX) { x.fillStyle = t === 2 ? '#0b0b10' : t === 1 ? '#8e8e99' : '#c8c8cf'; x.fillRect(px, py, 1, 1); }
+  const duck = document.getElementById('duck'); duck.src = c.toDataURL();
+  // ときどき立ち止まって「？」
+  const q = document.getElementById('q');
+  setInterval(() => {
+    duck.classList.add('look'); const r = duck.getBoundingClientRect(), l = duck.parentElement.getBoundingClientRect();
+    q.style.left = (r.left - l.left + r.width / 2 - 4) + 'px'; q.classList.add('on');
+    setTimeout(() => { duck.classList.remove('look'); q.classList.remove('on'); }, 1400);
+  }, 5200);
+  // アヒル図鑑に「迷子アヒル」を登録（トップページの図鑑と共通）
+  try {
+    const got = JSON.parse(localStorage.getItem('pb-dex') || '[]');
+    if (!got.includes('lost')) {
+      got.push('lost'); localStorage.setItem('pb-dex', JSON.stringify(got));
+      document.getElementById('got').textContent = lang === 'ja' ? '🦆 アヒル図鑑に「迷子アヒル」が登録されました' : '🦆 "Lost Duck" was added to your duck collection';
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

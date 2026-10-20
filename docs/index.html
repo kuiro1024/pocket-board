@@ -88,6 +88,33 @@ p{margin:0}
 /* 隠しネタ */
 .egg-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:10001;transition:bottom .3s;padding:10px 20px;border-radius:999px;background:var(--ink);color:var(--paper);font:500 .92rem/1.5 var(--body);box-shadow:0 14px 34px -12px rgba(0,0,0,.45);pointer-events:none;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
 #visits.kiri .v-in{background:linear-gradient(90deg,rgba(255,210,63,.35),rgba(255,143,199,.35),rgba(127,216,255,.35));border-color:rgba(255,230,140,.8)}
+.duck-spot.gold .duck{fill:#e0b400;opacity:1;filter:drop-shadow(0 0 3px rgba(255,200,0,.6))}
+.dex-btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:1px 9px 1px 5px;border-radius:999px;border:1px solid var(--line);font:600 .72rem/1.6 var(--display);color:var(--mute);vertical-align:1px}
+.dex-btn[hidden],.quacks[hidden]{display:none}
+.dex-btn img{width:13px;height:16px;image-rendering:pixelated}
+.dex-btn:hover{color:var(--ink);border-color:currentColor}
+.quacks{margin-left:10px;font-size:.78rem;color:var(--mute)}
+.quacks b{font-family:var(--display);color:var(--ink)}
+.egg-toast{display:flex;align-items:center;gap:8px}
+.egg-toast-duck{width:20px;height:24px;image-rendering:pixelated;margin:-4px 0}
+.dex{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10002;width:min(600px,calc(100vw - 24px));max-height:min(72vh,640px);overflow:auto;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:20px;box-shadow:0 30px 80px -24px rgba(0,0,0,.45);padding:16px 16px 18px}
+.dex-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dex-head b{font-size:1rem}
+.dex-head span{color:var(--mute);font:600 .85rem var(--display)}
+.dex-x{all:unset;cursor:pointer;margin-left:auto;width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:1.2rem;color:var(--mute)}
+.dex-x:hover{background:var(--line);color:var(--ink)}
+.dex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.dex-card{display:grid;justify-items:center;align-content:start;gap:4px;padding:12px 8px;border-radius:14px;background:rgba(127,135,180,.08);text-align:center}
+.dex-card img{width:40px;height:49px;image-rendering:pixelated}
+.dex-card b{font-size:.78rem;line-height:1.35}
+.dex-card small{font-size:.68rem;color:var(--mute);line-height:1.4}
+.dex-card.no b{color:var(--mute)}
+.dex-card.gold{background:linear-gradient(135deg,rgba(255,204,51,.28),rgba(255,160,0,.1))}
+.walker{position:absolute;left:0;top:0;z-index:40;width:30px;cursor:pointer;line-height:0;-webkit-tap-highlight-color:transparent}
+.duckling{position:fixed;left:0;top:0;z-index:9000;width:22px;pointer-events:none;line-height:0}
+.walker img,.duckling img{display:block;width:100%;image-rendering:pixelated}
+.walker.sleep::after,.duckling.sleep::after{content:"z";position:absolute;right:-6px;top:-6px;font:700 11px/1 var(--display);color:var(--mute);animation:zz 2.2s ease-in-out infinite}
+@keyframes zz{0%{opacity:0;transform:translate(0,4px) scale(.8)}40%{opacity:1}100%{opacity:0;transform:translate(8px,-10px) scale(1.2)}}
 /* 訪問数（緑の点＋「◯回目の訪問者です！」）。数が届くまでは場所だけ取っておき、届いたらふわっと出す */
 .visits{display:flex;justify-content:center;font-size:var(--step--1)}
 .visits[hidden]{display:none}
@@ -675,7 +702,7 @@ html.dark{color-scheme:dark;
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Peach<span class="duck-spot" title="ｸﾜｯ"><svg class="duck" viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" shape-rendering="crispEdges"><g class="d-norm"><path d="M4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1z"/><path opacity=".75" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><path opacity=".5" d="M3 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM14 7h1v1h-1zM2 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM1 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM1 11h1v1h-1zM2 12h1v1h-1zM8 12h1v1h-1zM16 12h1v1h-1zM2 13h1v1h-1zM9 13h1v1h-1zM15 13h1v1h-1zM2 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM3 15h1v1h-1zM16 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1z"/></g><g class="d-rb"><rect x="4" y="0" width="1" height="1" style="--i:4"/><rect x="5" y="0" width="1" height="1" style="--i:5"/><rect x="6" y="0" width="1" height="1" style="--i:6"/><rect x="3" y="1" width="1" height="1" style="--i:3.5"/><rect x="4" y="1" width="1" height="1" style="--i:4.5"/><rect x="5" y="1" width="1" height="1" style="--i:5.5"/><rect x="6" y="1" width="1" height="1" style="--i:6.5"/><rect x="7" y="1" width="1" height="1" style="--i:7.5"/><rect x="4" y="2" width="1" height="1" style="--i:5"/><rect x="5" y="2" width="1" height="1" style="--i:6"/><rect x="7" y="2" width="1" height="1" style="--i:8"/><rect x="5" y="3" width="1" height="1" style="--i:6.5"/><rect x="6" y="3" width="1" height="1" style="--i:7.5"/><rect x="7" y="3" width="1" height="1" style="--i:8.5"/><rect x="3" y="4" width="1" height="1" class="sh" style="--i:5"/><rect x="4" y="4" width="1" height="1" style="--i:6"/><rect x="5" y="4" width="1" height="1" style="--i:7"/><rect x="6" y="4" width="1" height="1" style="--i:8"/><rect x="7" y="4" width="1" height="1" style="--i:9"/><rect x="3" y="5" width="1" height="1" class="sh" style="--i:5.5"/><rect x="4" y="5" width="1" height="1" class="sh" style="--i:6.5"/><rect x="5" y="5" width="1" height="1" style="--i:7.5"/><rect x="6" y="5" width="1" height="1" style="--i:8.5"/><rect x="3" y="6" width="1" height="1" class="sh" style="--i:6"/><rect x="4" y="6" width="1" height="1" class="sh" style="--i:7"/><rect x="5" y="6" width="1" height="1" class="sh" style="--i:8"/><rect x="6" y="6" width="1" height="1" style="--i:9"/><rect x="2" y="7" width="1" height="1" class="sh" style="--i:5.5"/><rect x="3" y="7" width="1" height="1" class="sh" style="--i:6.5"/><rect x="4" y="7" width="1" height="1" class="sh" style="--i:7.5"/><rect x="5" y="7" width="1" height="1" style="--i:8.5"/><rect x="6" y="7" width="1" height="1" style="--i:9.5"/><rect x="14" y="7" width="1" height="1" class="sh" style="--i:17.5"/><rect x="2" y="8" width="1" height="1" class="sh" style="--i:6"/><rect x="3" y="8" width="1" height="1" style="--i:7"/><rect x="4" y="8" width="1" height="1" style="--i:8"/><rect x="5" y="8" width="1" height="1" style="--i:9"/><rect x="6" y="8" width="1" height="1" style="--i:10"/><rect x="7" y="8" width="1" height="1" style="--i:11"/><rect x="8" y="8" width="1" height="1" style="--i:12"/><rect x="13" y="8" width="1" height="1" class="sh" style="--i:17"/><rect x="14" y="8" width="1" height="1" class="sh" style="--i:18"/><rect x="15" y="8" width="1" height="1" class="sh" style="--i:19"/><rect x="1" y="9" width="1" height="1" class="sh" style="--i:5.5"/><rect x="2" y="9" width="1" height="1" style="--i:6.5"/><rect x="3" y="9" width="1" height="1" style="--i:7.5"/><rect x="4" y="9" width="1" height="1" style="--i:8.5"/><rect x="5" y="9" width="1" height="1" style="--i:9.5"/><rect x="6" y="9" width="1" height="1" style="--i:10.5"/><rect x="7" y="9" width="1" height="1" style="--i:11.5"/><rect x="8" y="9" width="1" height="1" style="--i:12.5"/><rect x="9" y="9" width="1" height="1" style="--i:13.5"/><rect x="10" y="9" width="1" height="1" style="--i:14.5"/><rect x="12" y="9" width="1" height="1" style="--i:16.5"/><rect x="13" y="9" width="1" height="1" style="--i:17.5"/><rect x="14" y="9" width="1" height="1" style="--i:18.5"/><rect x="15" y="9" width="1" height="1" class="sh" style="--i:19.5"/><rect x="16" y="9" width="1" height="1" class="sh" style="--i:20.5"/><rect x="1" y="10" width="1" height="1" class="sh" style="--i:6"/><rect x="2" y="10" width="1" height="1" style="--i:7"/><rect x="3" y="10" width="1" height="1" style="--i:8"/><rect x="4" y="10" width="1" height="1" style="--i:9"/><rect x="5" y="10" width="1" height="1" style="--i:10"/><rect x="6" y="10" width="1" height="1" style="--i:11"/><rect x="7" y="10" width="1" height="1" style="--i:12"/><rect x="8" y="10" width="1" height="1" style="--i:13"/><rect x="9" y="10" width="1" height="1" style="--i:14"/><rect x="10" y="10" width="1" height="1" style="--i:15"/><rect x="11" y="10" width="1" height="1" style="--i:16"/><rect x="12" y="10" width="1" height="1" style="--i:17"/><rect x="13" y="10" width="1" height="1" style="--i:18"/><rect x="14" y="10" width="1" height="1" style="--i:19"/><rect x="15" y="10" width="1" height="1" style="--i:20"/><rect x="16" y="10" width="1" height="1" style="--i:21"/><rect x="1" y="11" width="1" height="1" class="sh" style="--i:6.5"/><rect x="2" y="11" width="1" height="1" style="--i:7.5"/><rect x="3" y="11" width="1" height="1" style="--i:8.5"/><rect x="4" y="11" width="1" height="1" style="--i:9.5"/><rect x="5" y="11" width="1" height="1" style="--i:10.5"/><rect x="6" y="11" width="1" height="1" style="--i:11.5"/><rect x="7" y="11" width="1" height="1" style="--i:12.5"/><rect x="8" y="11" width="1" height="1" style="--i:13.5"/><rect x="9" y="11" width="1" height="1" style="--i:14.5"/><rect x="10" y="11" width="1" height="1" style="--i:15.5"/><rect x="11" y="11" width="1" height="1" style="--i:16.5"/><rect x="12" y="11" width="1" height="1" style="--i:17.5"/><rect x="13" y="11" width="1" height="1" style="--i:18.5"/><rect x="14" y="11" width="1" height="1" style="--i:19.5"/><rect x="15" y="11" width="1" height="1" style="--i:20.5"/><rect x="16" y="11" width="1" height="1" style="--i:21.5"/><rect x="2" y="12" width="1" height="1" class="sh" style="--i:8"/><rect x="3" y="12" width="1" height="1" style="--i:9"/><rect x="4" y="12" width="1" height="1" style="--i:10"/><rect x="5" y="12" width="1" height="1" style="--i:11"/><rect x="6" y="12" width="1" height="1" style="--i:12"/><rect x="7" y="12" width="1" height="1" style="--i:13"/><rect x="8" y="12" width="1" height="1" class="sh" style="--i:14"/><rect x="9" y="12" width="1" height="1" style="--i:15"/><rect x="10" y="12" width="1" height="1" style="--i:16"/><rect x="11" y="12" width="1" height="1" style="--i:17"/><rect x="12" y="12" width="1" height="1" style="--i:18"/><rect x="13" y="12" width="1" height="1" style="--i:19"/><rect x="14" y="12" width="1" height="1" style="--i:20"/><rect x="15" y="12" width="1" height="1" style="--i:21"/><rect x="16" y="12" width="1" height="1" class="sh" style="--i:22"/><rect x="2" y="13" width="1" height="1" class="sh" style="--i:8.5"/><rect x="3" y="13" width="1" height="1" style="--i:9.5"/><rect x="4" y="13" width="1" height="1" style="--i:10.5"/><rect x="5" y="13" width="1" height="1" style="--i:11.5"/><rect x="6" y="13" width="1" height="1" style="--i:12.5"/><rect x="7" y="13" width="1" height="1" style="--i:13.5"/><rect x="8" y="13" width="1" height="1" style="--i:14.5"/><rect x="9" y="13" width="1" height="1" class="sh" style="--i:15.5"/><rect x="10" y="13" width="1" height="1" style="--i:16.5"/><rect x="11" y="13" width="1" height="1" style="--i:17.5"/><rect x="12" y="13" width="1" height="1" style="--i:18.5"/><rect x="13" y="13" width="1" height="1" style="--i:19.5"/><rect x="14" y="13" width="1" height="1" style="--i:20.5"/><rect x="15" y="13" width="1" height="1" class="sh" style="--i:21.5"/><rect x="16" y="13" width="1" height="1" style="--i:22.5"/><rect x="2" y="14" width="1" height="1" class="sh" style="--i:9"/><rect x="3" y="14" width="1" height="1" style="--i:10"/><rect x="4" y="14" width="1" height="1" style="--i:11"/><rect x="5" y="14" width="1" height="1" style="--i:12"/><rect x="6" y="14" width="1" height="1" style="--i:13"/><rect x="7" y="14" width="1" height="1" style="--i:14"/><rect x="8" y="14" width="1" height="1" style="--i:15"/><rect x="9" y="14" width="1" height="1" style="--i:16"/><rect x="10" y="14" width="1" height="1" class="sh" style="--i:17"/><rect x="11" y="14" width="1" height="1" class="sh" style="--i:18"/><rect x="12" y="14" width="1" height="1" class="sh" style="--i:19"/><rect x="13" y="14" width="1" height="1" class="sh" style="--i:20"/><rect x="14" y="14" width="1" height="1" class="sh" style="--i:21"/><rect x="15" y="14" width="1" height="1" style="--i:22"/><rect x="16" y="14" width="1" height="1" style="--i:23"/><rect x="3" y="15" width="1" height="1" class="sh" style="--i:10.5"/><rect x="4" y="15" width="1" height="1" style="--i:11.5"/><rect x="5" y="15" width="1" height="1" style="--i:12.5"/><rect x="6" y="15" width="1" height="1" style="--i:13.5"/><rect x="7" y="15" width="1" height="1" style="--i:14.5"/><rect x="8" y="15" width="1" height="1" style="--i:15.5"/><rect x="9" y="15" width="1" height="1" style="--i:16.5"/><rect x="10" y="15" width="1" height="1" style="--i:17.5"/><rect x="11" y="15" width="1" height="1" style="--i:18.5"/><rect x="12" y="15" width="1" height="1" style="--i:19.5"/><rect x="13" y="15" width="1" height="1" style="--i:20.5"/><rect x="14" y="15" width="1" height="1" style="--i:21.5"/><rect x="15" y="15" width="1" height="1" style="--i:22.5"/><rect x="16" y="15" width="1" height="1" class="sh" style="--i:23.5"/><rect x="4" y="16" width="1" height="1" class="sh" style="--i:12"/><rect x="5" y="16" width="1" height="1" class="sh" style="--i:13"/><rect x="6" y="16" width="1" height="1" style="--i:14"/><rect x="7" y="16" width="1" height="1" style="--i:15"/><rect x="8" y="16" width="1" height="1" style="--i:16"/><rect x="9" y="16" width="1" height="1" style="--i:17"/><rect x="10" y="16" width="1" height="1" style="--i:18"/><rect x="11" y="16" width="1" height="1" style="--i:19"/><rect x="12" y="16" width="1" height="1" style="--i:20"/><rect x="13" y="16" width="1" height="1" style="--i:21"/><rect x="14" y="16" width="1" height="1" class="sh" style="--i:22"/><rect x="15" y="16" width="1" height="1" class="sh" style="--i:23"/><rect x="6" y="17" width="1" height="1" class="sh" style="--i:14.5"/><rect x="7" y="17" width="1" height="1" class="sh" style="--i:15.5"/><rect x="8" y="17" width="1" height="1" class="sh" style="--i:16.5"/><rect x="9" y="17" width="1" height="1" class="sh" style="--i:17.5"/><rect x="10" y="17" width="1" height="1" class="sh" style="--i:18.5"/><rect x="11" y="17" width="1" height="1" class="sh" style="--i:19.5"/><rect x="12" y="17" width="1" height="1" class="sh" style="--i:20.5"/><rect x="13" y="17" width="1" height="1" class="sh" style="--i:21.5"/><path fill="#f07a12" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><rect x="6" y="2" width="1" height="1" fill="#0b0b10"/></g></svg></span> · <span lang="ja">MIT ライセンス</span><span lang="en">MIT License</span></span>
+    <span>© 2026 Peach<span class="duck-spot" title="ｸﾜｯ"><svg class="duck" viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" shape-rendering="crispEdges"><g class="d-norm"><path d="M4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1z"/><path opacity=".75" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><path opacity=".5" d="M3 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM14 7h1v1h-1zM2 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM1 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM1 11h1v1h-1zM2 12h1v1h-1zM8 12h1v1h-1zM16 12h1v1h-1zM2 13h1v1h-1zM9 13h1v1h-1zM15 13h1v1h-1zM2 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM3 15h1v1h-1zM16 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1z"/></g><g class="d-rb"><rect x="4" y="0" width="1" height="1" style="--i:4"/><rect x="5" y="0" width="1" height="1" style="--i:5"/><rect x="6" y="0" width="1" height="1" style="--i:6"/><rect x="3" y="1" width="1" height="1" style="--i:3.5"/><rect x="4" y="1" width="1" height="1" style="--i:4.5"/><rect x="5" y="1" width="1" height="1" style="--i:5.5"/><rect x="6" y="1" width="1" height="1" style="--i:6.5"/><rect x="7" y="1" width="1" height="1" style="--i:7.5"/><rect x="4" y="2" width="1" height="1" style="--i:5"/><rect x="5" y="2" width="1" height="1" style="--i:6"/><rect x="7" y="2" width="1" height="1" style="--i:8"/><rect x="5" y="3" width="1" height="1" style="--i:6.5"/><rect x="6" y="3" width="1" height="1" style="--i:7.5"/><rect x="7" y="3" width="1" height="1" style="--i:8.5"/><rect x="3" y="4" width="1" height="1" class="sh" style="--i:5"/><rect x="4" y="4" width="1" height="1" style="--i:6"/><rect x="5" y="4" width="1" height="1" style="--i:7"/><rect x="6" y="4" width="1" height="1" style="--i:8"/><rect x="7" y="4" width="1" height="1" style="--i:9"/><rect x="3" y="5" width="1" height="1" class="sh" style="--i:5.5"/><rect x="4" y="5" width="1" height="1" class="sh" style="--i:6.5"/><rect x="5" y="5" width="1" height="1" style="--i:7.5"/><rect x="6" y="5" width="1" height="1" style="--i:8.5"/><rect x="3" y="6" width="1" height="1" class="sh" style="--i:6"/><rect x="4" y="6" width="1" height="1" class="sh" style="--i:7"/><rect x="5" y="6" width="1" height="1" class="sh" style="--i:8"/><rect x="6" y="6" width="1" height="1" style="--i:9"/><rect x="2" y="7" width="1" height="1" class="sh" style="--i:5.5"/><rect x="3" y="7" width="1" height="1" class="sh" style="--i:6.5"/><rect x="4" y="7" width="1" height="1" class="sh" style="--i:7.5"/><rect x="5" y="7" width="1" height="1" style="--i:8.5"/><rect x="6" y="7" width="1" height="1" style="--i:9.5"/><rect x="14" y="7" width="1" height="1" class="sh" style="--i:17.5"/><rect x="2" y="8" width="1" height="1" class="sh" style="--i:6"/><rect x="3" y="8" width="1" height="1" style="--i:7"/><rect x="4" y="8" width="1" height="1" style="--i:8"/><rect x="5" y="8" width="1" height="1" style="--i:9"/><rect x="6" y="8" width="1" height="1" style="--i:10"/><rect x="7" y="8" width="1" height="1" style="--i:11"/><rect x="8" y="8" width="1" height="1" style="--i:12"/><rect x="13" y="8" width="1" height="1" class="sh" style="--i:17"/><rect x="14" y="8" width="1" height="1" class="sh" style="--i:18"/><rect x="15" y="8" width="1" height="1" class="sh" style="--i:19"/><rect x="1" y="9" width="1" height="1" class="sh" style="--i:5.5"/><rect x="2" y="9" width="1" height="1" style="--i:6.5"/><rect x="3" y="9" width="1" height="1" style="--i:7.5"/><rect x="4" y="9" width="1" height="1" style="--i:8.5"/><rect x="5" y="9" width="1" height="1" style="--i:9.5"/><rect x="6" y="9" width="1" height="1" style="--i:10.5"/><rect x="7" y="9" width="1" height="1" style="--i:11.5"/><rect x="8" y="9" width="1" height="1" style="--i:12.5"/><rect x="9" y="9" width="1" height="1" style="--i:13.5"/><rect x="10" y="9" width="1" height="1" style="--i:14.5"/><rect x="12" y="9" width="1" height="1" style="--i:16.5"/><rect x="13" y="9" width="1" height="1" style="--i:17.5"/><rect x="14" y="9" width="1" height="1" style="--i:18.5"/><rect x="15" y="9" width="1" height="1" class="sh" style="--i:19.5"/><rect x="16" y="9" width="1" height="1" class="sh" style="--i:20.5"/><rect x="1" y="10" width="1" height="1" class="sh" style="--i:6"/><rect x="2" y="10" width="1" height="1" style="--i:7"/><rect x="3" y="10" width="1" height="1" style="--i:8"/><rect x="4" y="10" width="1" height="1" style="--i:9"/><rect x="5" y="10" width="1" height="1" style="--i:10"/><rect x="6" y="10" width="1" height="1" style="--i:11"/><rect x="7" y="10" width="1" height="1" style="--i:12"/><rect x="8" y="10" width="1" height="1" style="--i:13"/><rect x="9" y="10" width="1" height="1" style="--i:14"/><rect x="10" y="10" width="1" height="1" style="--i:15"/><rect x="11" y="10" width="1" height="1" style="--i:16"/><rect x="12" y="10" width="1" height="1" style="--i:17"/><rect x="13" y="10" width="1" height="1" style="--i:18"/><rect x="14" y="10" width="1" height="1" style="--i:19"/><rect x="15" y="10" width="1" height="1" style="--i:20"/><rect x="16" y="10" width="1" height="1" style="--i:21"/><rect x="1" y="11" width="1" height="1" class="sh" style="--i:6.5"/><rect x="2" y="11" width="1" height="1" style="--i:7.5"/><rect x="3" y="11" width="1" height="1" style="--i:8.5"/><rect x="4" y="11" width="1" height="1" style="--i:9.5"/><rect x="5" y="11" width="1" height="1" style="--i:10.5"/><rect x="6" y="11" width="1" height="1" style="--i:11.5"/><rect x="7" y="11" width="1" height="1" style="--i:12.5"/><rect x="8" y="11" width="1" height="1" style="--i:13.5"/><rect x="9" y="11" width="1" height="1" style="--i:14.5"/><rect x="10" y="11" width="1" height="1" style="--i:15.5"/><rect x="11" y="11" width="1" height="1" style="--i:16.5"/><rect x="12" y="11" width="1" height="1" style="--i:17.5"/><rect x="13" y="11" width="1" height="1" style="--i:18.5"/><rect x="14" y="11" width="1" height="1" style="--i:19.5"/><rect x="15" y="11" width="1" height="1" style="--i:20.5"/><rect x="16" y="11" width="1" height="1" style="--i:21.5"/><rect x="2" y="12" width="1" height="1" class="sh" style="--i:8"/><rect x="3" y="12" width="1" height="1" style="--i:9"/><rect x="4" y="12" width="1" height="1" style="--i:10"/><rect x="5" y="12" width="1" height="1" style="--i:11"/><rect x="6" y="12" width="1" height="1" style="--i:12"/><rect x="7" y="12" width="1" height="1" style="--i:13"/><rect x="8" y="12" width="1" height="1" class="sh" style="--i:14"/><rect x="9" y="12" width="1" height="1" style="--i:15"/><rect x="10" y="12" width="1" height="1" style="--i:16"/><rect x="11" y="12" width="1" height="1" style="--i:17"/><rect x="12" y="12" width="1" height="1" style="--i:18"/><rect x="13" y="12" width="1" height="1" style="--i:19"/><rect x="14" y="12" width="1" height="1" style="--i:20"/><rect x="15" y="12" width="1" height="1" style="--i:21"/><rect x="16" y="12" width="1" height="1" class="sh" style="--i:22"/><rect x="2" y="13" width="1" height="1" class="sh" style="--i:8.5"/><rect x="3" y="13" width="1" height="1" style="--i:9.5"/><rect x="4" y="13" width="1" height="1" style="--i:10.5"/><rect x="5" y="13" width="1" height="1" style="--i:11.5"/><rect x="6" y="13" width="1" height="1" style="--i:12.5"/><rect x="7" y="13" width="1" height="1" style="--i:13.5"/><rect x="8" y="13" width="1" height="1" style="--i:14.5"/><rect x="9" y="13" width="1" height="1" class="sh" style="--i:15.5"/><rect x="10" y="13" width="1" height="1" style="--i:16.5"/><rect x="11" y="13" width="1" height="1" style="--i:17.5"/><rect x="12" y="13" width="1" height="1" style="--i:18.5"/><rect x="13" y="13" width="1" height="1" style="--i:19.5"/><rect x="14" y="13" width="1" height="1" style="--i:20.5"/><rect x="15" y="13" width="1" height="1" class="sh" style="--i:21.5"/><rect x="16" y="13" width="1" height="1" style="--i:22.5"/><rect x="2" y="14" width="1" height="1" class="sh" style="--i:9"/><rect x="3" y="14" width="1" height="1" style="--i:10"/><rect x="4" y="14" width="1" height="1" style="--i:11"/><rect x="5" y="14" width="1" height="1" style="--i:12"/><rect x="6" y="14" width="1" height="1" style="--i:13"/><rect x="7" y="14" width="1" height="1" style="--i:14"/><rect x="8" y="14" width="1" height="1" style="--i:15"/><rect x="9" y="14" width="1" height="1" style="--i:16"/><rect x="10" y="14" width="1" height="1" class="sh" style="--i:17"/><rect x="11" y="14" width="1" height="1" class="sh" style="--i:18"/><rect x="12" y="14" width="1" height="1" class="sh" style="--i:19"/><rect x="13" y="14" width="1" height="1" class="sh" style="--i:20"/><rect x="14" y="14" width="1" height="1" class="sh" style="--i:21"/><rect x="15" y="14" width="1" height="1" style="--i:22"/><rect x="16" y="14" width="1" height="1" style="--i:23"/><rect x="3" y="15" width="1" height="1" class="sh" style="--i:10.5"/><rect x="4" y="15" width="1" height="1" style="--i:11.5"/><rect x="5" y="15" width="1" height="1" style="--i:12.5"/><rect x="6" y="15" width="1" height="1" style="--i:13.5"/><rect x="7" y="15" width="1" height="1" style="--i:14.5"/><rect x="8" y="15" width="1" height="1" style="--i:15.5"/><rect x="9" y="15" width="1" height="1" style="--i:16.5"/><rect x="10" y="15" width="1" height="1" style="--i:17.5"/><rect x="11" y="15" width="1" height="1" style="--i:18.5"/><rect x="12" y="15" width="1" height="1" style="--i:19.5"/><rect x="13" y="15" width="1" height="1" style="--i:20.5"/><rect x="14" y="15" width="1" height="1" style="--i:21.5"/><rect x="15" y="15" width="1" height="1" style="--i:22.5"/><rect x="16" y="15" width="1" height="1" class="sh" style="--i:23.5"/><rect x="4" y="16" width="1" height="1" class="sh" style="--i:12"/><rect x="5" y="16" width="1" height="1" class="sh" style="--i:13"/><rect x="6" y="16" width="1" height="1" style="--i:14"/><rect x="7" y="16" width="1" height="1" style="--i:15"/><rect x="8" y="16" width="1" height="1" style="--i:16"/><rect x="9" y="16" width="1" height="1" style="--i:17"/><rect x="10" y="16" width="1" height="1" style="--i:18"/><rect x="11" y="16" width="1" height="1" style="--i:19"/><rect x="12" y="16" width="1" height="1" style="--i:20"/><rect x="13" y="16" width="1" height="1" style="--i:21"/><rect x="14" y="16" width="1" height="1" class="sh" style="--i:22"/><rect x="15" y="16" width="1" height="1" class="sh" style="--i:23"/><rect x="6" y="17" width="1" height="1" class="sh" style="--i:14.5"/><rect x="7" y="17" width="1" height="1" class="sh" style="--i:15.5"/><rect x="8" y="17" width="1" height="1" class="sh" style="--i:16.5"/><rect x="9" y="17" width="1" height="1" class="sh" style="--i:17.5"/><rect x="10" y="17" width="1" height="1" class="sh" style="--i:18.5"/><rect x="11" y="17" width="1" height="1" class="sh" style="--i:19.5"/><rect x="12" y="17" width="1" height="1" class="sh" style="--i:20.5"/><rect x="13" y="17" width="1" height="1" class="sh" style="--i:21.5"/><path fill="#f07a12" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><rect x="6" y="2" width="1" height="1" fill="#0b0b10"/></g></svg></span><button type="button" class="dex-btn" hidden aria-label="Duck collection"><img alt=""><span></span></button><span class="quacks" hidden></span> · <span lang="ja">MIT ライセンス</span><span lang="en">MIT License</span></span>
     <nav aria-label="footer">
       <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.ja.md" lang="ja" target="_blank" rel="noopener">プラグインガイド</a>
       <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" lang="en" target="_blank" rel="noopener">Plugin guide</a>
@@ -789,6 +816,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   const onScroll = () => topbar.classList.toggle('scrolled', scrollY > 24);
   // 訪問数（YouTube の再生回数のように、開くたびに 1 回）。同じタブでのリロードでは数え直さない
   const COUNTER_URL = 'https://pb-counter.peach-dev.workers.dev';   // ← Worker を公開したら https://pb-counter.◯◯.workers.dev を入れる（空なら表示しない）
+  window.PB_COUNTER_URL = COUNTER_URL;   // アヒルのグワッ数でも使う
   const visitsEl = document.getElementById('visits');
   if (COUNTER_URL && visitsEl) {
     visitsEl.hidden = false;   // 先に場所だけ取る（数が届いたときに下の動画がずれないように）
@@ -974,41 +1002,48 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
 })();
 </script>
 <script>
-(() => {   // アヒル: クリックするとグワッと鳴いて走り回る。5回目で覚醒（虹色）
-  const d = document.querySelector('.duck-spot'); if (!d) return;
-  const duck = d.querySelector('.duck'); let n = 0, run = null;
-  d.addEventListener('click', () => {
-    n++;
-    const big = n === 5;
-    // 吹き出し
-    const q = document.createElement('span'); q.className = 'quack';
-    q.innerHTML = big ? '<span lang="ja">グワァァァッ！！</span><span lang="en">QUAAACK!!</span>' : '<span lang="ja">グワッ！</span><span lang="en">QUACK!</span>';
-    d.querySelectorAll('.quack').forEach(x => x.remove());   // 連打したら前の吹き出しは消す
-    d.appendChild(q);
-    q.animate([{opacity: 0, transform: 'translateY(8px) scale(.5)'}, {opacity: 1, transform: 'translateY(-2px) scale(1.15)', offset: .15},
-               {opacity: 1, transform: 'translateY(0) scale(1)', offset: .3}, {opacity: 1, transform: 'translateY(-4px)', offset: .75}, {opacity: 0, transform: 'translateY(-14px)'}],
-              {duration: big ? 1600 : 1100, easing: 'ease-out'}).finished.then(() => q.remove());
-    // 本体: ぐわっと大きくなってから、ぴょこぴょこ走っていって戻ってくる（アヒルは左向き）
-    if (run) run.cancel();
-    const dir = Math.random() < .5 ? -1 : 1, X = dir * (50 + Math.random() * 70), go = dir < 0 ? 1 : -1, back = -go, S = big ? 3.4 : 2.4;
-    const k = [{transform: 'translate(0,0) scale(1)'}, {transform: `translate(0,-2px) scale(${S}) rotate(-14deg)`, offset: .1},
-               {transform: `translate(0,-2px) scale(${S * .9}) rotate(10deg)`, offset: .16}, {transform: 'translate(0,0) scale(1)', offset: .24}];
-    for (let i = 1; i <= 8; i++) {   // 行き4歩・帰り4歩（跳ねながら）
-      const out = i <= 4, f = out ? i / 4 : (8 - i) / 4;
-      k.push({transform: `translate(${(X * f).toFixed(1)}px,${i % 2 ? -4 : 0}px) scaleX(${out ? go : back})`, offset: .24 + i * .095});
-    }
-    k[k.length - 1].offset = 1; k[k.length - 1].transform = 'translate(0,0) scaleX(1)';
-    run = duck.animate(k, {duration: big ? 2300 : 1900, easing: 'linear'});
-    run.finished.then(() => { run = null; }).catch(() => {});
-    if (big) { d.classList.add('awake', 'awaking'); setTimeout(() => d.classList.remove('awaking'), 800); }
-  });
-})();
-</script>
-<script>
-(() => {   // 隠しネタいろいろ。普段は何も動かさず、起きたときだけ演出用の canvas を一時的に置く
+(() => {   // アヒルと隠しネタ。普段は何も動かさず、起きたときだけ動く（演出用の canvas も使う間だけ置く）
   const root = document.documentElement, T = (j, e) => root.classList.contains('lang-ja') ? j : e;
+  const LS = {get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }};
+  const COUNTER = window.PB_COUNTER_URL || '';
+  const q = new URLSearchParams(location.search);
 
-  /* ---------- 共通: 画面いっぱいの演出用 canvas ---------- */
+  /* ================= アヒルの絵 ================= */
+  // フッターのドット絵（18×18、左向き）から色違いを作る。上に4マス余白を取り、季節の飾りを載せる（18×22）
+  const footDuck = document.querySelector('.duck-spot'), footSvg = footDuck && footDuck.querySelector('.duck');
+  const PX = [...document.querySelectorAll('.duck .d-rb rect')].map(r => [+r.getAttribute('x'), +r.getAttribute('y'), r.getAttribute('fill') ? 2 : r.classList.contains('sh') ? 1 : 0]);
+  const ACC = {   // 季節の飾り（頭の上。y がマイナス）
+    halloween: [[5, -4, '#3a7d2c'], [4, -3, '#ff8a1f'], [5, -3, '#ff8a1f'], [6, -3, '#ff8a1f'], [3, -2, '#ff8a1f'], [4, -2, '#ff8a1f'], [5, -2, '#d96400'], [6, -2, '#ff8a1f'], [7, -2, '#ff8a1f'], [3, -1, '#ff8a1f'], [4, -1, '#ff8a1f'], [5, -1, '#d96400'], [6, -1, '#ff8a1f'], [7, -1, '#ff8a1f']],
+    xmas: [[3, -1, '#ffffff'], [4, -1, '#ffffff'], [5, -1, '#ffffff'], [6, -1, '#ffffff'], [7, -1, '#ffffff'], [4, -2, '#e5383b'], [5, -2, '#e5383b'], [6, -2, '#e5383b'], [5, -3, '#e5383b'], [6, -3, '#e5383b'], [7, -3, '#e5383b'], [8, -4, '#e5383b'], [9, -4, '#ffffff']],
+    newyear: [[3, -1, '#f1dfb8'], [4, -1, '#f1dfb8'], [5, -1, '#f1dfb8'], [6, -1, '#f1dfb8'], [7, -1, '#f1dfb8'], [4, -2, '#f7ecd2'], [5, -2, '#f7ecd2'], [6, -2, '#f7ecd2'], [5, -3, '#ff9f1c'], [5, -4, '#3a7d2c']],
+    sakura: [[7, -2, '#ffb7d0'], [6, -1, '#ffb7d0'], [7, -1, '#ffe066'], [8, -1, '#ffb7d0'], [7, 0, '#ffb7d0']],
+  };
+  const SEASON = (() => {   // ?season=xmas などで試せる
+    if (q.get('season')) return ACC[q.get('season')] ? q.get('season') : '';
+    const d = new Date(), m = d.getMonth() + 1, day = d.getDate();
+    return m === 10 && day >= 15 ? 'halloween' : m === 12 && day <= 25 ? 'xmas' : m === 1 && day <= 7 ? 'newyear' : (m === 3 && day >= 20) || (m === 4 && day <= 15) ? 'sakura' : '';
+  })();
+  const spriteCache = {};
+  function sprite(body, shade, acc = true) {
+    const k = body + shade + acc; if (spriteCache[k]) return spriteCache[k];
+    const c = document.createElement('canvas'); c.width = 18; c.height = 22; const x = c.getContext('2d');
+    for (const [rx, ry, t] of PX) { x.fillStyle = t === 2 ? '#0b0b10' : t === 1 ? shade : body; x.fillRect(rx, ry + 4, 1, 1); }
+    if (acc && SEASON) for (const [rx, ry, col] of ACC[SEASON]) { x.fillStyle = col; x.fillRect(rx, ry + 4, 1, 1); }
+    return spriteCache[k] = c;
+  }
+  const urlCache = {}, spriteURL = (b, s, acc = true) => urlCache[b + s + acc] || (urlCache[b + s + acc] = sprite(b, s, acc).toDataURL());
+  const YELLOW = ['#ffd23f', '#e3a21a'], GOLD = ['#ffcc33', '#c48a00'];
+  const DUCKS = [YELLOW, YELLOW, YELLOW, YELLOW, ['#fff6dc', '#d8c69c'], ['#ff8fc7', '#d65e9a'], ['#7fd8ff', '#3f9fd0']];
+  const anyDuck = () => sprite(...DUCKS[Math.random() * DUCKS.length | 0]);
+  // フッターのアヒルにも季節の飾りを載せる
+  if (SEASON && footSvg) {
+    footSvg.style.overflow = 'visible';
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'd-acc');
+    for (const [rx, ry, col] of ACC[SEASON]) { const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); Object.entries({x: rx, y: ry, width: 1, height: 1, fill: col}).forEach(([a, v]) => r.setAttribute(a, v)); g.appendChild(r); }
+    footSvg.appendChild(g);
+  }
+
+  /* ================= 共通: 演出用 canvas と通知 ================= */
   let fx = null, parts = [], raf = 0, last = 0;
   function fxStart() {
     if (!fx) {
@@ -1029,40 +1064,38 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     for (const p of parts) p.draw(x);
     if (parts.length) raf = requestAnimationFrame(tick); else { raf = 0; c.remove(); fx = null; }   // 終わったら canvas ごと片付ける
   }
-  function toast(text, ms = 3400) {
-    const t = document.createElement('div'); t.className = 'egg-toast'; t.textContent = text;
-    const prev = [...document.querySelectorAll('.egg-toast')]; t.style.bottom = 28 + prev.length * 52 + 'px';   // 出ている通知があれば上に積む
+  const drawDuck = (c, img, s) => c.drawImage(img, -s / 2, -s * 22 / 18 * .6, s, s * 22 / 18);
+  function toast(text, ms = 3400, img) {
+    const t = document.createElement('div'); t.className = 'egg-toast';
+    if (img) { const i = new Image(); i.src = img; i.alt = ''; i.className = 'egg-toast-duck'; t.appendChild(i); }
+    t.appendChild(document.createTextNode(text));
+    const prev = document.querySelectorAll('.egg-toast').length; t.style.bottom = 28 + prev * 52 + 'px';   // 出ている通知があれば上に積む
     document.body.appendChild(t);
     t.animate([{opacity: 0, transform: 'translate(-50%,16px) scale(.9)'}, {opacity: 1, transform: 'translate(-50%,0) scale(1)'}], {duration: 380, easing: 'cubic-bezier(.2,1.4,.4,1)', fill: 'forwards'});
     setTimeout(() => t.animate([{opacity: 1}, {opacity: 0, transform: 'translate(-50%,10px)'}], {duration: 400, fill: 'forwards'}).finished.then(() => t.remove()), ms);
   }
-
-  /* ---------- アヒルの絵（フッターのドット絵から色違いを作る） ---------- */
-  const px = [...document.querySelectorAll('.duck .d-rb rect')].map(r => [+r.getAttribute('x'), +r.getAttribute('y'), r.getAttribute('fill') ? 2 : r.classList.contains('sh') ? 1 : 0]);
-  const spriteCache = {};
-  function duckSprite(body, shade) {
-    const k = body + shade; if (spriteCache[k]) return spriteCache[k];
-    const c = document.createElement('canvas'); c.width = c.height = 18; const x = c.getContext('2d');
-    for (const [rx, ry, t] of px) { x.fillStyle = t === 2 ? '#0b0b10' : t === 1 ? shade : body; x.fillRect(rx, ry, 1, 1); }
-    return spriteCache[k] = c;
+  function quackBubble(host, text, ms = 1100) {   // 要素の上に「グワッ！」
+    host.querySelectorAll(':scope > .quack').forEach(x => x.remove());
+    const b = document.createElement('span'); b.className = 'quack'; b.innerHTML = text; host.appendChild(b);
+    b.animate([{opacity: 0, transform: 'translateY(8px) scale(.5)'}, {opacity: 1, transform: 'translateY(-2px) scale(1.15)', offset: .15},
+               {opacity: 1, transform: 'translateY(0) scale(1)', offset: .3}, {opacity: 1, transform: 'translateY(-4px)', offset: .75}, {opacity: 0, transform: 'translateY(-14px)'}],
+              {duration: ms, easing: 'ease-out'}).finished.then(() => b.remove());
   }
-  const DUCKS = [['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#ffd23f', '#e3a21a'], ['#fff6dc', '#d8c69c'], ['#ff8fc7', '#d65e9a'], ['#7fd8ff', '#3f9fd0']];
-  const anyDuck = () => { const [b, s] = DUCKS[Math.random() * DUCKS.length | 0]; return duckSprite(b, s); };
+  const QUACK = '<span lang="ja">グワッ！</span><span lang="en">QUACK!</span>';
 
-  // アヒルが飛び出す（上向きに散って、重力で落ちる）。アヒルは左向きなので、右へ飛ぶものは反転
-  function duckBurst(ox, oy, n) {
+  /* ================= 演出いろいろ ================= */
+  function duckBurst(ox, oy, n, palette) {   // アヒルが飛び出す（上向きに散って、重力で落ちる）
     for (let i = 0; i < n; i++) {
-      const a = -Math.PI / 2 + (Math.random() - .5) * 2.4, sp = 420 + Math.random() * 640, img = anyDuck(), s = 22 + Math.random() * 30;
+      const a = -Math.PI / 2 + (Math.random() - .5) * 2.4, sp = 420 + Math.random() * 640, img = palette ? sprite(...palette) : anyDuck(), s = 22 + Math.random() * 30;
       let x = ox, y = oy, vx = Math.cos(a) * sp, vy = Math.sin(a) * sp, r = 0, vr = (Math.random() - .5) * 9, delay = i * .01;
-      const flip = vx > 0 ? -1 : 1;
+      const flip = vx > 0 ? -1 : 1;   // アヒルは左向きなので、右へ飛ぶものは反転
       parts.push({
         update(dt, W, H) { if ((delay -= dt) > 0) return; vy += 1350 * dt; x += vx * dt; y += vy * dt; r += vr * dt; return y < H + 80; },
-        draw(c) { if (delay > 0) return; c.save(); c.translate(x, y); c.rotate(r); c.scale(flip, 1); c.drawImage(img, -s / 2, -s / 2, s, s); c.restore(); }
+        draw(c) { if (delay > 0) return; c.save(); c.translate(x, y); c.rotate(r); c.scale(flip, 1); drawDuck(c, img, s); c.restore(); }
       });
     }
     fxStart();
   }
-  // 紙吹雪
   function confetti(n = 170) {
     const cols = ['#ff5c8a', '#ffd23f', '#4fd1c5', '#4f7bff', '#a86bff', '#3ddc84', '#ff9f43'];
     for (let i = 0; i < n; i++) {
@@ -1075,8 +1108,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     }
     fxStart();
   }
-  // ガラスの泡がはじけ飛ぶ
-  function bubbleBurst(ox, oy, n = 26) {
+  function bubbleBurst(ox, oy, n = 26) {   // ガラスの泡がはじけ飛ぶ
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, sp = 140 + Math.random() * 420, rad = 6 + Math.random() * 20, life = 1 + Math.random() * .9;
       let x = ox, y = oy, vx = Math.cos(a) * sp, vy = Math.sin(a) * sp, t = 0;
@@ -1094,43 +1126,245 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     }
     fxStart();
   }
-  // アヒルの行列（親アヒル＋子アヒルが右から左へ横切る）
-  function parade() {
+  function parade() {   // 親アヒル＋子アヒルが右から左へ横切る
     const n = 12;
     for (let i = 0; i < n; i++) {
-      const s = i === 0 ? 52 : 30, img = i === 0 ? duckSprite('#fff6dc', '#d8c69c') : duckSprite('#ffd23f', '#e3a21a');
+      const s = i === 0 ? 52 : 30, img = i === 0 ? sprite('#fff6dc', '#d8c69c') : sprite(...YELLOW);
       let x = innerWidth + 40 + (i === 0 ? 0 : 30 + i * 40), t = 0;
       parts.push({
         update(dt) { t += dt; x -= 230 * dt; return x > -80; },
-        draw(c) { const y = innerHeight - 18 - Math.abs(Math.sin(t * 11 + i * .9)) * (i === 0 ? 7 : 5); c.drawImage(img, x - s / 2, y - s, s, s); }
+        draw(c) { const y = innerHeight - 18 - Math.abs(Math.sin(t * 11 + i * .9)) * (i === 0 ? 7 : 5); c.save(); c.translate(x, y - s * .55); drawDuck(c, img, s); c.restore(); }
       });
     }
     fxStart();
   }
 
-  /* ---------- 1. キリ番 ---------- */
+  /* ================= アヒル図鑑 ================= */
+  const DEX = [   // [id, 体の色, 影の色, 名前(ja), 名前(en), ヒント(ja), ヒント(en)]
+    ['first', '#ffd23f', '#e3a21a', 'はじめてのグワッ', 'First Quack', 'フッターのアヒルを押してみよう', 'Poke the duck in the footer'],
+    ['awake', '#ff8fc7', '#d65e9a', '覚醒アヒル', 'Awakened Duck', 'もっと押すと…？', 'Keep poking…'],
+    ['bubble', '#bfe3ff', '#7fb3e0', '泡アヒル', 'Bubble Duck', 'ロゴは押せる', 'The logo can be poked'],
+    ['parade', '#fff6dc', '#d8c69c', '行進アヒル', 'Parade Duck', '↑↑↓↓…', '↑↑↓↓…'],
+    ['spam', '#7fd8ff', '#3f9fd0', '連打アヒル', 'Button-Masher Duck', 'テーマを押しまくる', 'Mash the theme toggle'],
+    ['night', '#7c80e0', '#4b4fa8', '夜ふかしアヒル', 'Night Owl Duck', '夜中に来てみて', 'Visit late at night'],
+    ['back', '#ffb48a', '#d9825a', 'おかえりアヒル', 'Welcome-Back Duck', 'よそ見して戻ってくる', 'Look away, then come back'],
+    ['walker', '#9be38a', '#5fae4f', 'お散歩アヒル', 'Wandering Duck', 'じっと待っていると…', 'Sit still for a while…'],
+    ['lost', '#c8c8cf', '#8e8e99', '迷子アヒル', 'Lost Duck', 'ないページへ行ってみる', "Go somewhere that doesn't exist"],
+    ['bye', '#ffd0e2', '#e09bb6', 'いってらっしゃいアヒル', 'See-You Duck', 'ダウンロードへ', 'Head off to download'],
+    ['kiri', '#ffe680', '#e0b400', 'キリ番アヒル', 'Lucky Number Duck', 'キリのいい番号を引く', 'Land a lucky visitor number'],
+  ];
+  let got = new Set(); try { got = new Set(JSON.parse(LS.get('pb-dex') || '[]').filter(id => DEX.some(d => d[0] === id))); } catch (e) {}
+  const dexBtn = document.querySelector('.dex-btn');
+  const complete = () => got.size === DEX.length;
+  function updateDexBtn(pop) {
+    if (!dexBtn || !got.size) return;
+    dexBtn.hidden = false; dexBtn.querySelector('img').src = complete() ? spriteURL(...GOLD) : spriteURL(...YELLOW);
+    dexBtn.querySelector('span').textContent = `${got.size}/${DEX.length}`;
+    if (pop) dexBtn.animate([{transform: 'scale(1)'}, {transform: 'scale(1.35)'}, {transform: 'scale(1)'}], {duration: 450, easing: 'cubic-bezier(.2,1.6,.4,1)'});
+  }
+  if (complete() && footDuck) footDuck.classList.add('gold');
+  updateDexBtn(false);
+  function found(id) {
+    const d = DEX.find(x => x[0] === id); if (!d || got.has(id)) return;
+    got.add(id); LS.set('pb-dex', JSON.stringify([...got]));
+    toast(T(`アヒル図鑑に登録：${d[3]}（${got.size}/${DEX.length}）`, `New duck: ${d[4]} (${got.size}/${DEX.length})`), 3600, spriteURL(d[1], d[2]));
+    updateDexBtn(true);
+    if (complete()) setTimeout(() => {   // コンプリート: 金のアヒル
+      confetti(); duckBurst(innerWidth / 2, innerHeight * .8, 40, GOLD);
+      if (footDuck) footDuck.classList.add('gold');
+      toast(T('🏆 コンプリート！金のアヒルが仲間になった', '🏆 Complete! The golden duck joins you'), 5200, spriteURL(...GOLD));
+    }, 1400);
+  }
+  window.pbDex = found;
+  let dexPanel = null;
+  function openDex() {
+    if (dexPanel) return closeDex();
+    const p = document.createElement('div'); p.className = 'dex'; p.setAttribute('role', 'dialog');
+    const head = document.createElement('div'); head.className = 'dex-head';
+    head.innerHTML = `<b>${T('アヒル図鑑', 'Duck Collection')}</b><span>${got.size} / ${DEX.length}</span>`;
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'dex-x'; x.textContent = '×'; x.setAttribute('aria-label', T('閉じる', 'Close')); x.onclick = closeDex; head.appendChild(x);
+    const grid = document.createElement('div'); grid.className = 'dex-grid';
+    const cards = DEX.map(d => { const has = got.has(d[0]); return [has, `<div class="dex-card${has ? '' : ' no'}"><img alt="" src="${has ? spriteURL(d[1], d[2]) : spriteURL('rgba(120,124,150,.32)', 'rgba(120,124,150,.32)', false)}"><b>${has ? T(d[3], d[4]) : '？？？'}</b>${has ? '' : `<small>${T(d[5], d[6])}</small>`}</div>`]; });
+    if (complete()) cards.push([true, `<div class="dex-card gold"><img alt="" src="${spriteURL(...GOLD)}"><b>${T('金のアヒル', 'Golden Duck')}</b><small>${T('コンプリート記念', 'For completing the set')}</small></div>`]);
+    grid.innerHTML = cards.map(c => c[1]).join('');
+    p.append(head, grid); document.body.appendChild(p); dexPanel = p;
+    p.animate([{opacity: 0, transform: 'translate(-50%,14px) scale(.96)'}, {opacity: 1, transform: 'translate(-50%,0) scale(1)'}], {duration: 260, easing: 'cubic-bezier(.2,1.2,.4,1)', fill: 'forwards'});
+    setTimeout(() => { addEventListener('pointerdown', outside, true); addEventListener('keydown', esc); });
+  }
+  function closeDex() {
+    if (!dexPanel) return; const p = dexPanel; dexPanel = null;
+    removeEventListener('pointerdown', outside, true); removeEventListener('keydown', esc);
+    p.animate([{opacity: 1}, {opacity: 0, transform: 'translate(-50%,10px)'}], {duration: 180, fill: 'forwards'}).finished.then(() => p.remove());
+  }
+  const outside = e => { if (dexPanel && !dexPanel.contains(e.target) && !dexBtn.contains(e.target)) closeDex(); };
+  const esc = e => { if (e.key === 'Escape') closeDex(); };
+  if (dexBtn) dexBtn.addEventListener('click', openDex);
+
+  /* ================= みんなのグワッ数（全訪問者がアヒルを押した回数の合計） ================= */
+  const quackEl = document.querySelector('.quacks');
+  let qTotal = null, qPend = 0, qTimer = 0, qBusy = false;
+  function showQuacks() {
+    if (!quackEl || qTotal === null) return;
+    quackEl.hidden = false;
+    quackEl.innerHTML = T(`みんなで <b>${(qTotal + qPend).toLocaleString('en-US')}</b> グワッ`, `<b>${(qTotal + qPend).toLocaleString('en-US')}</b> quacks so far`);
+  }
+  function quackGet() { if (!COUNTER || qTotal !== null) return; fetch(COUNTER + '/quack').then(r => r.json()).then(j => { if (qTotal === null) { qTotal = j.n; showQuacks(); } }).catch(() => {}); }
+  function quackSend(beacon) {   // まとめて送る（1回で最大20）
+    if (!COUNTER || !qPend || qBusy) return;
+    const k = Math.min(20, qPend); qPend -= k; qBusy = true;
+    fetch(COUNTER + '/quack?add=' + k, {method: 'POST', keepalive: !!beacon}).then(r => r.json())
+      .then(j => { qTotal = j.n; showQuacks(); }).catch(() => { qPend += k; })
+      .finally(() => { qBusy = false; if (qPend) qTimer = setTimeout(quackSend, 1500); });
+  }
+  function addQuack() { qPend++; if (qTotal === null) quackGet(); else showQuacks(); clearTimeout(qTimer); qTimer = setTimeout(quackSend, 1500); }
+  addEventListener('pagehide', () => quackSend(true));
+
+  /* ================= フッターのアヒル: クリックでグワッと鳴いて走り回る。5回目で覚醒（虹色）→ 子アヒルがついてくる ================= */
+  if (footDuck) {
+    let n = 0, run = null;
+    footDuck.addEventListener('click', e => {
+      if (e.target.closest('.quack')) return;
+      n++; found('first'); addQuack();
+      const big = n === 5;
+      quackBubble(footDuck, big ? '<span lang="ja">グワァァァッ！！</span><span lang="en">QUAAACK!!</span>' : QUACK, big ? 1600 : 1100);
+      if (run) run.cancel();
+      const dir = Math.random() < .5 ? -1 : 1, X = dir * (50 + Math.random() * 70), go = dir < 0 ? 1 : -1, back = -go, S = big ? 3.4 : 2.4;
+      const k = [{transform: 'translate(0,0) scale(1)'}, {transform: `translate(0,-2px) scale(${S}) rotate(-14deg)`, offset: .1},
+                 {transform: `translate(0,-2px) scale(${S * .9}) rotate(10deg)`, offset: .16}, {transform: 'translate(0,0) scale(1)', offset: .24}];
+      for (let i = 1; i <= 8; i++) {   // 行き4歩・帰り4歩（跳ねながら）
+        const out = i <= 4, f = out ? i / 4 : (8 - i) / 4;
+        k.push({transform: `translate(${(X * f).toFixed(1)}px,${i % 2 ? -4 : 0}px) scaleX(${out ? go : back})`, offset: .24 + i * .095});
+      }
+      k[k.length - 1].offset = 1; k[k.length - 1].transform = 'translate(0,0) scaleX(1)';
+      run = footSvg.animate(k, {duration: big ? 2300 : 1900, easing: 'linear'});
+      run.finished.then(() => { run = null; }).catch(() => {});
+      if (big) { footDuck.classList.add('awake', 'awaking'); setTimeout(() => footDuck.classList.remove('awaking'), 800); found('awake'); setTimeout(ducklings, 900); }
+    });
+    // フッターが見えてきたら、みんなのグワッ数を（押したことがある人には）先に読んでおく
+    if (got.has('first')) new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { quackGet(); o.disconnect(); } }, {rootMargin: '200px'}).observe(footDuck);
+  }
+
+  /* ================= 子アヒル: 覚醒後、カーソルの後ろを列になってついてくる ================= */
+  let flock = null;
+  function ducklings() {
+    if (flock || !footDuck) return;
+    const r = footDuck.getBoundingClientRect(), url = spriteURL(...YELLOW), N = 4;
+    flock = Array.from({length: N}, (_, i) => {
+      const el = document.createElement('span'); el.className = 'duckling'; el.innerHTML = `<img alt="" src="${url}">`; document.body.appendChild(el);
+      return {el, x: r.left + 9, y: r.top + 9, face: 1, t: Math.random() * 6};
+    });
+    let tx = innerWidth / 2, ty = innerHeight / 2, moved = performance.now(), lraf = 0, lt = performance.now(), sleeping = false;
+    const SP = 26;
+    const step = now => {
+      const dt = Math.min(.05, (now - lt) / 1000); lt = now; let active = false;
+      flock.forEach((d, i) => {
+        // 先頭はカーソルの右下、2羽目以降は前のアヒルの後ろ（間隔 SP を保つ）
+        const lead = i === 0 ? {x: tx + 18, y: ty + 20} : flock[i - 1];
+        let dx = lead.x - d.x, dy = lead.y - d.y; const dist = Math.hypot(dx, dy), keep = i === 0 ? 0 : SP;
+        if (dist > keep + .5) {
+          const k = Math.min(1, dt * (i === 0 ? 7 : 9)), mv = (dist - keep) * k;
+          d.x += dx / dist * mv; d.y += dy / dist * mv; d.t += dt * 14; active = active || mv > .05;
+          if (Math.abs(dx) > 1) d.face = dx > 0 ? -1 : 1;
+        }
+        const bob = active ? Math.abs(Math.sin(d.t)) * 3 : 0;
+        d.el.style.transform = `translate(${(d.x - 11).toFixed(1)}px,${(d.y - 22 - bob).toFixed(1)}px) scaleX(${d.face})`;
+      });
+      if (active) lraf = requestAnimationFrame(step); else lraf = 0;   // 追いついたら止める
+    };
+    const kick = () => { if (!lraf) { lt = performance.now(); lraf = requestAnimationFrame(step); } };
+    const onMove = e => { tx = e.clientX; ty = e.clientY; moved = performance.now(); if (sleeping) { sleeping = false; flock.forEach(d => d.el.classList.remove('sleep')); } kick(); };
+    addEventListener('pointermove', onMove, {passive: true}); addEventListener('pointerdown', onMove, {passive: true});
+    setInterval(() => { if (!sleeping && performance.now() - moved > 6000) { sleeping = true; flock.forEach(d => d.el.classList.add('sleep')); } }, 2000);   // しばらく止まっていると寝る
+    kick();
+  }
+
+  /* ================= お散歩アヒル: しばらく何もしないでいると、画面の端から歩いてきて見出しやボタンの上で寝る ================= */
+  let lastAct = performance.now(), walker = null, walks = 0;
+  const act = () => { lastAct = performance.now(); };
+  ['pointermove', 'pointerdown', 'keydown', 'scroll', 'wheel', 'touchstart'].forEach(ev => addEventListener(ev, act, {passive: true}));
+  const IDLE = +(q.get('walk') || 20) * 1000;   // ?walk=2 で 2 秒にして試せる
+  (function check() {
+    const idle = performance.now() - lastAct;
+    if (idle >= IDLE && !walker && walks < 3 && !document.hidden) spawnWalker();
+    setTimeout(check, Math.max(1000, IDLE - idle + 50));
+  })();
+  function spawnWalker() {
+    walks++;
+    const W = innerWidth, H = innerHeight, sx = scrollX, sy = scrollY, S = 30, HS = S * 22 / 18;
+    const cands = [...document.querySelectorAll('h1, h2, h3, .btn, .lockup')].map(e => e.getBoundingClientRect())
+      .filter(r => r.width > 80 && r.top > 100 && r.top < H - 80 && r.left > 10 && r.right < W - 10);
+    const tg = cands.length ? cands[Math.random() * cands.length | 0] : null;
+    const fromLeft = Math.random() < .5, ground = sy + H - 4;
+    const el = document.createElement('span'); el.className = 'walker'; el.innerHTML = `<img alt="" src="${spriteURL(...YELLOW)}">`; document.body.appendChild(el);
+    const w = {el, x: fromLeft ? sx - S : sx + W + S, y: ground, face: fromLeft ? -1 : 1, t: 0, phase: 'walk',
+               tx: tg ? sx + tg.left + 16 + Math.random() * Math.max(1, tg.width - 32) : sx + W * (.2 + Math.random() * .6), ty: tg ? sy + tg.top : ground, hop: 0};
+    walker = w;
+    const place = () => { el.style.transform = `translate(${(w.x - S / 2).toFixed(1)}px,${(w.y - HS - w.lift).toFixed(1)}px) scaleX(${w.face})`; };
+    w.lift = 0; place();
+    let lt = performance.now(), wraf = 0, sitT = 0, leaveT = 0;
+    const step = now => {
+      const dt = Math.min(.05, (now - lt) / 1000); lt = now; w.t += dt;
+      if (w.phase === 'walk' || w.phase === 'flee' || w.phase === 'leave') {
+        const v = w.phase === 'flee' ? 420 : 80, d = w.tx - w.x;
+        w.face = d > 0 ? -1 : 1; w.x += Math.sign(d) * Math.min(Math.abs(d), v * dt);
+        w.lift = Math.abs(Math.sin(w.t * (w.phase === 'flee' ? 22 : 11))) * 4;
+        if (Math.abs(d) < .5) {
+          if (w.phase !== 'walk') { el.remove(); walker = null; lastAct = performance.now(); return; }
+          if (w.ty !== w.y) { w.phase = 'hop'; w.hop = 0; w.y0 = w.y; } else { sit(); return; }
+        }
+      } else if (w.phase === 'hop') {   // 見出しの上へぴょんと跳び乗る
+        w.hop = Math.min(1, w.hop + dt / .55); const k = w.hop;
+        w.y = w.y0 + (w.ty - w.y0) * k; w.lift = Math.sin(k * Math.PI) * 60;
+        if (k >= 1) { w.lift = 0; place(); sit(); return; }
+      }
+      place(); wraf = requestAnimationFrame(step);
+    };
+    const go = () => { lt = performance.now(); if (!wraf) wraf = requestAnimationFrame(step); };
+    const sit = () => {   // 座る → しばらくすると寝る。ずっと放っておかれたら帰る
+      wraf = 0; w.phase = 'sit'; w.lift = 0; place();
+      sitT = setTimeout(() => el.classList.add('sleep'), 3500);
+      leaveT = setTimeout(() => { el.classList.remove('sleep'); w.phase = 'leave'; w.tx = w.x + (Math.random() < .5 ? -1 : 1) * (W + 80); go(); }, 60000);
+    };
+    el.addEventListener('click', () => {   // 押すとグワッと逃げる
+      if (w.phase === 'flee') return;
+      clearTimeout(sitT); clearTimeout(leaveT); el.classList.remove('sleep'); found('walker'); addQuack();
+      quackBubble(el, QUACK);
+      w.phase = 'flee'; w.tx = (w.x - scrollX < innerWidth / 2) ? scrollX - 60 : scrollX + innerWidth + 60; if (!wraf) setTimeout(go, 250);
+    });
+    go();
+  }
+
+  /* ================= キリ番 ================= */
   const isKiri = n => { const s = String(n); return n === 1 || (n >= 1000 && n % 1000 === 0) || (n >= 100 && n < 1000 && n % 100 === 0) || (s.length >= 3 && /^(\d)\1+$/.test(s)) || (s.length >= 3 && '1234567890'.startsWith(s)); };
   function onVisit({n, fresh}) {
-    const force = /[?&]egg=kiri/.test(location.search);   // ?egg=kiri で試せる
+    const force = q.get('egg') === 'kiri';   // ?egg=kiri で試せる（図鑑には入らない）
     if (!force && !(fresh && isKiri(n))) return;
     setTimeout(() => {
       confetti();
       const b = document.querySelector('#visits .v-in'); if (b) { const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top, 16); }
       document.getElementById('visits').classList.add('kiri');
       toast(T(`🎉 キリ番ゲット！ ${n.toLocaleString('en-US')} 回目の訪問者です`, `🎉 Lucky number! You're visitor #${n.toLocaleString('en-US')}`), 5000);
+      if (!force) found('kiri');
     }, 1300);   // カウントアップが終わるころに
   }
   if (window.PB_VISIT) onVisit(window.PB_VISIT); else addEventListener('pbvisit', e => onVisit(e.detail), {once: true});
 
-  /* ---------- 2. タブを離れるとタイトルが変わる ---------- */
-  const baseTitle = document.title; let backT = 0;
+  /* ================= タブを離れる・戻る（ダウンロードから戻ってきたら「おかえり」） ================= */
+  const baseTitle = document.title; let backT = 0, wentDL = false;
   document.addEventListener('visibilitychange', () => {
     clearTimeout(backT);
-    if (document.hidden) document.title = T('🦆 もどってきて…', '🦆 Come back…');
-    else { document.title = T('🦆 おかえり！', '🦆 Welcome back!'); backT = setTimeout(() => { document.title = baseTitle; }, 1800); }
+    if (document.hidden) { document.title = T('🦆 もどってきて…', '🦆 Come back…'); return; }
+    document.title = T('🦆 おかえり！', '🦆 Welcome back!'); backT = setTimeout(() => { document.title = baseTitle; }, 1800);
+    found('back');
+    if (wentDL) { wentDL = false; setTimeout(() => toast(T('おかえり！インストールできた？', 'Welcome back! Did the install go OK?'), 3800, spriteURL('#ffd0e2', '#e09bb6')), 500); }
+  });
+  document.addEventListener('click', e => {   // ダウンロード系のリンクを押したら見送る
+    const a = e.target.closest && e.target.closest('a[href*="apps.microsoft.com"], a[href*="/releases"]'); if (!a) return;
+    wentDL = true; found('bye');
+    toast(T('いってらっしゃい！', 'See you! Enjoy Pocket Board'), 3200, spriteURL('#ffd0e2', '#e09bb6'));
   });
 
-  /* ---------- 3. ロゴを連打するとぷるぷる → 10回目ではじける ---------- */
+  /* ================= ロゴを連打するとぷるぷる → 10回目ではじける ================= */
   const logo = document.querySelector('.lockup img');
   if (logo) {
     let n = 0, resetT = 0, busy = false;
@@ -1143,43 +1377,41 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
         return;
       }
       n = 0; busy = true;
-      const r = logo.getBoundingClientRect(), mine = [];
-      mine.push(logo.animate([{transform: 'scale(1)', opacity: 1}, {transform: 'scale(1.4)', opacity: 1, offset: .7}, {transform: 'scale(0)', opacity: 0}], {duration: 260, easing: 'ease-in', fill: 'forwards'}));
-      mine[0].finished.then(() => {
-        bubbleBurst(r.left + r.width / 2, r.top + r.height / 2);
+      const r = logo.getBoundingClientRect(), pop = logo.animate([{transform: 'scale(1)', opacity: 1}, {transform: 'scale(1.4)', opacity: 1, offset: .7}, {transform: 'scale(0)', opacity: 0}], {duration: 260, easing: 'ease-in', fill: 'forwards'});
+      pop.finished.then(() => {
+        bubbleBurst(r.left + r.width / 2, r.top + r.height / 2); found('bubble');
         setTimeout(() => {
-          const g = logo.animate([{transform: 'scale(0)', opacity: 0}, {transform: 'scale(1.15)', opacity: 1, offset: .6}, {transform: 'scale(1)', opacity: 1}], {duration: 650, easing: 'cubic-bezier(.2,1.4,.4,1)'});
-          g.finished.then(() => { mine.forEach(a => a.cancel()); busy = false; });
+          logo.animate([{transform: 'scale(0)', opacity: 0}, {transform: 'scale(1.15)', opacity: 1, offset: .6}, {transform: 'scale(1)', opacity: 1}], {duration: 650, easing: 'cubic-bezier(.2,1.4,.4,1)'})
+            .finished.then(() => { pop.cancel(); busy = false; });
         }, 1500);
       });
     });
   }
 
-  /* ---------- 4. コナミコマンドでアヒルの行進 ---------- */
+  /* ================= コナミコマンドでアヒルの行進 ================= */
   const K = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']; let ki = 0;
   addEventListener('keydown', e => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     ki = k === K[ki] ? ki + 1 : k === 'ArrowUp' ? (ki === 2 ? 2 : 1) : 0;
-    if (ki === K.length) { ki = 0; parade(); toast(T('🦆 アヒル行進中！', '🦆 Duck parade!'), 3000); }
+    if (ki === K.length) { ki = 0; parade(); toast(T('🦆 アヒル行進中！', '🦆 Duck parade!'), 3000); found('parade'); }
   });
 
-  /* ---------- 5. 開発者ツールを開いた人へ ---------- */
+  /* ================= 開発者ツールを開いた人へ ================= */
   {
     const g = Array.from({length: 18}, () => Array(18).fill('  '));
-    for (const [x, y, t] of px) g[y][x] = t === 2 ? '■■' : '██';
-    const art = g.map(r => r.join('').replace(/\s+$/, '')).filter(Boolean).join('\n');
-    console.log('%c' + art, 'color:#e3a21a;font-family:monospace;line-height:1;font-size:6px');
+    for (const [x, y, t] of PX) g[y][x] = t === 2 ? '■■' : '██';
+    console.log('%c' + g.map(r => r.join('').replace(/\s+$/, '')).filter(Boolean).join('\n'), 'color:#e3a21a;font-family:monospace;line-height:1;font-size:6px');
     console.log('%cグワッ！ のぞいてくれてありがとう 🦆%c\nPocket Board はオープンソースです。プラグインも作れます。\nhttps://github.com/kuiro1024/pocket-board',
       'font:700 14px sans-serif;color:#e3a21a', 'font:12px sans-serif;color:inherit');
   }
 
-  /* ---------- 6. 深夜（0〜4時）に来た人へ ---------- */
+  /* ================= 深夜（0〜4時）に来た人へ ================= */
   if (new Date().getHours() < 4) {
     let seen = false; try { seen = !!sessionStorage.getItem('pb-night'); sessionStorage.setItem('pb-night', '1'); } catch (e) {}
-    if (!seen) setTimeout(() => toast(T('🌙 夜ふかしですね。ほどほどに 🦆', "🌙 Up late? Don't stay up too long 🦆"), 5000), 3500);
+    if (!seen) setTimeout(() => { toast(T('🌙 夜ふかしですね。ほどほどに', "🌙 Up late? Don't stay up too long"), 5000, spriteURL('#7c80e0', '#4b4fa8')); found('night'); }, 3500);
   }
 
-  /* ---------- 7. テーマ切り替えを連打するとアヒルが大量に飛び出して、テーマが変わる ---------- */
+  /* ================= テーマ切り替えを連打するとアヒルが大量に飛び出して、テーマが変わる ================= */
   let taps = [];
   document.addEventListener('click', e => {
     const b = e.target.closest && e.target.closest('.theme button'); if (!b) return;
@@ -1187,7 +1419,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     if (taps.length < 6) return;
     taps = []; e.stopPropagation();   // この1回は通常の切り替えの代わりに、アヒルに切り替えてもらう
     const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top + r.height / 2, 70);
-    toast(T('🦆🦆🦆 押しすぎです！', '🦆🦆🦆 Too many clicks!'), 2600);
+    toast(T('🦆🦆🦆 押しすぎです！', '🦆🦆🦆 Too many clicks!'), 2600); found('spam');
     setTimeout(() => window.pbFlipTheme && window.pbFlipTheme(b), 250);
   }, true);
 })();
