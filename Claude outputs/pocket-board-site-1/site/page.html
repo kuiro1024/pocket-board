@@ -1,0 +1,572 @@
+<title>Pocket Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: 虹色のガラスの上に置かれた一枚のキャンバス。ヒーローの動画ウィンドウが境目をまたいで下の紙面へ降りてくる。
+   見出しは左寄せ、機能はシーンごとの交互配置、スタイルは本体と同じ切り替えスイッチで見せる。 */
+:root{
+  --paper:#f4f6fc;        /* 青みに寄せた紙の白 */
+  --ink:#1a1f3d;          /* 背景の紺から取った文字色 */
+  --mute:#5c6388;
+  --line:rgba(26,31,61,.10);
+  --accent:#2f6fe4;       /* 島の青 */
+  --glass:rgba(255,255,255,.58);
+  --glass-edge:rgba(255,255,255,.85);
+  --display:'Questrial','Century Gothic','Zen Kaku Gothic New',sans-serif;
+  --body:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic UI',system-ui,sans-serif;
+  --step--1:clamp(.8rem,.76rem + .2vw,.9rem);
+  --step-0:clamp(.95rem,.9rem + .25vw,1.06rem);
+  --step-1:clamp(1.15rem,1.05rem + .5vw,1.4rem);
+  --step-2:clamp(1.5rem,1.25rem + 1.2vw,2.2rem);
+  --step-3:clamp(2.1rem,1.5rem + 3vw,4.2rem);
+  --wrap:1180px;
+  color-scheme:light;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);position:relative;color:var(--ink);font-family:var(--body);font-size:var(--step-0);line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:720px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+h1,h2,h3{text-wrap:balance;line-height:1.3;font-weight:500;margin:0}
+p{margin:0}
+.lang-ja [lang="en"], .lang-en [lang="ja"]{display:none !important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;color:#fff;isolation:isolate;padding-bottom:clamp(140px,22vw,300px)}
+.flow{position:fixed;inset:0;z-index:-1;background:#9fb6f2 url(assets/bg.jpg) center/cover;overflow:hidden}
+/* うにうに動く光のかたまり（形も位置もゆっくり変わり続ける） */
+.blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.blobs i{position:absolute;width:var(--s,48vmax);height:var(--s,48vmax);left:var(--x);top:var(--y);margin:calc(var(--s,48vmax) / -2) 0 0 calc(var(--s,48vmax) / -2);
+  background:radial-gradient(circle at 42% 40%,var(--c) 0%,var(--c) 34%,color-mix(in srgb,var(--c) 40%,transparent) 58%,transparent 72%);
+  filter:blur(28px);mix-blend-mode:var(--m,screen);opacity:var(--o,.8);will-change:transform,border-radius;
+  border-radius:42% 58% 63% 37% / 41% 44% 56% 59%;
+  animation:blob-move var(--d,16s) ease-in-out infinite alternate,blob-morph calc(var(--d,16s) * .38) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
+.blobs i:nth-child(1){--x:18%;--y:22%;--c:#8f6bff;--d:8s;--s:52vmax}
+.blobs i:nth-child(2){--x:78%;--y:18%;--c:#ff8cc8;--d:10s;--dl:-6s;--s:46vmax}
+.blobs i:nth-child(3){--x:62%;--y:70%;--c:#57d6ff;--d:7s;--dl:-3s;--s:50vmax}
+.blobs i:nth-child(4){--x:22%;--y:80%;--c:#ffd36b;--d:11s;--dl:-9s;--s:40vmax;--o:.55}
+.blobs i:nth-child(5){--x:50%;--y:45%;--c:#6ff0c8;--d:9s;--dl:-12s;--s:36vmax;--o:.5;--m:soft-light}
+@keyframes blob-move{0%{transform:translate(0,0) rotate(0deg) scale(1)}20%{transform:translate(16vw,-12vh) rotate(80deg) scale(1.22)}40%{transform:translate(-6vw,14vh) rotate(160deg) scale(.86)}60%{transform:translate(-18vw,-6vh) rotate(240deg) scale(1.15)}80%{transform:translate(4vw,-16vh) rotate(300deg) scale(.92)}100%{transform:translate(12vw,10vh) rotate(360deg) scale(1.05)}}
+@keyframes blob-morph{0%{border-radius:42% 58% 63% 37% / 41% 44% 56% 59%}33%{border-radius:63% 37% 38% 62% / 58% 63% 37% 42%}66%{border-radius:37% 63% 56% 44% / 49% 36% 64% 51%}100%{border-radius:55% 45% 30% 70% / 60% 30% 70% 40%}}
+.blobs.paused i{animation-play-state:paused}
+/* スクロールに合わせて光の位置と色味が流れる */
+.flow > .blobs{transform:translate3d(0,calc(var(--sp,0) * -12vh),0) rotate(calc(var(--sp,0) * 50deg)) scale(1.15);filter:hue-rotate(calc(var(--sp,0) * 70deg));will-change:transform,filter}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(30,36,90,.5) 0%,rgba(40,50,120,.12) 50%,rgba(40,50,120,0) 100%)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--display);font-size:1.35rem;letter-spacing:.01em}
+.brand img{width:40px;height:40px;filter:drop-shadow(0 4px 10px rgba(20,30,90,.3))}
+.nav-right{display:flex;align-items:center;gap:8px}
+.lang{display:flex;padding:3px;border-radius:999px}
+.lang button{all:unset;cursor:pointer;font-size:.8rem;padding:4px 12px;border-radius:999px;color:inherit;font-family:var(--display);letter-spacing:.04em}
+.lang button[aria-pressed="true"]{background:rgba(255,255,255,.92);color:var(--ink);text-shadow:none;box-shadow:0 2px 8px rgba(20,30,90,.2),inset 0 1px 0 #fff}
+.nav a.gh{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%}
+.nav a.gh svg{width:18px;height:18px;fill:currentColor}
+
+.hero-copy{display:grid;justify-items:center;text-align:center;gap:18px;padding-top:clamp(40px,7vw,96px);margin-inline:auto;max-width:980px}
+.eyebrow{font-family:var(--display);font-size:var(--step--1);letter-spacing:.18em;text-transform:uppercase;opacity:.85}
+.hero .kicker{font-size:var(--step-1);letter-spacing:.12em;text-shadow:0 1px 14px rgba(20,30,90,.3)}
+.hero .kicker .en{font-family:var(--display);letter-spacing:.04em}
+.hero h1{font-size:clamp(1.7rem,1.1rem + 3vw,3.4rem);font-weight:400;letter-spacing:.04em;word-break:auto-phrase;text-shadow:0 2px 24px rgba(20,30,90,.25)}
+.hero h1 .en{font-family:var(--display);letter-spacing:.01em}
+.lockup{display:flex;align-items:center;gap:clamp(12px,2vw,26px);margin-top:4px}
+.lockup img{width:clamp(56px,7vw,112px);height:auto;filter:drop-shadow(0 8px 22px rgba(20,30,90,.3))}
+.lockup span{font-family:var(--display);font-size:clamp(2.6rem,1.4rem + 5.6vw,6.6rem);line-height:1;letter-spacing:.005em;text-shadow:0 4px 30px rgba(20,30,90,.25)}
+.lede{font-size:var(--step-1);line-height:1.75;max-width:36em;opacity:.95;text-shadow:0 1px 12px rgba(20,30,90,.25)}
+.cta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:500;font-size:.98rem;padding:13px 22px;border-radius:999px;transition:transform .2s ease,box-shadow .2s ease,background .2s}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-primary{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 10px 30px rgba(20,30,90,.25)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(20,30,90,.3)}
+.facts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;font-size:var(--step--1);opacity:.9}
+.facts span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:8px;vertical-align:middle;opacity:.8}
+
+/* 動画ウィンドウ: PB本体のガラス窓＋島 */
+.stage{position:relative;margin-top:calc(-1 * clamp(110px,19vw,270px));z-index:2}
+.stage-band{background:linear-gradient(180deg,rgba(244,246,252,0) 30%,var(--paper) 70%)}
+.window{position:relative;border-radius:18px;padding:10px;background:var(--glass);border:1px solid var(--glass-edge);
+  box-shadow:0 0 0 1px rgba(120,140,255,.25),0 -6px 40px rgba(90,120,255,.35),0 40px 80px -20px rgba(30,40,110,.35);backdrop-filter:blur(24px) saturate(1.2)}
+.window video,.window img.poster{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:#e9edf8;object-fit:cover}
+.sound{position:absolute;right:18px;bottom:18px;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;cursor:pointer;font:500 .82rem var(--body)}
+.sound svg{width:16px;height:16px;fill:#fff}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(72px,10vw,140px)}
+#features{background:var(--paper)}
+main{overflow-x:clip}
+.sec-head{display:grid;gap:14px;max-width:720px;margin-bottom:clamp(36px,6vw,64px)}
+.sec-head .eyebrow{color:var(--accent);opacity:1}
+.sec-head h2{font-size:var(--step-2)}
+.sec-head p{color:var(--mute)}
+
+.scenes{display:grid;gap:clamp(56px,8vw,110px)}
+.scene{display:grid;gap:28px;align-items:center}
+@media (min-width:880px){.scene{grid-template-columns:1.5fr 1fr;gap:40px}.scene:nth-child(even) .bubble-fig{order:2}}
+.scene > div{min-width:0}
+.scene h3{font-size:var(--step-1);margin-bottom:12px}
+.scene p{color:var(--mute);max-width:32em}
+.keys{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:18px;font-size:var(--step--1);color:var(--mute)}
+kbd{font:500 .82rem var(--display);color:var(--ink);background:#fff;border:1px solid var(--line);border-bottom-width:3px;border-radius:8px;padding:3px 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.chip{font-size:var(--step--1);padding:3px 12px;border-radius:999px;background:rgba(47,111,228,.08);color:var(--accent)}
+
+
+/* ダウンロード */
+.download{position:relative;isolation:isolate;color:var(--ink);overflow:hidden;background:#c9b6f0 url(assets/bg.jpg) center/cover}
+.download > .wrap{position:relative;z-index:1}
+.blobs.flip{transform:scaleX(-1)}
+.download::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,#eef1fb 0%,rgba(238,241,251,0) 18%,rgba(30,36,90,.2) 100%)}
+.dl-panel{display:grid;gap:28px;padding:clamp(28px,5vw,56px);border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);backdrop-filter:blur(26px) saturate(1.15);box-shadow:0 30px 80px -30px rgba(30,40,110,.45)}
+@media (min-width:880px){.dl-panel{grid-template-columns:1fr 1.1fr;align-items:center;gap:56px}}
+.dl-panel > div{min-width:0}
+.dl-panel h2{font-size:var(--step-2)}
+.dl-panel .sub{margin-top:12px;color:var(--mute)}
+.dl-list{display:grid;gap:10px}
+.dl{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;padding:16px 18px;border-radius:16px;text-decoration:none;color:var(--ink);background:rgba(255,255,255,.9);box-shadow:0 1px 0 var(--line);transition:transform .2s,background .2s}
+.dl:hover{transform:translateY(-2px);background:#fff}
+.dl .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(47,111,228,.1)}
+.dl .ic svg{width:22px;height:22px;fill:var(--accent)}
+.dl b{display:block;font-weight:700;font-size:1rem;line-height:1.4}
+.dl small{display:block;color:var(--mute);font-size:var(--step--1);line-height:1.5}
+.dl .arrow{width:18px;height:18px;fill:var(--mute)}
+.kofi{display:inline-flex;align-items:center;gap:8px;margin-top:22px;color:var(--ink);font-size:var(--step--1);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+
+footer{background:var(--paper);padding-block:36px;color:var(--mute);font-size:var(--step--1);border-top:1px solid var(--line)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 20px}
+footer a{text-decoration:none}
+footer a:hover{color:var(--ink)}
+
+/* ---------- 触れるデモ ---------- */
+.try{position:relative;isolation:isolate;overflow:hidden;background:#a9b9f5 url(assets/bg.jpg) center/cover}
+.try::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(244,246,252,.55),rgba(244,246,252,.12) 30%,rgba(244,246,252,.12) 75%,rgba(244,246,252,.4))}
+.try > .wrap{position:relative;z-index:1}
+.sec-head.center{margin-inline:auto;text-align:center;justify-items:center}
+.demo{position:relative;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:980px){.demo{grid-template-columns:210px minmax(0,1fr) 200px;align-items:center;gap:22px}}
+.src{border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 20px 50px -24px rgba(30,40,110,.35);backdrop-filter:blur(18px);overflow:hidden;min-width:0}
+.src-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:.75rem;color:var(--mute)}
+.src-bar i{width:8px;height:8px;border-radius:50%;background:#d6dbe9}
+.src-bar .url{margin-left:6px;flex:1;min-width:0;padding:2px 10px;border-radius:999px;background:#eef1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.src-bar .ttl{margin-left:6px;font-weight:700;color:var(--ink)}
+.src-list{display:grid;gap:8px;padding:10px}
+.src-browser .src-list{grid-template-columns:1fr 1fr}
+.src-browser .item.wide{grid-column:1 / -1}
+.src-explorer .src-list{grid-template-columns:1fr 1fr}
+@media (max-width:979px){.demo .src-list{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}.src-browser .item.wide{grid-column:auto}}
+.item{all:unset;box-sizing:border-box;display:grid;gap:4px;justify-items:center;padding:6px;border-radius:10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-size:.72rem;color:var(--ink);text-align:center;transition:background .15s,transform .15s}
+.item:hover{background:rgba(47,111,228,.08)}
+.item:focus-visible{outline:2px solid var(--accent)}
+.item.lifting{opacity:.35}
+.item [data-thumb]{width:100%;aspect-ratio:16/10;border-radius:7px;overflow:hidden;display:grid;place-items:center;background:#e9edf6}
+.item [data-thumb] canvas{width:100%;height:100%;object-fit:cover;display:block}
+.item [data-thumb] svg,.item [data-thumb] img{width:58%;height:auto}
+.item.tile [data-thumb]{background:transparent}
+.item small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
+.item.ghost{position:fixed;z-index:1000;pointer-events:none;background:rgba(255,255,255,.92);box-shadow:0 18px 40px rgba(20,30,90,.3);transform:rotate(-3deg) scale(1.04);cursor:grabbing}
+
+.pb-wrap{position:relative;display:grid;place-items:center;min-width:0}
+.pb{position:relative;border-radius:12px;background:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.78);
+  box-shadow:0 0 0 1px rgba(120,140,255,.22),0 -6px 36px rgba(90,120,255,.32),0 34px 70px -24px rgba(30,40,110,.4);backdrop-filter:blur(30px) saturate(1.25);overflow:hidden;
+  max-width:100%;touch-action:none;user-select:none;-webkit-user-select:none;transition:opacity .18s ease,scale .18s ease}
+.pb.hidden{opacity:0;scale:.96;pointer-events:none}
+.pb-body{position:relative;width:min(100%,760px);height:clamp(360px,52vw,520px);max-width:100%}
+.pb-wrap .pb-body{width:var(--pb-w,100%)}
+@media (min-width:980px){.pb-wrap .pb-body{--pb-w:min(62vw,760px)}}
+.demo.maxed{grid-template-columns:minmax(0,1fr)}
+.demo.maxed .src{display:none}
+.demo.maxed .pb-body{--pb-w:min(100%,1180px);height:clamp(420px,60vw,640px)}
+.pb-canvas{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(40,50,110,.16) 1.1px,transparent 1.4px);transition:opacity .12s}
+.pb-canvas canvas{position:absolute;left:0;top:0;display:block}
+.pb-canvas.fading,.pb-ui.fading{opacity:0}
+.pb-ui{position:absolute;left:0;top:0;pointer-events:none;transition:opacity .22s}
+.pb-island{position:absolute;left:50%;top:15px;width:240px;height:42px;transform:translateX(-50%);z-index:3;pointer-events:none;opacity:0}
+.pb-island .iblur{position:absolute;top:1px;bottom:1px;left:1px;right:1px;border-radius:21px;backdrop-filter:blur(18px)}
+.pb-island canvas{position:absolute;left:-20px;top:-20px;width:280px;height:82px}
+.pb-recall{all:unset;position:absolute;inset:auto;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:999px;font-size:.85rem;animation:pop-in .35s cubic-bezier(.3,1.6,.5,1)}
+.export-ghost{position:fixed;z-index:1000;pointer-events:none;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:.92}
+.src.drop-target{box-shadow:0 0 0 2px var(--accent),0 20px 50px -24px rgba(30,40,110,.35)}
+.src.got-file{animation:got .9s ease}
+.item.exported{animation:pop-in .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes got{0%{box-shadow:0 0 0 0 rgba(47,111,228,.6)}100%{box-shadow:0 0 0 18px rgba(47,111,228,0)}}
+@keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.demo-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 20px;margin-top:24px}
+.demo-help{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:var(--step--1);color:var(--mute)}
+.demo-help b{font-weight:700;color:var(--ink)}
+.demo-reset{all:unset;cursor:pointer;font-size:var(--step--1);padding:9px 18px;border-radius:999px}
+.demo-error{position:absolute;left:16px;right:16px;bottom:16px;margin:0;padding:10px 14px;border-radius:10px;background:rgba(20,26,60,.7);color:#fff;font-size:.82rem;z-index:5}
+.no-gl .pb-canvas{background:url(assets/scene-play.webp) center/cover}
+
+/* 紹介画像のバブル */
+.bubble-fig{position:relative;aspect-ratio:16/9;margin:8.5%;max-width:100%}
+.bubble-fig img{display:block;width:100%;height:100%;object-fit:cover;border-radius:6px;transition:opacity .3s}
+.bubble-fig.gl img{opacity:0}
+.bubble-fig .fig-cv{position:absolute;pointer-events:none}
+/* スタイルのスイッチ（島と同じガラスの台） */
+.sw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);width:min(330px,calc(100vw - 32px));height:42px;padding:0 4px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  filter:drop-shadow(0 10px 24px rgba(20,30,90,.28));border-radius:21px}
+.sw::before{content:"";position:absolute;inset:1px;border-radius:21px;backdrop-filter:blur(18px);z-index:-1}
+.sw.dragging{cursor:grabbing}
+.sw canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.sw-thumb{position:absolute;left:0;top:4px;height:34px;border-radius:17px;pointer-events:none;will-change:transform;
+  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(240,242,248,.88));box-shadow:0 2px 8px rgba(0,30,80,.25),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(0,40,100,.12)}
+.sw button{all:unset;position:relative;z-index:1;display:grid;place-items:center;font-family:var(--display);font-size:.95rem;letter-spacing:.02em;color:rgba(255,255,255,.92);transition:color .25s;cursor:inherit}
+.sw button[aria-checked="true"]{color:var(--ink)}
+.sw button:focus-visible{outline:2px solid #fff;outline-offset:-4px;border-radius:17px}
+
+/* ---------- ガラスの UI（白） ---------- */
+.glass{position:relative;isolation:isolate;color:#fff;border:1px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12) 55%,rgba(255,255,255,.18));
+  -webkit-backdrop-filter:blur(18px) saturate(1.45);backdrop-filter:blur(18px) saturate(1.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -1px 0 rgba(255,255,255,.25),inset 0 0 0 1px rgba(255,255,255,.08),0 10px 28px -8px rgba(20,30,90,.35);
+  text-shadow:0 1px 6px rgba(20,30,90,.25);transition:transform .25s cubic-bezier(.3,1.5,.5,1),background .25s,box-shadow .25s}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  background:linear-gradient(135deg,rgba(255,255,255,.38),rgba(255,255,255,0) 45%),linear-gradient(315deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%)}
+.glass:hover{background:linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,.18) 55%,rgba(255,255,255,.24));transform:translateY(-1px)}
+.glass:active{transform:scale(.97)}
+.sound.glass,.pb-recall.glass{position:absolute}
+.glass.strong{background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.22) 55%,rgba(255,255,255,.30))}
+.glass.strong:hover{background:linear-gradient(180deg,rgba(255,255,255,.56),rgba(255,255,255,.30) 55%,rgba(255,255,255,.38))}
+
+/* 上部バー（スクロールしても上に残る） */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:env(safe-area-inset-top,0px);color:#fff;transition:background .35s,box-shadow .35s,color .35s}
+.topbar .nav{padding-block:14px;transition:padding .35s}
+.topbar.scrolled{background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 8px 30px -12px rgba(20,30,90,.25);color:var(--ink)}
+.topbar.scrolled .nav{padding-block:8px}
+.topbar.scrolled .glass{color:var(--ink);text-shadow:none;border-color:rgba(26,31,61,.12);background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,.45))}
+.topbar.scrolled .lang button{color:var(--ink)}
+.topbar.scrolled .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.hero{padding-top:72px}
+.hero-copy{will-change:transform,opacity}
+.stage{transform-origin:50% 20%;will-change:transform}
+
+/* セクションが下から重なってくる（前のセクションは少し縮んで奥へ） */
+.card{position:sticky;top:var(--stick,0px);border-radius:32px 32px 0 0;box-shadow:0 -18px 50px -20px rgba(20,30,90,.22);transform-origin:50% 0;will-change:transform}
+main > .card:first-child{border-radius:0}
+.card .card-dim{position:absolute;inset:0;background:#0b1030;opacity:0;pointer-events:none;z-index:30;border-radius:inherit}
+footer.card{position:relative;top:auto}
+
+/* ---------- サイトの動き ---------- */
+.demo-help{margin-top:14px}
+@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
+@keyframes sheen{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}
+@keyframes hue{to{background-position:200% 50%}}
+.hero-copy > *{animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 110ms + 80ms)}
+.hero-copy > :nth-child(1){--i:0}.hero-copy > :nth-child(2){--i:1}.hero-copy > :nth-child(3){--i:2}.hero-copy > :nth-child(4){--i:3}.hero-copy > :nth-child(5){--i:4}
+.lockup img{animation:float 6s ease-in-out infinite}
+.stage .window{animation:rise 1.1s cubic-bezier(.2,.8,.2,1) .55s both}
+.eyebrow-iri{background:linear-gradient(90deg,#4f7bff,#a86bff,#ff6fb1,#ffb35c,#4fd1c5,#4f7bff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:hue 8s linear infinite}
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(120,160,255,.35),transparent);transform:translateX(-120%) skewX(-18deg);animation:sheen 4.5s ease-in-out 1.6s infinite}
+.dl-panel{position:relative;overflow:hidden}
+.dl-panel::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:30%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-120%) skewX(-18deg);animation:sheen 7s ease-in-out 2s infinite}
+.dl .ic{transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.dl:hover .ic{transform:scale(1.12) rotate(-6deg)}
+.dl .arrow{transition:transform .25s}
+.dl:hover .arrow{transform:translateX(4px)}
+/* スクロールで入ってくる（読み込み時に画面の外にあるものだけ。止まった状態は必ず見える） */
+.js-reveal .rv{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
+.js-reveal .rv.in{opacity:1;transform:none}
+.js-reveal .scene.rv .bubble-fig{transform:translateX(var(--sx,-30px)) scale(.97);transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.js-reveal .scene.rv:nth-child(even) .bubble-fig{--sx:30px}
+.js-reveal .scene.rv.in .bubble-fig{transform:none}
+.js-reveal .rv .chip{opacity:0;transform:scale(.7);transition:opacity .4s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.js-reveal .rv.in .chip{opacity:1;transform:none}
+.js-reveal .rv.in .chip:nth-child(5n+1){transition-delay:.35s}.js-reveal .rv.in .chip:nth-child(5n+2){transition-delay:.42s}.js-reveal .rv.in .chip:nth-child(5n+3){transition-delay:.49s}.js-reveal .rv.in .chip:nth-child(5n+4){transition-delay:.56s}.js-reveal .rv.in .chip:nth-child(5n){transition-delay:.63s}
+
+</style>
+
+<div class="flow" id="flow" aria-hidden="true"><div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+<div class="topbar" id="topbar"><div class="wrap">
+    <nav class="nav" aria-label="main">
+      <a class="brand" href="#top"><img src="assets/icon.webp" alt="" width="40" height="40">Pocket Board</a>
+      <div class="nav-right">
+        <div class="lang glass" role="group" aria-label="Language">
+          <button type="button" id="lang-ja" data-lang="ja" aria-pressed="true">JA</button>
+          <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <a class="gh glass" href="https://x.com/Peach4702527919" target="_blank" rel="noopener" aria-label="X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a class="gh glass" href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        </a>
+      </div>
+    </nav>
+</div></div>
+<header class="hero">
+  <div class="wrap">
+
+    <div class="hero-copy" id="top">
+      <p class="kicker"><span lang="ja">動画も。音声も。画像も。</span><span lang="en" class="en">Your Video, Audio, and Images</span></p>
+      <h1><span lang="ja">すべてをひとつのキャンバスに。</span><span lang="en" class="en">All on One Canvas.</span></h1>
+      <div class="lockup"><img src="assets/icon.webp" alt="" width="112" height="112"><span>Pocket Board</span></div>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&amp;gl=JP" id="store-link" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f25022" d="M3 3h8.5v8.5H3z"/><path fill="#7fba00" d="M12.5 3H21v8.5h-8.5z"/><path fill="#00a4ef" d="M3 12.5h8.5V21H3z"/><path fill="#ffb900" d="M12.5 12.5H21V21h-8.5z"/></svg>
+          <span lang="ja">Microsoft Store で入手</span><span lang="en">Get it from Microsoft Store</span>
+        </a>
+        <a class="btn btn-ghost glass" href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 3a1 1 0 011 1v9.6l3.3-3.3a1 1 0 111.4 1.4l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.4L11 13.6V4a1 1 0 011-1zM5 19a1 1 0 100 2h14a1 1 0 100-2H5z"/></svg>
+          <span lang="ja">インストーラ（v1.3.0）</span><span lang="en">Installer (v1.3.0)</span>
+        </a>
+      </div>
+      <div class="facts">
+        <span lang="ja">無料</span><span lang="en">Free</span>
+        <span lang="ja">MIT ライセンスのオープンソース</span><span lang="en">Open source under MIT</span>
+        <span lang="ja">トレイに常駐</span><span lang="en">Lives in your tray</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="stage-band"><div class="wrap stage">
+  <div class="window">
+    <video id="promo" src="assets/promo.mp4" poster="assets/poster.webp" autoplay muted loop playsinline preload="metadata"></video>
+    <button class="sound glass" id="sound" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
+      <span id="sound-label"><span lang="ja">音を出す</span><span lang="en">Sound on</span></span>
+    </button>
+  </div>
+</div></div>
+
+<main>
+  <section class="try card" id="try">
+    <div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="wrap">
+      <div class="sec-head center">
+        <p class="eyebrow eyebrow-iri">Try it</p>
+        <h2><span lang="ja">ここで触ってみる</span><span lang="en">Try it right here</span></h2>
+        <p><span lang="ja">左右のサイトやファイルを、真ん中の Pocket Board へドラッグしてみてください。ガラスの描画も操作も、本物と同じ作りで動いています。</span><span lang="en">Drag the site and files on either side into Pocket Board. The glass and the controls work the same way as the real app.</span></p>
+      </div>
+      <div class="demo" id="demo">
+        <div class="src src-browser">
+          <div class="src-bar"><i></i><i></i><i></i><span class="url">lumen.gallery</span></div>
+          <div class="src-list">
+            <button type="button" class="item wide" id="it-site" data-key="site"><span data-thumb="site"></span><small><span lang="ja">サイトのリンク</span><span lang="en">Website link</span></small></button>
+            <button type="button" class="item" id="it-sunset" data-key="sunset"><span data-thumb="sunset"></span><small>sunset.png</small></button>
+            <button type="button" class="item" id="it-spheres" data-key="spheres"><span data-thumb="spheres"></span><small>spheres.jpg</small></button>
+          </div>
+        </div>
+        <div class="pb-wrap">
+          <div class="pb">
+            <div class="pb-body">
+              <div class="pb-canvas"></div>
+              <canvas class="pb-ui" aria-hidden="true"></canvas>
+              <div class="pb-island" aria-hidden="true"><div class="iblur"></div><canvas></canvas></div>
+            </div>
+          </div>
+          <button type="button" class="pb-recall glass strong" id="dm-recall" hidden><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd><span lang="ja">で呼び出す</span><span lang="en">to bring it back</span></button>
+        </div>
+        <div class="src src-explorer">
+          <div class="src-bar"><span class="ttl"><span lang="ja">エクスプローラー</span><span lang="en">Explorer</span></span></div>
+          <div class="src-list">
+            <button type="button" class="item" id="it-ocean" data-key="ocean"><span data-thumb="ocean"></span><small>ocean.mp4</small></button>
+            <button type="button" class="item" id="it-orbs" data-key="orbs"><span data-thumb="orbs"></span><small>orbs.mp4</small></button>
+            <button type="button" class="item tile" id="it-folder" data-key="folder"><span data-thumb="folder"></span><small>Assets</small></button>
+            <button type="button" class="item tile" id="it-notes" data-key="notes"><span data-thumb="notes"></span><small>notes.txt</small></button>
+            <button type="button" class="item tile" id="it-app" data-key="app"><span data-thumb="app"></span><small>Studio.exe</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="demo-tools">
+        <div class="sw" id="style-switch" role="radiogroup" aria-label="Glass style">
+        <canvas aria-hidden="true"></canvas><span class="sw-thumb" aria-hidden="true"></span>
+        <button type="button" role="radio" data-style="standard" id="sw-standard">Standard</button>
+        <button type="button" role="radio" data-style="carved" id="sw-carved">Carved</button>
+        <button type="button" role="radio" data-style="gummy" id="sw-gummy">Gummy</button>
+      </div>
+        <button type="button" class="demo-reset glass" id="dm-reset"><span lang="ja">最初に戻す</span><span lang="en">Reset</span></button>
+      </div>
+      <div class="demo-help">
+        <span lang="ja"><b>ドラッグ＆ドロップ</b> 左右から入れる</span><span lang="en"><b>Drag in</b> from either side</span>
+        <span lang="ja"><b>クリック</b> 動画を再生</span><span lang="en"><b>Click</b> play a video</span>
+        <span lang="ja"><b>ダブルクリック</b> 全画面 ⇄ 戻す</span><span lang="en"><b>Double-click</b> full view ⇄ back</span>
+        <span lang="ja"><b>2回目を押したままドラッグ</b> 右のエクスプローラーへ書き出し</span><span lang="en"><b>Double-click, hold and drag</b> export to Explorer</span>
+        <span lang="ja"><b>中ボタンドラッグ</b> キャンバス移動</span><span lang="en"><b>Middle-drag</b> move the canvas</span>
+        <span lang="ja"><b>ホイール</b> ズーム</span><span lang="en"><b>Wheel</b> zoom</span>
+        <span lang="ja"><b>右ドラッグ</b> ウィンドウ移動</span><span lang="en"><b>Right-drag</b> move the window</span>
+        <span lang="ja"><b>上の真ん中</b> 島が出る</span><span lang="en"><b>Top center</b> shows the island</span>
+      </div>
+    </div>
+  </section>
+  <section class="card" id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow eyebrow-iri">Features</p>
+        <h2><span lang="ja">置いて、眺めて、また使う。</span><span lang="en">Drop it, see it, use it again.</span></h2>
+        <p><span lang="ja">ブラウザでもエクスプローラーでも、見つけたものはそのままドラッグ。キャンバスの上でバブルになって、いつでも取り出せます。</span><span lang="en">Drag anything from your browser or Explorer. It becomes a bubble on the canvas, ready whenever you need it.</span></p>
+      </div>
+
+      <div class="scenes">
+        <article class="scene">
+          <div class="bubble-fig" data-src="assets/scene-explorer.webp"><img src="assets/scene-explorer.webp" alt="" loading="lazy"></div>
+          <div>
+            <h3><span lang="ja">なんでもドラッグ＆ドロップ</span><span lang="en">Drag and drop anything</span></h3>
+            <p><span lang="ja">ローカルの画像や動画はもちろん、Web の画像・動画・ページのリンク、フォルダやアプリまで。置いたものはガラスのバブルとして並びます。</span><span lang="en">Local images and videos, web images, videos and links, even folders and apps. Everything you drop lines up as a glass bubble.</span></p>
+            <div class="chips">
+              <span class="chip" lang="ja">画像</span><span class="chip" lang="ja">動画</span><span class="chip" lang="ja">Web リンク</span><span class="chip" lang="ja">フォルダ</span><span class="chip" lang="ja">アプリ</span>
+              <span class="chip" lang="en">Images</span><span class="chip" lang="en">Videos</span><span class="chip" lang="en">Links</span><span class="chip" lang="en">Folders</span><span class="chip" lang="en">Apps</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="scene">
+          <div class="bubble-fig" data-src="assets/scene-play.webp"><img src="assets/scene-play.webp" alt="" loading="lazy"></div>
+          <div>
+            <h3><span lang="ja">キャンバスの上でそのまま再生</span><span lang="en">Play videos right on the canvas</span></h3>
+            <p><span lang="ja">動画はクリックで再生。複数の動画を同時に流せるので、参考映像を並べて見比べるのにも向いています。ダブルクリックで、そのバブルだけを大きく表示します。</span><span lang="en">Click a video to play it. Several can play at once, so you can compare references side by side. Double-click to bring one bubble up full size.</span></p>
+          </div>
+        </article>
+
+        <article class="scene">
+          <div class="bubble-fig" data-src="assets/scene-editor.webp"><img src="assets/scene-editor.webp" alt="" loading="lazy"></div>
+          <div>
+            <h3><span lang="ja">ほかのアプリへドラッグで戻す</span><span lang="en">Drag back out to other apps</span></h3>
+            <p><span lang="ja">置いておいたバブルは、動画編集ソフトのタイムラインや 3D ソフトのビューポートへそのままドラッグできます。素材の置き場と作業場を行き来するのがぐっと楽になります。</span><span lang="en">Drag a bubble straight into a video editor's timeline or a 3D app's viewport. Moving between your stash and your work gets much easier.</span></p>
+          </div>
+        </article>
+
+        <article class="scene">
+          <div class="bubble-fig" data-src="assets/scene-flood.webp"><img src="assets/scene-flood.webp" alt="" loading="lazy"></div>
+          <div>
+            <h3><span lang="ja">いつでも呼び出せる</span><span lang="en">Always one shortcut away</span></h3>
+            <p><span lang="ja">Windows の起動と一緒にトレイへ常駐。好きなショートカットキーで、作業中のどこからでもすぐに開けます。たくさん置いても、ズームで全体を見渡せます。</span><span lang="en">Starts with Windows and waits in the tray. Open it from anywhere with the shortcut you choose, and zoom out to see everything at once.</span></p>
+            <div class="keys"><span lang="ja">例：</span><span lang="en">e.g.</span> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  </div>
+  <section class="download card" id="download">
+    <div class="blobs flip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="wrap">
+      <div class="dl-panel">
+        <div>
+          <h2><span lang="ja">無料でダウンロード</span><span lang="en">Download for free</span></h2>
+          <p class="sub"><span lang="ja">Microsoft Store 版は自動でアップデートされます。ソースコードは GitHub で公開しています。</span><span lang="en">The Microsoft Store version updates automatically. The source code is on GitHub.</span></p>
+          <a class="kofi" href="https://ko-fi.com/studio_peach" target="_blank" rel="noopener">☕ <span lang="ja">気に入ったら Ko-fi で応援できます</span><span lang="en">Enjoying it? Support on Ko-fi</span></a>
+        </div>
+        <div class="dl-list">
+          <a class="dl" href="https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&amp;gl=JP" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8.5v8.5H3zM12.5 3H21v8.5h-8.5zM3 12.5h8.5V21H3zM12.5 12.5H21V21h-8.5z"/></svg></span>
+            <span><b>Microsoft Store</b><small lang="ja">おすすめ・自動アップデート</small><small lang="en">Recommended · auto-updates</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
+          </a>
+          <a class="dl" href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a1 1 0 011 1v9.6l3.3-3.3a1 1 0 111.4 1.4l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.4L11 13.6V4a1 1 0 011-1zM5 19a1 1 0 100 2h14a1 1 0 100-2H5z"/></svg></span>
+            <span><b lang="ja">インストーラ</b><b lang="en">Installer</b><small>PocketBoardSetup.exe · v1.3.0</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
+          </a>
+          <a class="dl" href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">
+            <span class="ic"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>
+            <span><b lang="ja">ソースコード</b><b lang="en">Source code</b><small lang="ja">GitHub · プラグインで機能を追加できます</small><small lang="en">GitHub · extend it with plugins</small></span>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="card">
+  <div class="wrap">
+    <span>© 2026 Peach · <span lang="ja">MIT ライセンス</span><span lang="en">MIT License</span></span>
+    <nav aria-label="footer">
+      <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.ja.md" lang="ja" target="_blank" rel="noopener">プラグインガイド</a>
+      <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" lang="en" target="_blank" rel="noopener">Plugin guide</a>
+      <a href="https://github.com/kuiro1024/pocket-board#license" target="_blank" rel="noopener"><span lang="ja">サードパーティのライセンス</span><span lang="en">Third-party licenses</span></a>
+      <a href="https://github.com/kuiro1024/pocket-board/issues" target="_blank" rel="noopener"><span lang="ja">不具合の報告</span><span lang="en">Report an issue</span></a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const STORE_JA = 'https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&gl=JP', STORE_EN = 'https://apps.microsoft.com/detail/9MZDTC61K4HM';
+  function setLang(l) {
+    root.classList.remove('lang-ja', 'lang-en'); root.classList.add('lang-' + l); root.lang = l;
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === l));
+    document.querySelectorAll('a[href*="apps.microsoft.com"]').forEach(a => a.href = l === 'ja' ? STORE_JA : STORE_EN);
+    try { localStorage.setItem('pb-lang', l); } catch (e) {}
+  }
+  let saved = null; try { saved = localStorage.getItem('pb-lang'); } catch (e) {}
+  setLang(saved || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'));
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+  // 動画の音
+  const v = document.getElementById('promo'), snd = document.getElementById('sound');
+  snd.addEventListener('click', () => {
+    v.muted = !v.muted; if (!v.muted) { v.currentTime = 0; v.play().catch(() => {}); }
+    snd.setAttribute('aria-pressed', !v.muted);
+    document.getElementById('sound-label').innerHTML = v.muted ? '<span lang="ja">音を出す</span><span lang="en">Sound on</span>' : '<span lang="ja">消音</span><span lang="en">Mute</span>';
+  });
+
+
+
+  // 上部バー: 少しスクロールしたらガラスの帯にする
+  const topbar = document.getElementById('topbar');
+  const onScroll = () => topbar.classList.toggle('scrolled', scrollY > 24);
+  addEventListener('scroll', onScroll, {passive: true}); onScroll();
+
+
+  // セクションの重なり: 長いセクションは最後まで読める位置で止まり、次のセクションがその上へ滑り込む
+  const cards = [...document.querySelectorAll('main > .card')];
+  cards.forEach(c => { const d = document.createElement('div'); d.className = 'card-dim'; c.appendChild(d); c._dim = d; });
+  const layoutCards = () => cards.forEach(c => c.style.setProperty('--stick', Math.min(0, innerHeight - c.offsetHeight) + 'px'));
+  let cardRaf = 0;
+  const stackFx = () => {
+    cardRaf = 0; const vh = innerHeight;
+    cards.forEach((c, i) => {
+      const next = cards[i + 1] || document.querySelector('footer.card'); if (!next) return;
+      const p = Math.min(1, Math.max(0, (vh - next.getBoundingClientRect().top) / vh));
+      c.style.transform = p > 0 ? `scale(${(1 - .06 * p).toFixed(4)})` : '';
+      c._dim.style.opacity = (p * .35).toFixed(3);
+    });
+  };
+  {
+    layoutCards(); stackFx();
+    addEventListener('resize', () => { layoutCards(); stackFx(); });
+    new ResizeObserver(layoutCards).observe(document.querySelector('main'));
+    addEventListener('scroll', () => { if (!cardRaf) cardRaf = requestAnimationFrame(stackFx); }, {passive: true});
+  }
+  // ヒーローは奥へ引いていき、動画の窓は手前へせり出す。背景の光もスクロールで流れる
+  const flow = document.getElementById('flow'), heroCopy = document.querySelector('.hero-copy'), stage = document.querySelector('.stage');
+  let heroRaf = 0;
+  const heroFx = () => {
+    heroRaf = 0; const vh = innerHeight, y = scrollY;
+    const max = Math.max(1, document.documentElement.scrollHeight - vh);
+    flow.style.setProperty('--sp', (y / max).toFixed(4));
+    const p = Math.min(1, Math.max(0, y / (vh * .7)));
+    heroCopy.style.transform = `translate3d(0,${(p * -70).toFixed(1)}px,0) scale(${(1 - .06 * p).toFixed(4)})`;
+    heroCopy.style.opacity = (1 - p * .95).toFixed(3);
+    heroCopy.style.filter = p > .01 ? `blur(${(p * 6).toFixed(2)}px)` : '';
+    const r = stage.getBoundingClientRect(), q = Math.min(1, Math.max(0, (vh - r.top) / (vh * .9)));
+    stage.style.transform = `scale(${(.9 + .1 * q).toFixed(4)})`;
+  };
+  heroFx();
+  addEventListener('scroll', () => { if (!heroRaf) heroRaf = requestAnimationFrame(heroFx); }, {passive: true});
+  addEventListener('resize', heroFx);
+
+  // 画面外の光は止めておく（軽くするため）
+  document.querySelectorAll('.blobs').forEach(b => new IntersectionObserver(es => b.classList.toggle('paused', !es[0].isIntersecting)).observe(b.parentElement));
+
+  // スクロールで入ってくる演出（読み込み時に画面外のものだけ対象）
+  if ('IntersectionObserver' in window) {
+    const els = [...document.querySelectorAll('.sec-head, .scene, .dl-panel, .demo, .demo-tools')];
+    const vh = innerHeight;
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), {rootMargin: '0px 0px -8% 0px'});
+    els.forEach(el => { if (el.getBoundingClientRect().top > vh * .92) { el.classList.add('rv'); io.observe(el); } });
+    document.documentElement.classList.add('js-reveal');
+  }
+
+})();
+</script>
+<script src="assets/app.js"></script>

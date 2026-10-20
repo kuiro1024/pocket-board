@@ -1,0 +1,1829 @@
+=== 515,600
+515:         return;
+516:     s_done = true;
+517: 
+518:     QImage scratch(4, 4, QImage::Format_ARGB32_Premultiplied);
+519:     scratch.fill(Qt::transparent);
+520:     QPainter p(&scratch);
+521:     p.setRenderHint(QPainter::TextAntialiasing, true);
+522:     // paintLabelPanelRows / CanvasVideoLabelPainter と同じ組み合わせ。
+523:     const QList<QFont> fonts{
+524:         QFont(QStringLiteral("Arial"), 7, QFont::DemiBold),
+525:         QFont(QStringLiteral("Arial"), 9),
+526:         QFont(QStringLiteral("Arial"), 10, QFont::DemiBold),
+527:     };
+528:     // 英数字と日本語の両方を通す（日本語はフォールバックの解決が走る）。
+529:     const QString sample = QStringLiteral("Ag0 あア亜");
+530:     for (const QFont &f : fonts) {
+531:         p.setFont(f);
+532:         QFontMetrics(f).horizontalAdvance(sample); // 省略計算と同じ経路
+533:         p.drawText(QRectF(0, 0, 4, 4), Qt::AlignLeft, sample);
+534:     }
+535: }
+536: // 島（DynamicIsland、画面上部中央）と被らないよう小ぶりに保つ。
+537: constexpr double kPanelWidth     = 244.0;
+538: constexpr double kPanelMinWidth  = 168.0;
+539: constexpr double kPanelRowHeight = 44.0;
+540: // 2026-09-12: 板の角丸はラベルの台（カプセル）の丸みをそのまま使うように
+541: // したため、この定数は未使用。数値で角丸を決め打ちしたくなったとき用に
+542: // 残してある（使うなら labelPanelPlateGeometry と行のクリップの両方を
+543: // 必ず同じ値に揃えること）。
+544: [[maybe_unused]] constexpr double kPanelRadius = 14.0;
+545: constexpr double kPanelPadding   = 7.0;
+546: // リストの上下の端をこの高さぶんフェードさせる（スパッと切れて見えないように）。
+547: // 2026-09-12: 26 → 34 へ。もう少し効かせたいのと、下の「端に着いたら帯ごと
+548: // 縮める」処理を入れたぶん、最大の帯は広めでちょうどよくなった。
+549: constexpr double kPanelEdgeFade  = 34.0;
+550: constexpr double kThumbWidth     = 58.0;
+551: constexpr double kThumbHeight    = 33.0;
+552: 
+553: // ラベルの引っ張り（固定操作）。しきい値を超えて離すと固定／解除が
+554: // トグルする。kLabelPullMax は「これ以上は伸びない」上限で、指の移動量は
+555: // tanh で丸めて渡す（引くほど重くなるゴムの手応え）。
+556: // ---- 行の左まわりの寸法（2026-09-12）----
+557: //
+558: // ヘッダのロゴ（円）を縦の基準線にして、リストの行をそこへ揃える。
+559: //
+560: //   ロゴの左端  … アクティブ行の枠の左端
+561: //   ロゴの中心  … 行のピンの中心
+562: //   ロゴの右端  … サムネイルの左端
+563: //
+564: // ロゴの寸法は CanvasVideoLabel 側が持っているので、そこから引いてくる
+565: // （数値を直書きすると、ラベルの余白を変えた瞬間に黙ってずれる）。
+566: // ウィンドウ座標では
+567: //   ロゴの左端 = 台の左端 + (kIconCenterFromPillLeft - kIconSizePx/2)
+568: //   行の左端   = 台の左端 + kPanelPadding
+569: // なので、その差が「行の左端から見た位置」になる。
+570: constexpr double kRowIconLeftX =
+571:     CanvasVideoLabelPainter::kIconCenterFromPillLeft
+572:     - CanvasVideoLabelPainter::kIconSizePx * 0.5 - kPanelPadding;
+573: constexpr double kRowPinCenterX =
+574:     CanvasVideoLabelPainter::kIconCenterFromPillLeft - kPanelPadding;
+575: // 行の左端からサムネイルの左端まで（＝ロゴの右端）。
+576: constexpr double kRowPinWidth =
+577:     CanvasVideoLabelPainter::kIconCenterFromPillLeft
+578:     + CanvasVideoLabelPainter::kIconSizePx * 0.5 - kPanelPadding;
+579: // 再生中のピンの半径（最大のとき）。
+580: constexpr double kRowPinRadius  = 3.4;
+581: // サムネイル⇔タイトルの間隔。ピンの右端⇔サムネイルの左端
+582: // （kRowPinWidth - kRowPinCenterX - kRowPinRadius ≒ 6.6）とほぼ同じ値に
+583: // して、サムネイルの左右の余白が揃って見えるようにしている。
+584: constexpr double kRowGap        = 6.5;
+585: // 再生中の行の右に置く簡易イコライザの幅（タイトルはこの分だけ短く切る）。
+586: constexpr double kRowEqWidth  = 34.0;
+587: constexpr double kLabelPullThreshold = 40.0;
+588: constexpr double kLabelPullMax       = 74.0;
+589: 
+590: // ---- 再生中の行のイコライザ（棒4本＋音符2つ）の寸法 ----
+591: // 2026-09-12: 描画（paintNowPlayingEqualizer）と部分更新の矩形
+592: // （equalizerDamageRect）の両方から使うので、ここに集約してある。
+593: // 片方だけ書き換えると「動いているのに再描画されない／逆に無駄に広い」
+594: // ことになるので、値を変えるときは必ずこの定数を触ること。
+595: constexpr double kEqBarWidth    = 3.0;
+596: constexpr double kEqBarGap      = 2.0;
+597: constexpr int    kEqBarCount    = 4;
+598: constexpr double kEqMaxHeight   = 15.0;
+599: // 行の右端からどれだけ内側に置くか。
+600: constexpr double kEqRightInset  = 11.0;
+=== 3635,4080
+3635: void CanvasVideo::paintLabelAndPanel(QPainter &painter, int W, int H,
+3636:                                      BackdropBlur::Regions *blurRegions,
+3637:                                      float fade)
+3638: {
+3639:     m_labelFadeAlpha = fade;
+3640: 
+3641:     // 引っ張っている間（と、離してバネで戻る間）は全体を下へずらす。
+3642:     painter.save();
+3643:     if (m_labelPull > 0.01)
+3644:         painter.translate(0.0, m_labelPull);
+3645:     // 2026-09-23: 長押しの実行に失敗したとき、ラベルごと小さく首を振る。
+3646:     if (m_labelHoldShakeMs >= 0.0) {
+3647:         constexpr double kShakeMs = 380.0;
+3648:         const double t = qBound(0.0, m_labelHoldShakeMs / kShakeMs, 1.0);
+3649:         const double amp = 4.0 * (1.0 - t) * (1.0 - t);
+3650:         painter.translate(amp * std::sin(t * 2.0 * M_PI * 3.5), 0.0);
+3651:     }
+3652: 
+3653:     // ---- フォーカスラベルと、そこから伸びるコントローラ ----
+3654:     //
+3655:     // 開いている間はラベルの台を描かせず、代わりに「ラベルの形から
+3656:     // カードの形へ伸びていく1枚の板」をこちら側で描く（島UIと同じ
+3657:     // 考え方。2枚重ねると角が二重に見えてしまう）。板は t=0 でラベルの
+3658:     // 台と完全に同じ形なので、開き始めに形が飛ばない。
+3659:     m_labelPanelRect = QRectF();
+3660:     m_labelPanelRowRects.clear();
+3661:     m_labelPanelRowUrls.clear();
+3662:     m_labelPanelRowIndices.clear();
+3663:     m_labelPanelNowRowRect = QRectF();
+3664:     m_labelBtnPrev = m_labelBtnPlay = m_labelBtnNext = QRectF();
+3665: 
+3666:     // 台（ガラスの板）は畳んでいる間も常にこちら側で描く。ラベル側にも
+3667:     // 台を描く機能は残っているが、両方が描くと角が二重に見えるので、
+3668:     // こちらが描くときはラベル側は中身（ロゴ＋テキスト）だけにする。
+3669:     const bool panelActive = (m_labelPanelAnim > 0.001f);
+3670: 
+3671:     // 2026-09-12: 次の動画へ移る間もラベル（＝リストの頭）を保つ。
+3672:     // resolveViaPlugin()は新しい解決を始める時点でラベルを一旦空にする
+3673:     // （失敗時や別サイトの動画へ移ったときに古い表示が残らないように）。
+3674:     // そのため、コントローラを開いたまま次の動画へ進むと、解決〜デコード
+3675:     // 開始までの数秒間だけリストがまるごと消えていた。開いている間に
+3676:     // 限り、直前の（空でない）ラベルを描画用に使い回して繋ぐ。中身の行は
+3677:     // プラグインのキャッシュから組まれるのでそのまま出せる。
+3678:     //
+3679:     // 2026-09-22: 本体の基本ラベル。ラベルはプラグインのメディアだけのもの
+3680:     // ではなくなった。どの動画バブルにも本体がラベルを出し、プラグインは
+3681:     // それを上書きできる:
+3682:     //   テキスト … プラグインが空なら本体が決める（Solo / List）。
+3683:     //              Mix・Live などはプラグインが足すもの。
+3684:     //   ロゴ     … プラグインが空なら本体の既定ロゴ（灰色）。
+3685:     //   List     … 本体の List はバブル融合で吸い込んだ動画があるとき
+3686:     //              （stackCount() > 1）。本体は List の中身の意味を知らない。
+3687:     // プラグインのメディアは、解決の答えが返るまで（m_pluginLabelKnown）は
+3688:     // まだ何者か分からないので、本体のラベルも出さず sticky で繋ぐ。
+3689:     const bool labelKnown =
+3690:         m_source.kind != MediaKind::PluginMedia || m_pluginLabelKnown;
+3691:     if (labelKnown) {
+3692:         const bool pluginText = !m_labelText.isEmpty();
+3693:         m_labelIconSvgSticky = m_labelIconSvg.isEmpty() ? coreLabelIconSvg() : m_labelIconSvg;
+3694:         if (hasCoreList()) {
+3695:             // 本体のリスト。並びを持っているのは本体なので、プラグインの
+3696:             // テキスト（その動画単体の意味）より優先して List を出す。
+3697:             // 一覧を開ける・固定できる・再生位置を出せる（プラグインの List と同じ）。
+3698:             m_labelTextSticky      = QStringLiteral("List");
+3699:             m_labelHoverableSticky = true;
+3700:             m_labelPinnableSticky  = true;
+3701:             m_labelProgressSticky  = true;
+3702:         } else {
+3703:             m_labelTextSticky = pluginText ? m_labelText : QStringLiteral("Solo");
+3704:             // 反応・固定・再生位置の表示は、プラグインのラベルならプラグインの指定。
+3705:             // 本体の Solo は表示だけ（押しても何も起きない）。
+3706:             m_labelHoverableSticky = pluginText && m_labelHoverable;
+3707:             m_labelPinnableSticky  = pluginText && m_labelPinnable;
+3708:             m_labelProgressSticky  = pluginText && m_labelProgress;
+3709:         }
+3710: 
+3711:         // 2026-09-23: ラベルの長押し（PbLabelActionApi.h）。
+3712:         //   本体のリスト … 無し（一覧はクリックで開く）
+3713:         //   ローカル     … 本体が受け持つ（同じフォルダで List にする）。Solo のときだけ。
+3714:         //   プラグイン   … プラグインに聞く（例: 単発の動画を関連動画のリストに切り替える）。
+3715:         // プラグインへは毎フレーム聞かず、URLとラベルが変わったときだけ聞き直す
+3716:         // （配信だと分かった等で答えが変わるのは、解決が終わってラベルが変わるとき）。
+3717:         // 2026-09-23改訂: 動作の持ち主は担当プラグインが決める（PbLabelActionApi.h）。
+3718:         // 本体が持っているのは「長押しという操作」と、自分の動作が1つ
+3719:         // （同じフォルダのものを並べる）だけ。担当プラグインがいないメディア
+3720:         // （ローカルのファイル）は聞く相手がいないので本体の動作になる。
+3721:         bool holdAvailable = false;
+3722:         bool holdCore = false;
+3723:         QString holdHint;
+3724:         QString holdTarget;
+3725:         if (!hasCoreList()) {
+3726:             if (m_source.kind == MediaKind::PluginMedia) {
+3727:                 const QString key = m_source.originalPathOrUrl + QChar(0x1f) + m_labelText;
+3728:                 if (key != m_labelHoldQueryUrl) {
+3729:                     m_labelHoldQueryUrl = key;
+3730:                     const PbLabelHoldAction a =
+3731:                         PluginManager::instance().labelHoldAction(m_source.originalPathOrUrl);
+3732:                     m_labelHoldQueryKind = static_cast<int>(a.kind);
+3733:                     m_labelHoldQueryHint = a.hint;
+3734:                     m_labelHoldQueryTarget = a.targetLabel;
+3735:                     qDebug().noquote() << QStringLiteral(
+3736:                         "[CanvasVideo %1] label hold: plugin says kind=%2 hint=\"%3\" for %4")
+3737:                         .arg(reinterpret_cast<quintptr>(this), 0, 16)
+3738:                         .arg(m_labelHoldQueryKind).arg(m_labelHoldQueryHint,
+3739:                              m_source.originalPathOrUrl.left(90));
+3740:                 }
+3741:                 const auto kind = static_cast<PbLabelHoldActionKind>(m_labelHoldQueryKind);
+3742:                 holdAvailable = (kind != PbLabelHoldActionKind::None);
+3743:                 holdCore = (kind == PbLabelHoldActionKind::Core);
+3744:                 holdHint = holdCore ? coreLabelHoldHint() : m_labelHoldQueryHint;
+3745:                 holdTarget = holdCore ? coreLabelHoldTarget() : m_labelHoldQueryTarget;
+3746:             } else if (m_source.kind == MediaKind::LocalVideo
+3747:                        || m_source.kind == MediaKind::LocalAudio) {
+3748:                 holdAvailable = !pluginText;
+3749:                 holdCore = true;
+3750:                 holdHint = coreLabelHoldHint();
+3751:                 holdTarget = coreLabelHoldTarget();
+3752:             }
+3753:         }
+3754:         m_labelHoldAvailableSticky = holdAvailable;
+3755:         m_labelHoldCore = holdCore;
+3756:         m_labelHoldHint = holdHint;
+3757:         m_labelHoldTargetText = holdTarget;
+3758:         // 押せることの合図（ホバーで明るくなる）も出す。
+3759:         if (holdAvailable)
+3760:             m_labelHoverableSticky = true;
+3761:     }
+3762:     // 2026-09-13改訂: 条件を外し、**次の動画へ移る間は常に**直前のラベルで
+3763:     // 繋ぐ。従来は「リストを開いている／固定している」ときだけだったため、
+3764:     // ふつうに自動再生で次の曲へ進むと、解決中の1〜2秒だけラベルが消えて
+3765:     // また出る、というちらつきが起きていた。
+3766:     // 【sticky が残り続けない理由】解決が終わった時点で、結果が空なら
+3767:     // sticky も空にしている（onUrlFetched）。ラベルの無い動画へ移った
+3768:     // 場合は、その瞬間に消える。
+3769:     // 2026-09-22: 描画は常に sticky（＝上で決めた今のラベル、解決中なら直前の
+3770:     // ラベル）を使う。
+3771:     const QByteArray labelIconSvg = m_labelIconSvgSticky;
+3772:     const QString    labelText    = m_labelTextSticky;
+3773:     m_labelHoverableEffective = m_labelHoverableSticky;
+3774:     m_labelPinnableEffective  = m_labelPinnableSticky;
+3775:     m_labelProgressEffective  = m_labelProgressSticky;
+3776:     m_labelHoldAvailableEffective = m_labelHoldAvailableSticky;
+3777:     // 固定できないものへ差し替わったら固定は自動的に外す（Liveや単発動画に
+3778:     // 移った場合など）。
+3779:     // 【2026-09-12】ただし「まだラベルが分かっていないだけ」の状態では外さない。
+3780:     // 解決中（resolveViaPlugin がラベルを一旦空にする）は labelPinnable も
+3781:     // false に見えるが、それは「固定不可」ではなく「未確定」。ここで外すと
+3782:     // 次の動画へ移るたびに固定が落ちる。答えが返ってラベルが埋まった時点で
+3783:     // 改めて判定する。
+3784:     if (m_labelPinned && !labelText.isEmpty() && !m_labelPinnableEffective)
+3785:         m_labelPinned = false;
+3786: 
+3787:     // 入れ替え先の語も渡す（台の幅を先に確定させ、入れ替えの最中に形を動かさない）。
+3788:     QRectF labelRect = m_labelPainter.measure(W, H, labelIconSvg, labelText,
+3789:                                               m_labelHoldTargetText);
+3790:     if (!labelRect.isEmpty())
+3791:         m_labelRectForPanel = labelRect;   // 縮める前の「本来の幅」を保つ
+3792:     else if (panelActive)
+3793:         labelRect = m_labelRectForPanel; // 移動直後のロード中も形を保つ
+3794: 
+3795:     // 2026-09-13: 島とぶつかるときの最小化。ここで台の幅そのものを縮めて
+3796:     // おけば、板（labelPanelPlateGeometry）も縁の再生位置表示も同じ形を
+3797:     // 見るので、別々に追従させる必要がない。ラベル側の描画には同じ進捗を
+3798:     // 渡して、ロゴを台の中心へ寄せ・テキストを消してもらう。
+3799:     const double labelCompact = qBound(0.0f, m_labelCompactAnim, 1.0f);
+3800:     if (labelCompact > 0.0001 && !labelRect.isEmpty()) {
+3801:         labelRect.setWidth(CanvasVideoLabelPainter::compactPillWidth(
+3802:             labelRect.width(), labelRect.height(), labelCompact));
+3803:     }
+3804:     QList<PanelRow> rows;
+3805:     QRectF plate;
+3806:     const bool wantPlate = !labelRect.isEmpty() && !labelText.isEmpty();
+3807:     QElapsedTimer panelStatTimer;
+3808:     bool panelCacheHit = false;
+3809:     if (wantPlate && m_labelFadeAlpha > 0.01f) {
+3810:         panelStatTimer.start();
+3811:         if (panelActive)
+3812:             rows = orderedPanelRows();
+3813: 
+3814:         const PlateGeometry geo = labelPanelPlateGeometry(labelRect, W, H, rows.size());
+3815:         plate = geo.plate;
+3816:         const bool withRows = panelActive && rows.size() > 1;
+3817: 
+3818:         // 2026-09-12: 描いた結果を画像に取っておき、内容が変わっていない
+3819:         // フレームはそれを貼るだけにする。実測でこの板＋行の描画だけで
+3820:         // 4〜5ms/フレーム（開いた直後は最大410ms）かかっていた。ガラスの
+3821:         // 縁はグラデーションのペンで輪郭を何十本も重ねるため、面積ではなく
+3822:         // ストローク数で高くつく。
+3823:         //
+3824:         // 見た目が変わらない根拠: このオーバーレイは半透明ウィジェットで、
+3825:         // 背景のぼかしはGL側の別レイヤーが受け持つ。つまりガラスの加算・
+3826:         // 乗算合成はいずれも「透明な下地」に対して行われており、透明な
+3827:         // 画像へ描いてから貼るのと完全に同じ結果になる。
+3828:         const PanelCacheKeyParts parts = labelPanelCacheParts(rows, geo, withRows);
+3829:         const quint64 key = hashPanelCacheParts(parts);
+3830:         const qreal dpr = painter.device()
+3831:             ? painter.device()->devicePixelRatioF() : 1.0;
+3832:         const QRectF cacheRect = plate.adjusted(-12.0, -12.0, 12.0, 12.0);
+3833: 
+3834:         // ---- 板と行を別々のキャッシュにする（2026-09-14 B-2）------------
+3835:         //
+3836:         // 【なぜ】スクロール中の実測（[LabelPanel][stat]）:
+3837:         //     build=6.82ms why=scroll | plate=4.98ms rows=1.78ms
+3838:         // 板が74%を占めているのに、why= は scroll だけ。つまり板の形も
+3839:         // アクセント色も何ひとつ変わっていないのに、行が動いただけで
+3840:         // ガラスの板を丸ごと焼き直していた。
+3841:         //
+3842:         // 板のキーは「形・角丸・アクセント色・dpr」だけにする。スクロール量や
+3843:         // 行の内容は入れない。行は従来どおりの全キーで別画像へ焼き、板の上へ
+3844:         // 重ねる。
+3845:         //
+3846:         // 重ねても結果が変わらない根拠: paintLabelPanelRows() は行を自前の
+3847:         // 透明な QImage へ描き、端をぼかしてから drawImage で貼っている。
+3848:         // それ以外も setOpacity + SourceOver だけで、板の画素を読む合成
+3849:         // （Plus / Multiply / DestinationIn）は板側にしか無い。
+3850:         const quint64 plateKey = hashPlateCacheParts(parts);
+3851:         const QSize px((qMax(1.0, cacheRect.width())  * dpr) + 1,
+3852:                        (qMax(1.0, cacheRect.height()) * dpr) + 1);
+3853:         const bool dprSame = qFuzzyCompare(m_panelCacheDpr + 1.0, dpr + 1.0);
+3854: 
+3855:         // 焼くときは fade=1.0（濃さは貼るときに掛ける。B-3）。板と行の
+3856:         // どちらも内部で m_labelFadeAlpha を見るので、まとめて差し替える。
+3857:         const float bakedFade = m_labelFadeAlpha;
+3858: 
+3859:         // ---- 板 ----
+3860:         // 2026-09-16: GL版では板はぼかしと一緒にGL側で描くので、画像へ焼かない
+3861:         // （伸び縮みの間はここが毎フレーム外れて焼き直しになっていた）。
+3862:         const bool glPlate = blurRegions && videoGlassOnGpu();
+3863:         if (glPlate) {
+3864:             if (!m_panelPlateCache.isNull())
+3865:                 m_panelPlateCache = QImage();   // 使わないのでメモリを返す
+3866:         } else if (plateKey == m_panelPlateKey && !m_panelPlateCache.isNull()
+3867:             && dprSame && m_panelPlateCache.size() == px) {
+3868:             ++m_panelStatPlateHits;
+3869:         } else {
+3870:             ++m_panelStatPlateMisses;
+3871:             QElapsedTimer t;
+3872:             t.start();
+3873:             QImage img(px, QImage::Format_ARGB32_Premultiplied);
+3874:             img.setDevicePixelRatio(dpr);
+3875:             img.fill(Qt::transparent);
+3876:             {
+3877:                 m_labelFadeAlpha = 1.0f;
+3878:                 QPainter cp(&img);
+3879:                 cp.setRenderHint(QPainter::Antialiasing, true);
+3880:                 cp.setRenderHint(QPainter::SmoothPixmapTransform, true);
+3881:                 cp.translate(-cacheRect.topLeft());
+3882:                 paintLabelPanelPlate(cp, geo, m_labelFadeAlpha);
+3883:                 cp.end();
+3884:                 m_labelFadeAlpha = bakedFade;
+3885:             }
+3886:             m_panelPlateCache = img;
+3887:             m_panelPlateKey   = plateKey;
+3888:             m_panelStatPlateMs += t.nsecsElapsed() / 1e6;
+3889:         }
+3890: 
+3891:         // ---- 行 ----
+3892:         // 2026-09-14 B-4: 帯キャッシュが使える条件なら、そちらを使う。
+3893:         // 使えないのは (a) 並べ替えドラッグ中（並び自体が毎フレーム変わる）
+3894:         // (b) 伸び縮みの最中（reveal<1。濃さを後から掛けると影の付き方が
+3895:         // わずかに変わるため、この間は従来どおり焼く）。
+3896:         {
+3897:             const double reveal = qBound(
+3898:                 0.0, (static_cast<double>(m_labelPanelAnim) - 0.55) / 0.45, 1.0);
+3899:             const bool rowDragging = (m_rowDragIndex >= 0 && m_rowDragMoved
+3900:                                       && m_rowDragIndex < rows.size());
+3901:             m_panelUseStrip = withRows && !rowDragging && reveal >= 0.999;
+3902:             if (m_panelUseStrip) {
+3903:                 QElapsedTimer t;
+3904:                 t.start();
+3905:                 m_panelUseStrip =
+3906:                     ensureLabelPanelStrip(plate, labelRect, rows, parts, dpr);
+3907:                 m_panelStatStripMs += t.nsecsElapsed() / 1e6;
+3908:             }
+3909:         }
+3910:         if (m_panelUseStrip) {
+3911:             // 旧経路の行画像は貼らない。ヒット判定の矩形は貼るときに作る。
+3912:             m_panelCacheRowsDrawn = false;
+3913:             // 2026-09-23: 旧経路の画像のキーも捨てる。残しておくと、同じ行を
+3914:             // もう一度掴んだ最初のフレーム（前回のドラッグ開始と同じ並び・
+3915:             // 隙間・スクロール）でキーが一致してキャッシュが当たり、その一方で
+3916:             // 上の「貼らない」印が残ったままになる → 掴んだ行以外が全部
+3917:             // 消えて見えていた（隙間が動いてキーが変わるまで）。
+3918:             m_panelCacheKey = 0;
+3919:         } else if (key == m_panelCacheKey && !m_panelCache.isNull()
+3920:             && dprSame && m_panelCache.size() == px) {
+3921:             panelCacheHit = true;
+3922:             ++m_panelStatHits;
+3923:             // 当たった画像は同じキー（＝同じ withRows）で焼いたもの。
+3924:             // 貼るかどうかの印もそれに合わせる（念のため）。
+3925:             m_panelCacheRowsDrawn = withRows;
+3926:         } else {
+3927:             // 2026-09-14: 外れた理由を記録する（describePanelCacheMiss）。
+3928:             ++m_panelStatMisses;
+3929:             if (!m_panelCache.isNull())
+3930:                 m_panelStatMissMask |= diffPanelCacheParts(m_panelKeyParts, parts);
+3931:             m_panelKeyParts = parts;
+3932:             QElapsedTimer t;
+3933:             t.start();
+3934:             QImage img(px, QImage::Format_ARGB32_Premultiplied);
+3935:             img.setDevicePixelRatio(dpr);
+3936:             img.fill(Qt::transparent);
+3937:             if (withRows) {
+3938:                 m_labelFadeAlpha = 1.0f;
+3939:                 QPainter cp(&img);
+3940:                 cp.setRenderHint(QPainter::Antialiasing, true);
+3941:                 cp.setRenderHint(QPainter::TextAntialiasing, true);
+3942:                 cp.setRenderHint(QPainter::SmoothPixmapTransform, true);
+3943:                 cp.translate(-cacheRect.topLeft());
+3944:                 paintLabelPanelRows(cp, plate, labelRect, rows);
+3945:                 cp.end();
+3946:                 m_labelFadeAlpha = bakedFade;
+3947:             }
+3948:             m_panelCache       = img;
+3949:             m_panelCacheKey    = key;
+3950:             m_panelCacheRowsDrawn = withRows;
+3951:             // ヒット判定用の矩形は描いたときの値を覚えておき、キャッシュを
+3952:             // 貼るフレームでも同じものを使う。
+3953:             m_panelCacheRowRects   = m_labelPanelRowRects;
+3954:             m_panelCacheRowUrls    = m_labelPanelRowUrls;
+3955:             m_panelCacheRowIndices = m_labelPanelRowIndices;
+3956:             m_panelCacheNowRowRect = m_labelPanelNowRowRect;
+3957:             m_panelStatRowsMs += t.nsecsElapsed() / 1e6;
+3958:         }
+3959:         m_panelCacheDpr    = dpr;
+3960:         m_panelCacheOrigin = cacheRect.topLeft();
+3961:         m_panelStatBuildMs = m_panelStatPlateMs + m_panelStatRowsMs;
+3962: 
+3963:         // 焼いた画像は fade=1.0 の絵なので、ここで濃さを掛ける（B-3）。
+3964:         // 板 → 行 の順に重ねる。
+3965:         {
+3966:             const qreal savedOpacity = painter.opacity();
+3967:             painter.setOpacity(savedOpacity * static_cast<double>(m_labelFadeAlpha));
+3968:             if (!glPlate)
+3969:                 painter.drawImage(m_panelCacheOrigin, m_panelPlateCache);
+3970:             if (m_panelUseStrip)
+3971:                 blitLabelPanelStrip(painter, plate, labelRect, rows);
+3972:             else if (m_panelCacheRowsDrawn)
+3973:                 painter.drawImage(m_panelCacheOrigin, m_panelCache);
+3974:             painter.setOpacity(savedOpacity);
+3975:         }
+3976: 
+3977:         if (blurRegions) {
+3978:             // 【2026-09-12】引っ張り(m_labelPull)はpainterのtranslateで効かせて
+3979:             // いるが、ぼかしの領域はウィジェット座標で直接渡すため変換が
+3980:             // 効かない。ここで同じ分だけ下げておかないと、板だけ下がって
+3981:             // ぼかしが元の位置に取り残される。
+3982:             blurRegions->add(plate.translated(0.0, m_labelPull),
+3983:                              (geo.leftRadius + geo.rightRadius) * 0.5,
+3984:                              BackdropBlur::kDefaultUiBlurRadius,
+3985:                              painter.opacity() * m_labelFadeAlpha,
+3986:                              glPlate ? videoGlassStyle(cachedAccentColor())
+3987:                                      : BackdropBlur::GlassPlateStyle());
+3988:         }
+3989:     }
+3990: 
+3991:     // 2026-09-12: リストが開くとき、テキスト（＋鍵マーク）は板の右端へ
+3992:     // ついていき、空いた中央に簡易コントロールを置く。ラベルは島の下位に
+3993:     // あって「島に触れると畳む」関係なので、右上にボタンを置くとウィンドウ
+3994:     // 幅によって島と当たってしまうため（中央なら当たらない）。
+3995:     // 板の右端は伸び縮みに合わせて動くので、その差分をそのまま渡せば
+3996:     // アニメーションにも自然に追従する。
+3997:     const double labelTextShift = (!plate.isEmpty() && !labelRect.isEmpty())
+3998:         ? qMax(0.0, plate.right() - labelRect.right()) : 0.0;
+3999:     // 2026-09-23: 長押しでためている間、ラベルの文字が入れ替わっていく
+4000:     // （Solo → List / Mix …）。途中でやめればゲージと一緒に戻る。
+4001:     const double labelMorph =
+4002:         (!m_labelHoldTargetText.isEmpty() && m_labelHoldTargetText != labelText)
+4003:             ? qBound(0.0, m_labelHold, 1.0) : 0.0;
+4004:     const QRectF labelPill = m_labelPainter.paint(painter, W, H, m_labelFadeAlpha,
+4005:                                                   labelIconSvg, labelText,
+4006:                                                   /*drawPill=*/!wantPlate,
+4007:                                                   labelTextShift, labelCompact,
+4008:                                                   m_labelHoldTargetText, labelMorph);
+4009:     if (blurRegions && !labelPill.isEmpty()) {
+4010:         // 板と同じ理由で、引っ張っている分だけ下げる（上のコメント参照）。
+4011:         blurRegions->add(labelPill.translated(0.0, m_labelPull),
+4012:                          labelPill.height() * 0.5,
+4013:                          BackdropBlur::kDefaultUiBlurRadius,
+4014:                          painter.opacity() * m_labelFadeAlpha);
+4015:     }
+4016: 
+4017:     // ---- 台の縁に沿った再生位置（2026-09-13追加）----
+4018:     // 出すかどうかはプラグインが決める（PbResolvedMedia::labelProgress）。
+4019:     // 輪郭は「いま実際に描いた台」のもの（閉じていればカプセル、開いて
+4020:     // いればカード）。輪郭そのものを辿るので、伸び縮みの最中でも破綻しない。
+4021:     // 板のキャッシュの外に描く（中身が毎秒変わるため。イコライザと同じ扱い）。
+4022:     if (m_labelProgressEffective && m_labelFadeAlpha > 0.01f) {
+4023:         const QRectF outline = !plate.isEmpty() ? plate : labelPill;
+4024:         const double pillH = !labelRect.isEmpty() ? labelRect.height()
+4025:                                                   : outline.height();
+4026:         if (!outline.isEmpty() && pillH > 1.0 && m_labelProgressFade > 0.01) {
+4027:             // 位置は m_labelProgressShown（尺が分からない間は保持した値）、
+4028:             // 濃さにはフェードを掛ける。曲の変わり目で消えて出直す。
+4029:             paintLabelProgressRing(painter, outline,
+4030:                                    CanvasVideoLabelPainter::pillLeftRadius(pillH),
+4031:                                    pillH * 0.5, m_labelProgressShown,
+4032:                                    static_cast<double>(m_labelFadeAlpha)
+4033:                                        * m_labelProgressFade);
+4034:         }
+4035:     }
+4036: 
+4037:     // ---- 長押しのゲージ（2026-09-23追加）----
+4038:     // 再生位置の光と同じく台の縁を辿る。こちらは「たまった分」を線で残す
+4039:     // （時計の針が塗り残していくように、上の中央から時計回り）。
+4040:     if ((m_labelHold > 0.002 || m_labelHoldHintAlpha > 0.01 || m_labelHoldTrack > 0.01)
+4041:         && m_labelFadeAlpha > 0.01f) {
+4042:         const QRectF outline = !plate.isEmpty() ? plate : labelPill;
+4043:         const double pillH = !labelRect.isEmpty() ? labelRect.height()
+4044:                                                   : outline.height();
+4045:         if (!outline.isEmpty() && pillH > 1.0
+4046:             && (m_labelHold > 0.002 || m_labelHoldTrack > 0.01)) {
+4047:             double alpha = static_cast<double>(m_labelFadeAlpha);
+4048:             if (m_labelHoldPhase == LabelHoldPhase::Waiting)   // 結果待ちは息をする
+4049:                 alpha *= 0.72 + 0.28 * std::cos(m_labelHoldWaitMs / 1000.0 * 2.0 * M_PI * 1.2);
+4050:             if (m_labelHoldPhase == LabelHoldPhase::Done)      // 成功は光って消える
+4051:                 alpha *= m_labelHoldFlash;
+4052:             paintLabelHoldGauge(painter, outline,
+4053:                                 CanvasVideoLabelPainter::pillLeftRadius(pillH),
+4054:                                 pillH * 0.5, m_labelHold, alpha, m_labelHoldTrack);
+4055:         }
+4056:         // 何が起きるかをラベルの下へ小さく出す（言葉はプラグイン／本体が決める）
+4057:         if (m_labelHoldHintAlpha > 0.01 && !m_labelHoldHintShown.isEmpty()
+4058:             && !labelPill.isEmpty()) {
+4059:             painter.save();
+4060:             QFont f = painter.font();
+4061:             f.setPixelSize(11);
+4062:             f.setWeight(QFont::DemiBold);
+4063:             painter.setFont(f);
+4064:             const QFontMetricsF fm(f);
+4065:             const double tw = fm.horizontalAdvance(m_labelHoldHintShown);
+4066:             const QRectF tr(labelPill.left() + 6.0, labelPill.bottom() + 5.0,
+4067:                             tw + 2.0, fm.height());
+4068:             const double a = m_labelHoldHintAlpha * m_labelFadeAlpha;
+4069:             painter.setPen(QColor(0, 0, 0, qBound(0, qRound(110 * a), 255)));
+4070:             painter.drawText(tr.translated(0.0, 1.0), Qt::AlignLeft | Qt::AlignVCenter,
+4071:                              m_labelHoldHintShown);
+4072:             painter.setPen(QColor(255, 255, 255, qBound(0, qRound(225 * a), 255)));
+4073:             painter.drawText(tr, Qt::AlignLeft | Qt::AlignVCenter, m_labelHoldHintShown);
+4074:             painter.restore();
+4075:         }
+4076:     }
+4077: 
+4078:     // ---- ラベルのホバー反応（2026-09-12追加）----
+4079:     // プラグインが labelHoverable=true と言ったラベルだけ、カーソルを
+4080:     // 重ねている間ほんのり明るくする（＝押せることの合図）。押しても何も
+=== 4321,4470
+4321: void CanvasVideo::updateLabelAnims(double dtSec)
+4322: {
+4323:     // ---- ラベル→コントローラの伸び縮み（2026-09-12追加）----
+4324:     // 開くときは少しゆっくり、閉じるときは速く。
+4325:     {
+4326:         // 2026-09-12: 開きを少しゆっくりに（9.0 → 6.5、時定数 ≒ 110→155ms）。
+4327:         // 島と入れ替わるときに開き始めが早すぎて忙しなく見えたため。
+4328:         const bool expand = labelPanelExpandTarget();
+4329:         const float panelTarget = expand ? 1.0f : 0.0f;
+4330:         const float panelSpeed  = expand ? 6.5f : 14.0f;
+4331:         m_labelPanelAnim += (panelTarget - m_labelPanelAnim)
+4332:                             * qMin(1.0f, panelSpeed * static_cast<float>(dtSec));
+4333:         m_labelPanelAnim = qBound(0.0f, m_labelPanelAnim, 1.0f);
+4334:         if (!expand && m_labelPanelAnim < 0.002f)
+4335:             m_labelPanelAnim = 0.0f;
+4336:     }
+4337: 
+4338:     // ---- 島とぶつかるときの最小化（2026-09-13追加）----
+4339:     // 縮むのは「島が来た」＝待たせたくない場面なので速く、戻るのは
+4340:     // リストの開閉と同じ速さにして、入れ替わりが1つの動きに見えるようにする。
+4341:     {
+4342:         const float target = m_labelCompact ? 1.0f : 0.0f;
+4343:         const float speed  = m_labelCompact ? 14.0f : 6.5f;
+4344:         m_labelCompactAnim += (target - m_labelCompactAnim)
+4345:                               * qMin(1.0f, speed * static_cast<float>(dtSec));
+4346:         m_labelCompactAnim = qBound(0.0f, m_labelCompactAnim, 1.0f);
+4347:         if (std::abs(m_labelCompactAnim - target) < 0.002f)
+4348:             m_labelCompactAnim = target;
+4349:     }
+4350: 
+4351:     // ---- 固定ラベルの出入り（2026-09-12追加）----
+4352:     // 別の動画を全画面にした等で固定ラベルが引っ込むとき、パッと消えずに
+4353:     // フェードさせる（固定していないラベルが非アクティブで消えるときと
+4354:     // 同じ見え方に揃える）。出るときも同じ速さで戻る。
+4355:     {
+4356:         const float target = m_pinnedOverlayVisible ? 1.0f : 0.0f;
+4357:         constexpr float kPinnedFadeSpeed = 11.0f; // 時定数 ≒ 90ms
+4358:         m_pinnedOverlayFade += (target - m_pinnedOverlayFade)
+4359:                                * qMin(1.0f, kPinnedFadeSpeed * static_cast<float>(dtSec));
+4360:         m_pinnedOverlayFade = qBound(0.0f, m_pinnedOverlayFade, 1.0f);
+4361:         if (std::abs(m_pinnedOverlayFade - target) < 0.002f)
+4362:             m_pinnedOverlayFade = target;
+4363:     }
+4364: 
+4365:     // ---- 台の縁の再生位置の出入り（2026-09-13追加）----
+4366:     // 曲が変わるとき、尺が分からない時間（解決中）が必ず挟まる。そこで
+4367:     // ただ描くのをやめるとパッと消えて、次の曲でパッと現れる。一度
+4368:     // フェードアウトさせてから、新しい曲の頭でフェードインさせる。
+4369:     {
+4370:         constexpr double kProgressFadeSpeed = 5.5; // 時定数 ≒ 180ms
+4371:         const qint64 dur = duration();
+4372:         const double now = (dur > 0)
+4373:             ? qBound(0.0, static_cast<double>(position()) / dur, 1.0) : -1.0;
+4374:         if (now >= 0.0) {
+4375:             // 大きく巻き戻った＝別の曲になった。尺が途切れずに切り替わった
+4376:             // 場合でも、頭が一周ぶん飛んで見えないよう仕切り直す。
+4377:             if (now + 0.2 < m_labelProgressShown)
+4378:                 m_labelProgressFade = 0.0;
+4379:             m_labelProgressShown = now;
+4380:         }
+4381:         // 【終わりぎわは自分から消える】曲の変わり目は「尺が分からなくなる
+4382:         // →フェードアウト」に任せていたが、解決が速いとその空白がほとんど
+4383:         // 無く、頭が一周し切った瞬間にパッと消えて見えていた。残り時間で
+4384:         // 先に薄くしていき、頂点へ帰り着くのと同時に消え切るようにする。
+4385:         constexpr double kProgressEndFadeMs = 1200.0;
+4386:         double endFade = 1.0;
+4387:         if (now >= 0.0 && dur > 0) {
+4388:             const double remainMs = static_cast<double>(dur - position());
+4389:             endFade = qBound(0.0, remainMs / kProgressEndFadeMs, 1.0);
+4390:         }
+4391:         const double target =
+4392:             (m_labelProgressEffective && now >= 0.0) ? endFade : 0.0;
+4393:         m_labelProgressFade += (target - m_labelProgressFade)
+4394:                                * qMin(1.0, kProgressFadeSpeed * dtSec);
+4395:         m_labelProgressFade = qBound(0.0, m_labelProgressFade, 1.0);
+4396:         if (std::abs(m_labelProgressFade - target) < 0.002)
+4397:             m_labelProgressFade = target;
+4398:     }
+4399: 
+4400:     // ---- ラベルのホバー（2026-09-12追加）----
+4401:     // プラグインが許可したラベルのときだけ立ち上がる。許可が無い／
+4402:     // カーソルが外れたら0へ戻る。
+4403:     {
+4404:         // 2026-09-12: 引っ張っている最中は、カーソルがラベルから外れても
+4405:         // ホバーを保つ。掴んでいる以上「触っている」のが事実なので、
+4406:         // 下げている途中に反応が消えると掴みが外れたように見える。
+4407:         const float hoverTarget =
+4408:             ((m_labelHover || m_labelPullActive) && m_labelHoverableEffective)
+4409:                 ? 1.0f : 0.0f;
+4410:         const float hoverSpeed = 14.0f;
+4411:         m_labelHoverAnim += (hoverTarget - m_labelHoverAnim)
+4412:                             * qMin(1.0f, hoverSpeed * static_cast<float>(dtSec));
+4413:         m_labelHoverAnim = qBound(0.0f, m_labelHoverAnim, 1.0f);
+4414:     }
+4415: 
+4416:     // ---- リストのスクロール ----
+4417:     // 2026-09-14 PhaseC-1: スクロールだけは 120Hz の syncLogic() から
+4418:     // tickLabelScroll() で進める（イコライザ30Hz／その他60Hz／
+4419:     // スクロール120Hz の三分割）。ここでは進めない。
+4420: 
+4421: 
+4422:     // ---- イコライザ／音符の位相と「鳴っている度合い」----
+4423:     m_eqPhase += dtSec;
+4424:     if (m_eqPhase > 1.0e6)
+4425:         m_eqPhase = 0.0;
+4426:     {
+4427:         // 止めた瞬間にカクッと消えないよう、0/1へなだらかに寄せる
+4428:         // （時定数 ≒ 280ms）。棒の高さと音符の濃さに掛ける。
+4429:         const double target = isSoundingForEqualizer() ? 1.0 : 0.0;
+4430:         const double diff = target - m_eqLevel;
+4431:         if (std::abs(diff) < 0.003)
+4432:             m_eqLevel = target;
+4433:         else
+4434:             m_eqLevel += diff * (1.0 - std::exp(-3.6 * dtSec));
+4435:     }
+4436: 
+4437:     // ---- 並べ替え中、まわりの行が退く動き ----
+4438:     // 落とし先が変わった瞬間にパッと入れ替わらないよう、隙間の位置を
+4439:     // 連続値で補間する（時定数 ≒ 90ms）。
+4440:     if (m_rowDragIndex >= 0) {
+4441:         const double target = rowGapSlotTarget();
+4442:         const double diff = target - m_rowGapAnim;
+4443:         // 0.02行 ≒ 1px 未満になったら詰める（それ以上は目に見えない）。
+4444:         if (std::abs(diff) < 0.02)
+4445:             m_rowGapAnim = target;
+4446:         else
+4447:             m_rowGapAnim += diff * (1.0 - std::exp(-9.0 * dtSec));
+4448:     }
+4449: 
+4450:     // ---- 引っ張り（固定操作）----
+4451:     // 指を離したら target=0 なので、そのままバネで元へ戻る。
+4452:     {
+4453:         const double diff = m_labelPullTarget - m_labelPull;
+4454:         if (std::abs(diff) < 0.15)
+4455:             m_labelPull = m_labelPullTarget;
+4456:         else
+4457:             m_labelPull += diff * (1.0 - std::exp(-20.0 * dtSec));
+4458:     }
+4459:     tickLabelHold(dtSec);
+4460: }
+4461: 
+4462: void CanvasVideo::tickLabelAnims(double dtMs)
+4463: {
+4464:     updateLabelAnims(qMax(0.0, dtMs) / 1000.0);
+4465: }
+4466: 
+4467: // ---- リストのスクロールをなめらかに追従させる（120Hz）----
+4468: // ホイールは m_labelPanelScrollTarget だけを動かし、描画に使う
+4469: // m_labelPanelScroll をここで指数的に寄せる。dtに対して
+4470: // 1 - exp(-speed*dt) を使うので、フレームレートが変わっても
+=== 5293,5430
+5293: void paintGlassPlate(QPainter &painter, const QPainterPath &path,
+5294:                      const QRectF &r, const QColor &accent, double alpha)
+5295: {
+5296:     const auto withAlpha = [](QColor c, int a) { c.setAlpha(a); return c; };
+5297:     const QColor shadeColor = accentShadeColor();
+5298: 
+5299:     const double top = r.top(), bottom = r.bottom();
+5300:     const double left = r.left(), right = r.right();
+5301:     const double innerH = qMax(1.0, bottom - top);
+5302:     // 島は畳んだ高さ(42px)を基準に光の距離を決めている。こちらのラベルも
+5303:     // 同じ見え方になるよう、その基準高さを上限として使う。
+5304:     const double baseH = qMin(innerH, 42.0);
+5305:     const double lightSpan = qMin(baseH * 0.95, innerH * 0.36);
+5306:     const double s1 = qMin(0.34, (baseH * 0.62) / innerH);
+5307:     const double s2 = 1.0 - s1;
+5308: 
+5309:     // 縁から内側への減衰は、太さを変えたストロークの重ね合わせで作る
+5310:     // （1本の太いストロークだと内側の端が段差として見えてしまう）。
+5311:     // 2026-09-12: bandRect を渡すと、その範囲へクリップしてから描く。
+5312:     // 上辺／下辺の光はその帯の外側では完全に透明なので、見た目は変わらず
+5313:     // ラスタライズの量だけ減る。板が縦に長い（リストを開いた状態）ほど
+5314:     // 効き、1本あたり板の周長ぶん走っていた無駄がなくなる。
+5315:     // 2026-09-12: 帯の本数は板の大きさに応じて減らす。帯はグラデーションの
+5316:     // 減衰(幅4px程度)を滑らかに見せるためのもので、12本だと1本あたり
+5317:     // 0.35px以下＝人の目には過剰。リストのカードのように周長が長い板では
+5318:     // ストローク1本ごとの負荷が効いてくるため、大きいときは半分にする
+5319:     // （小さい島やラベルの台は従来どおり12本のまま）。
+5320:     const int bandCount = (innerH > 72.0) ? 6 : 12;
+5321:     // 2026-09-14: ブラシとペンをループの外で1回だけ作る（太さだけ差し替える）。
+5322:     //
+5323:     // QPen(QBrush(gradient), w) を毎回作ると、Qtのラスタエンジンがブラシごとに
+5324:     // グラデーションの色テーブル（1024段）を用意し直す。1回の呼び出しで12本、
+5325:     // 板ぜんぶで56本ぶん走っていた。
+5326:     //
+5327:     // 島（DynamicIsland::paintEvent）の同じ形のコードで実測したところ、
+5328:     // この一点だけで縁の描画が 6.68ms → 3.29ms（約半分）になった。
+5329:     // 見た目は一切変わらない（描く内容は同一で、作り直しを省いただけ）。
+5330:     const auto strokeBands = [&](int count, double span, const QGradient &gradient,
+5331:                                  const QRectF &bandRect = QRectF()) {
+5332:         count = qMin(count, bandCount);
+5333:         painter.save();
+5334:         if (!bandRect.isEmpty())
+5335:             painter.setClipRect(bandRect, Qt::IntersectClip);
+5336:         QPen pen(QBrush(gradient), 0.0);
+5337:         for (int i = 0; i < count; ++i) {
+5338:             pen.setWidthF(span * 2.0 * (1.0 - static_cast<double>(i) / count));
+5339:             painter.setPen(pen);
+5340:             painter.drawPath(path);
+5341:         }
+5342:         painter.restore();
+5343:     };
+5344: 
+5345:     painter.save();
+5346:     painter.setOpacity(painter.opacity() * alpha);
+5347: 
+5348:     // 本体（アクセント色を薄く。背後はBackdropBlurでぼけている）
+5349:     painter.setPen(Qt::NoPen);
+5350:     painter.setBrush(withAlpha(accent, kPlateBodyAlpha));
+5351:     painter.drawPath(path);
+5352: 
+5353:     painter.save();
+5354:     painter.setClipPath(path);
+5355:     painter.setBrush(Qt::NoBrush);
+5356: 
+5357:     // 光を散らすフロスト
+5358:     painter.fillRect(r, QColor(255, 255, 255, 10));
+5359: 
+5360:     // 加算: 上辺／下辺の光
+5361:     painter.setCompositionMode(QPainter::CompositionMode_Plus);
+5362:     QLinearGradient topLight(QPointF(0, top), QPointF(0, top + lightSpan));
+5363:     topLight.setColorAt(0.00, QColor(255, 255, 255, 14));
+5364:     topLight.setColorAt(0.45, QColor(255, 255, 255, 4));
+5365:     topLight.setColorAt(1.00, QColor(255, 255, 255, 0));
+5366:     strokeBands(12, baseH * 0.045, topLight,
+5367:                 QRectF(left, top - 2.0, right - left, lightSpan + 4.0));
+5368: 
+5369:     QLinearGradient bottomLight(QPointF(0, bottom - lightSpan), QPointF(0, bottom));
+5370:     bottomLight.setColorAt(0.00, QColor(255, 255, 255, 0));
+5371:     bottomLight.setColorAt(0.55, QColor(255, 255, 255, 3));
+5372:     bottomLight.setColorAt(1.00, QColor(255, 255, 255, 9));
+5373:     strokeBands(12, baseH * 0.035, bottomLight,
+5374:                 QRectF(left, bottom - lightSpan - 2.0, right - left, lightSpan + 4.0));
+5375: 
+5376:     // 加算: 左上から差す主光と右下へ抜ける副光（斜めからの照明に見せる）
+5377:     const double dx = (right - left) * 0.55;
+5378:     const double dy = innerH * 0.55;
+5379:     QLinearGradient topLeftLight(QPointF(left, top), QPointF(left + dx, top + dy));
+5380:     topLeftLight.setColorAt(0.00, QColor(255, 255, 255, 20));
+5381:     topLeftLight.setColorAt(0.55, QColor(255, 255, 255, 3));
+5382:     topLeftLight.setColorAt(1.00, QColor(255, 255, 255, 0));
+5383:     strokeBands(12, baseH * 0.05, topLeftLight);
+5384: 
+5385:     QLinearGradient bottomRightLight(QPointF(right - dx, bottom - dy),
+5386:                                      QPointF(right, bottom));
+5387:     bottomRightLight.setColorAt(0.00, QColor(255, 255, 255, 0));
+5388:     bottomRightLight.setColorAt(0.45, QColor(255, 255, 255, 2));
+5389:     bottomRightLight.setColorAt(1.00, QColor(255, 255, 255, 11));
+5390:     strokeBands(12, baseH * 0.04, bottomRightLight);
+5391: 
+5392:     // 乗算: 上下の光が届かない左右の縁を沈める
+5393:     painter.setCompositionMode(QPainter::CompositionMode_Multiply);
+5394:     QLinearGradient sideShade(QPointF(0, top), QPointF(0, bottom));
+5395:     sideShade.setColorAt(0.00, withAlpha(shadeColor, 0));
+5396:     sideShade.setColorAt(s1,   withAlpha(shadeColor, 30));
+5397:     sideShade.setColorAt(s2,   withAlpha(shadeColor, 30));
+5398:     sideShade.setColorAt(1.00, withAlpha(shadeColor, 0));
+5399:     strokeBands(8, baseH * 0.05, sideShade);
+5400:     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+5401:     painter.restore();
+5402: 
+5403:     // 乗算: 輪郭線（ガラス板の切り口）
+5404:     painter.setCompositionMode(QPainter::CompositionMode_Multiply);
+5405:     QLinearGradient contour(QPointF(0, top), QPointF(0, bottom));
+5406:     contour.setColorAt(0.00, withAlpha(shadeColor, 120));
+5407:     contour.setColorAt(s1,   withAlpha(shadeColor, 230));
+5408:     contour.setColorAt(s2,   withAlpha(shadeColor, 230));
+5409:     contour.setColorAt(1.00, withAlpha(shadeColor, 190));
+5410:     painter.setBrush(Qt::NoBrush);
+5411:     painter.setPen(QPen(QBrush(contour), 1.0));
+5412:     painter.drawPath(path);
+5413:     painter.restore();
+5414: }
+5415: } // namespace
+5416: 
+5417: // ---- 一覧のスナップショット（2026-09-12追加）--------------------------------
+5418: //
+5419: // 本体は「プラグインが言ったこと」をそのまま覚えているだけで、意味は解釈
+5420: // しない。詳しくは CanvasVideo.h の m_panelSnapshot のコメント参照。
+5421: 
+5422: namespace {
+5423: // 常に約この件数を保つ。現在位置から前後へ割り振る。
+5424: constexpr int kSnapshotWindowMax    = 50;
+5425: constexpr int kSnapshotWindowBefore = 25;
+5426: } // namespace
+5427: 
+5428: void CanvasVideo::mergePluginItemsIntoSnapshot(const QList<PbPlaylistItem> &items) const
+5429: {
+5430:     if (items.isEmpty())
+=== 5693,5810
+5693: QList<CanvasVideo::PanelRow> CanvasVideo::buildPanelRows() const
+5694: {
+5695:     // 2026-09-12: 毎フレーム組み直さない。中身が変わりうるのは
+5696:     //  (1) 再生中の動画が変わったとき（＝現在位置の行が動く）
+5697:     //  (2) プラグインの裏取得が進んで一覧が増えたとき
+5698:     // だけで、(2)は急ぐ必要がないので一定間隔で見直せば足りる。
+5699:     constexpr qint64 kRowsCacheLifeMs = 1000;
+5700:     if (!m_panelRowsCache.isEmpty()
+5701:         && m_panelRowsCacheUrl == m_source.originalPathOrUrl
+5702:         && m_panelRowsCacheAge.isValid()
+5703:         && m_panelRowsCacheAge.elapsed() < kRowsCacheLifeMs) {
+5704:         return m_panelRowsCache;
+5705:     }
+5706: 
+5707:     // 2026-09-22: 本体のリスト。並びは本体が持っているのでプラグインには聞かない。
+5708:     if (hasCoreList()) {
+5709:         const int cur = coreListCurrentIndex();
+5710:         QList<PanelRow> rows;
+5711:         rows.reserve(m_coreList.size());
+5712:         for (int i = 0; i < m_coreList.size(); ++i) {
+5713:             const MediaSource &s = m_coreList.at(i);
+5714:             const bool isCurrent = (i == cur);
+5715:             QString rowTitle = isCurrent ? title() : s.title;
+5716:             if (rowTitle.isEmpty())
+5717:                 rowTitle = s.originalPathOrUrl;
+5718:             // ローカルの動画は Explorer のサムネイル、プラグインの動画は画像のURL。
+5719:             QString thumb = panelLocalThumbKey(isCurrent ? m_source : s);
+5720:             if (thumb.isEmpty()) {
+5721:                 thumb = s.thumbnailPathOrUrl;
+5722:                 if (isCurrent && thumb.isEmpty())
+5723:                     thumb = m_thumbnailUrl;
+5724:             }
+5725:             rows << PanelRow{isCurrent ? QStringLiteral("NOW") : QString::number(i + 1),
+5726:                              rowTitle, s.originalPathOrUrl, thumb, 0};
+5727:         }
+5728:         m_panelRowsCache    = rows;
+5729:         m_panelRowsCacheUrl = m_source.originalPathOrUrl;
+5730:         m_panelRowsCacheAge.restart();
+5731:         ++m_panelRowsGen;
+5732:         return rows;
+5733:     }
+5734: 
+5735:     // プラグインへの問い合わせは同期・キャッシュ参照のみ（PbPlaylistApi.h）。
+5736:     // 取得済みのウィンドウ全体（最大50件）をそのまま一覧として並べたいので、
+5737:     // 前後とも大きめに要求する（手元にある分だけが返る）。
+5738:     const PbPlaylistContext ctx =
+5739:         PluginManager::instance().playlistContext(m_source.originalPathOrUrl, 200, 200);
+5740: 
+5741:     // 別の列へ移っていたら、覚えていた一覧はここで捨てる。
+5742:     dropPanelSnapshotIfListChanged(ctx);
+5743: 
+5744:     QList<PanelRow> rows;
+5745:     const auto keep = [this](QList<PanelRow> built) {
+5746:         m_panelRowsCache    = built;
+5747:         m_panelRowsCacheUrl = m_source.originalPathOrUrl;
+5748:         m_panelRowsCacheAge.restart();
+5749:         ++m_panelRowsGen;   // 並べ替え結果のキャッシュを無効化するための世代
+5750:         return built;
+5751:     };
+5752: 
+5753:     // 2026-09-12: プラグインの答えはスナップショットへ溶かし込み、表示は
+5754:     // 常にスナップショットから組む。こうしておくと
+5755:     //  ・セッション復元直後は通信ゼロでそのまま出せる（答えが返ればマージ）
+5756:     //  ・プラグインがまだ答えられない間（pending）も前回の一覧を出せる
+5757:     //  ・窓の切り詰め（約50件）が一箇所で済む
+5758:     if (ctx.valid && !ctx.items.isEmpty())
+5759:         mergePluginItemsIntoSnapshot(ctx.items);
+5760: 
+5761:     // 現在位置を決めてから窓を切り詰める（切り詰めの基準になるため）。
+5762:     const QString currentUrl = resolvePanelCurrentUrl(ctx);
+5763:     trimPanelSnapshotWindow(currentUrl);
+5764: 
+5765:     // 現在位置が特定できないと、再生中の行のイコライザが出ず、▶▶ と
+5766:     // 自動送りも列を辿れない。黙って壊れると気付けないので一度だけ出す。
+5767:     if (currentUrl.isEmpty() && !m_panelSnapshot.isEmpty()
+5768:         && m_panelCurrentMissUrl != m_source.originalPathOrUrl) {
+5769:         m_panelCurrentMissUrl = m_source.originalPathOrUrl;
+5770:         qDebug().noquote() << QStringLiteral(
+5771:             "[LabelPanel][CanvasVideo %1] current row not identified "
+5772:             "(rows=%2 pluginIdx=%3 valid=%4 pending=%5) url=%6")
+5773:                 .arg(reinterpret_cast<quintptr>(this), 0, 16)
+5774:                 .arg(m_panelSnapshot.size()).arg(ctx.currentIndex)
+5775:                 .arg(ctx.valid).arg(ctx.pending).arg(m_source.originalPathOrUrl);
+5776:     }
+5777: 
+5778:     if (!m_panelSnapshot.isEmpty()) {
+5779:         for (int i = 0; i < m_panelSnapshot.size(); ++i) {
+5780:             const PanelSnapshotItem &it = m_panelSnapshot.at(i);
+5781:             const bool isCurrent = (it.url == currentUrl);
+5782:             rows << PanelRow{isCurrent ? QStringLiteral("NOW")
+5783:                                        : QString::number(i + 1),
+5784:                              isCurrent && it.title.isEmpty() ? title() : it.title,
+5785:                              it.url, it.thumbUrl, it.durationSec};
+5786:         }
+5787:         return keep(rows);
+5788:     }
+5789: 
+5790:     // 並びが取れない場合（navigator未実装のプラグイン、まだ裏取得が
+5791:     // 終わっていない等）の最小構成。履歴と連続再生用URLだけで組む。
+5792:     if (!m_playHistory.isEmpty()) {
+5793:         const PlayHistoryEntry &h = m_playHistory.last();
+5794:         rows << PanelRow{QStringLiteral("PREV"), h.title, h.url, QString(), 0};
+5795:     }
+5796:     rows << PanelRow{QStringLiteral("NOW"), title(), m_source.originalPathOrUrl,
+5797:                      QString(), 0};
+5798:     if (!m_nextUrl.isEmpty())
+5799:         rows << PanelRow{QStringLiteral("NEXT"), QString(), m_nextUrl, QString(), 0};
+5800: 
+5801:     return keep(rows);
+5802: }
+5803: 
+5804: bool CanvasVideo::handleLabelPanelWheel(const QPointF &pos, int angleDelta)
+5805: {
+5806:     if (!m_labelPanelOpen || m_labelPanelRect.isEmpty()
+5807:         || !m_labelPanelRect.contains(pos))
+5808:         return false;
+5809: 
+5810:     const double maxScroll = qMax(0.0, m_labelPanelContentHeight
+=== 6055,6215
+6055: void CanvasVideo::paintLabelPanelPlate(QPainter &painter, const PlateGeometry &geo,
+6056:                                        float fade)
+6057: {
+6058:     // 島と同じガラス表現で塗る（paintGlassPlate参照）。アクセント色も
+6059:     // 島と共有しているので、並んだときに同じ素材に見える。
+6060:     paintGlassPlate(painter, roundedPathLR(geo.plate, geo.leftRadius, geo.rightRadius),
+6061:                     geo.plate, cachedAccentColor(), fade);
+6062: }
+6063: 
+6064: // ---- ラベルの縁に出す再生位置（2026-09-13追加）------------------------
+6065: //
+6066: // 台（閉じているときはカプセル、開いているときはカード）の輪郭に沿って
+6067: // 光を一周させる。形は毎フレーム変わりうるが、輪郭そのものを辿るので
+6068: // 伸び縮みの最中でも破綻しない。
+6069: //
+6070: // 出すかどうかはプラグインが決める（PbResolvedMedia::labelProgress）。
+6071: // Live のように終わりが無いものでは出さない。位置そのものは本体が持って
+6072: // いる値（position/duration）で、プラグインは関与しない。
+6073: namespace {
+6074: // 線の太さ。台のガラスの縁と喧嘩しない程度に細く。
+6075: constexpr double kProgressRingWidth   = 1.8;
+6076: // 【合成は加算】ふつうに上から塗ると、ガラスの縁が持っている艶と影を
+6077: // 塗りつぶしてしまう（＝質感が消えてのっぺりする）。加算なら暗い所は
+6078: // 暗いまま残り、明るい所がさらに明るくなるだけなので、縁の陰影の上に
+6079: // 光が乗ったように見える。
+6080: // （反転合成も試した。どんな下地でも必ず見える利点はあるが、下地の色に
+6081: //   よって光の色が変わってしまい落ち着かないため加算へ戻した。）
+6082: //
+6083: // 【尾も下地も描かない】時計の針と同じで、上から出て時計回りに一周して
+6084: // 上へ帰ってくる、という動きは説明が無くても伝わる。通り過ぎた側に線を
+6085: // 残すとその部分のガラスの質感が隠れ続けるので、走っている頭だけを出す。
+6086: // 戻したくなったときのために定数は残してある（0で無効）。
+6087: constexpr int    kProgressTrackAlpha  = 0;
+6088: // 先端（いま再生している位置）の強さ。
+6089: constexpr int    kProgressLitAlpha    = 190;
+6090: // 通り過ぎた側の強さ。0＝完全に透過（＝何も残さない）。
+6091: constexpr int    kProgressTailAlpha   = 0;
+6092: // 【先端の鋭さ】先端から何pxぶんを「光っている頭」とみなすか。
+6093: // 再生が進んでも長さが変わらないよう、進み具合ではなく実寸で決める。
+6094: // ただし台の大きさには合わせる必要がある。リストを開くと台がカードへ
+6095: // 伸びて周長が3〜4倍になるため、閉じているとき用の実寸のままだと頭が
+6096: // 相対的に小さくなって見えなくなる（実機で確認）。
+6097: // 「最低これだけ」と「周長のこれだけ」の大きいほうを採る。
+6098: constexpr double kProgressHeadLenPx   = 22.0;
+6099: constexpr double kProgressHeadLenFrac = 0.09;
+6100: // 頭の中での落ち方。1より大きいほど、先端の直前だけが際立つ。
+6101: constexpr double kProgressHeadFalloff = 2.2;
+6102: // 折れ線の細かさ（px/点）。
+6103: constexpr double kProgressStepPx      = 3.0;
+6104: // 頭を何段階の濃さに分けるか。【重要】1本ずつ濃さを変えて短い線を並べると、
+6105: // 線の継ぎ目が二重に合成されて数px間隔の粒に見える（実機で確認）。
+6106: // 同じ濃さの区間は「1本の連続した折れ線」としてまとめて描き、継ぎ目の数を
+6107: // この段数まで減らす。端は突き合わせ（FlatCap）にして重ならないようにする。
+6108: constexpr int    kProgressHeadBands   = 12;
+6109: } // namespace
+6110: 
+6111: void CanvasVideo::paintLabelProgressRing(QPainter &painter, const QRectF &rect,
+6112:                                          double leftRadius, double rightRadius,
+6113:                                          double progress, double alpha) const
+6114: {
+6115:     if (alpha <= 0.01 || rect.isEmpty())
+6116:         return;
+6117:     const QPainterPath outline = roundedPathLR(rect, leftRadius, rightRadius);
+6118:     const double len = outline.length();
+6119:     if (len <= 2.0)
+6120:         return;
+6121:     progress = qBound(0.0, progress, 1.0);
+6122: 
+6123:     // 【始点＝台の上辺の中央】roundedPathLR() は「左上の角丸が終わった
+6124:     // ところ」から時計回りに始まるので、そのままだと光が左上から出て
+6125:     // 左上へ帰ってくる。中央から出て中央へ帰るほうが、ラベルの見た目の
+6126:     // 中心と一致して落ち着く。輪郭上の位置をずらして辿るだけで、形は
+6127:     // いじらない。
+6128:     // 上辺は最初の直線なので、その中央までの距離をそのまま割合にできる。
+6129:     const double topRun = qMax(0.0, rect.center().x() - (rect.left() + leftRadius));
+6130:     const double startPercent = qBound(0.0, topRun / len, 1.0);
+6131:     const auto outlinePointAt = [&](double u) {
+6132:         // u は始点からの割合。一周を超えたら先頭へ回り込む。
+6133:         double t = startPercent + u;
+6134:         t -= std::floor(t);
+6135:         return outline.pointAtPercent(qBound(0.0, t, 1.0));
+6136:     };
+6137: 
+6138:     painter.save();
+6139:     painter.setRenderHint(QPainter::Antialiasing, true);
+6140:     painter.setBrush(Qt::NoBrush);
+6141:     // 加算合成。ガラスの縁の陰影を潰さずに光だけを足す（上のコメント参照）。
+6142:     painter.setCompositionMode(QPainter::CompositionMode_Plus);
+6143: 
+6144:     // 一周ぶんの下地。既定では描かない（kProgressTrackAlpha = 0）。
+6145:     if (kProgressTrackAlpha > 0) {
+6146:         QPen track(QColor(255, 255, 255,
+6147:                           qBound(0, qRound(kProgressTrackAlpha * alpha), 255)));
+6148:         track.setWidthF(kProgressRingWidth);
+6149:         painter.setPen(track);
+6150:         painter.drawPath(outline);
+6151:     }
+6152: 
+6153:     if (progress > 0.0005) {
+6154:         // 進んだぶんを「尾」と「頭」に分けて描く。
+6155:         //   尾 … 一定の弱さで一気に1本。通り過ぎた道筋を示すだけ。
+6156:         //   頭 … 先端から kProgressHeadLenPx ぶんだけ。ここで濃さを
+6157:         //         段階的に上げて、鋭い光として走らせる。
+6158:         // 頭の長さを実寸で取るので、再生が進んでも鋭さが変わらない。
+6159:         const double arcLen  = len * progress;
+6160:         const double headLen = qMin(arcLen,
+6161:                                     qMax(kProgressHeadLenPx,
+6162:                                          len * kProgressHeadLenFrac));
+6163:         const double headU   = headLen / len;            // 頭の割合
+6164:         const double tailEnd = progress - headU;         // 尾の終わり
+6165: 
+6166:         QPen seg;
+6167:         seg.setWidthF(kProgressRingWidth);
+6168:         seg.setCapStyle(Qt::FlatCap);    // 端どうしを突き合わせる
+6169:         seg.setJoinStyle(Qt::RoundJoin); // 角丸の曲がり角はなめらかに
+6170: 
+6171:         const auto strokeRange = [&](double u0, double u1, int alphaValue) {
+6172:             if (u1 - u0 <= 1e-6)
+6173:                 return;
+6174:             const int n = qBound(2, qRound(len * (u1 - u0) / kProgressStepPx), 300);
+6175:             QPainterPath poly;
+6176:             for (int i = 0; i <= n; ++i) {
+6177:                 const QPointF pt = outlinePointAt(u0 + (u1 - u0) * i / n);
+6178:                 if (i == 0) poly.moveTo(pt); else poly.lineTo(pt);
+6179:             }
+6180:             seg.setColor(QColor(255, 255, 255,
+6181:                                 qBound(0, qRound(alphaValue * alpha), 255)));
+6182:             painter.setPen(seg);
+6183:             painter.drawPath(poly);
+6184:         };
+6185: 
+6186:         // 尾。既定では描かない（kProgressTailAlpha = 0）。
+6187:         if (kProgressTailAlpha > 0)
+6188:             strokeRange(0.0, qMax(0.0, tailEnd), kProgressTailAlpha);
+6189: 
+6190:         // 頭（先端へ向かって強くなる）
+6191:         for (int b = 0; b < kProgressHeadBands; ++b) {
+6192:             const double t0 = static_cast<double>(b)     / kProgressHeadBands;
+6193:             const double t1 = static_cast<double>(b + 1) / kProgressHeadBands;
+6194:             const double mid = (t0 + t1) * 0.5;          // 0=頭の根元, 1=先端
+6195:             const double mix = std::pow(mid, kProgressHeadFalloff);
+6196:             const int a = qRound(kProgressTailAlpha
+6197:                                  + (kProgressLitAlpha - kProgressTailAlpha) * mix);
+6198:             if (a <= 0)
+6199:                 continue;
+6200:             strokeRange(qMax(0.0, tailEnd) + headU * t0,
+6201:                         qMax(0.0, tailEnd) + headU * t1, a);
+6202:         }
+6203:     }
+6204:     painter.restore();
+6205: 
+6206:     m_labelProgressPainted = progress;
+6207: }
+6208: 
+6209: // 前回描いたときから、見て分かるだけ進んだか。毎フレーム描き直すと
+6210: // オーバーレイ全体の再描画が復活してしまうので、1/512周ぶん
+6211: // （カプセルなら1px弱）動いたときだけ描き直す。
+6212: bool CanvasVideo::labelProgressNeedsRepaint() const
+6213: {
+6214:     if (m_labelFadeAlpha <= 0.01f)
+6215:         return false;
+=== 6543,6860
+6543: void CanvasVideo::paintLabelPanelRows(QPainter &painter, const QRectF &plateRect,
+6544:                                       const QRectF &labelRect,
+6545:                                       const QList<PanelRow> &rows)
+6546: {
+6547:     const double reveal = qBound(0.0, (static_cast<double>(m_labelPanelAnim) - 0.55) / 0.45, 1.0);
+6548:     if (reveal <= 0.01)
+6549:         return;
+6550: 
+6551:     // 本体と同じ式で「行が見えている領域」を先に求める。
+6552:     const double viewTop = plateRect.top() + labelRect.height() + kPanelPadding;
+6553:     const QRectF viewRect(plateRect.left() + kPanelPadding, viewTop,
+6554:                           plateRect.width() - kPanelPadding * 2.0,
+6555:                           qMax(0.0, plateRect.bottom() - kPanelPadding - viewTop));
+6556:     if (viewRect.width() < 1.0 || viewRect.height() < 1.0)
+6557:         return;
+6558: 
+6559:     // 端のぼかし幅。狭いときは領域の1/4まで。
+6560:     const double fade = qMin(kPanelEdgeFade, viewRect.height() * 0.25);
+6561:     const double maxScroll = qMax(0.0, kPanelRowHeight * rows.size() - viewRect.height());
+6562:     const double scroll    = qBound(0.0, m_labelPanelScroll, maxScroll);
+6563: 
+6564:     // 【2026-09-12】以前は「隠れている行があるか」の二択で、端に着いた
+6565:     // 瞬間に帯がパッと消えていた（＝薄いまま近づいて、最後に唐突に
+6566:     // 通常表示へ戻る）。隠れている量に応じて帯そのものを縮めることで、
+6567:     // 端へ近づくほど自然に薄れていって、着いたときには残っていない。
+6568:     // 帯の幅ぶん（fade px）残っていれば最大、0なら帯も0。
+6569:     const double topFade    = (fade > 0.0)
+6570:         ? fade * qBound(0.0, scroll / fade, 1.0) : 0.0;
+6571:     const double bottomFade = (fade > 0.0)
+6572:         ? fade * qBound(0.0, (maxScroll - scroll) / fade, 1.0) : 0.0;
+6573: 
+6574:     if (topFade <= 0.0 && bottomFade <= 0.0) {
+6575:         paintLabelPanelRowsBody(painter, plateRect, labelRect, rows); // マスク不要
+6576:         return;
+6577:     }
+6578: 
+6579:     const qreal dpr = painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
+6580:     QImage layer(QSize(static_cast<int>(viewRect.width()  * dpr) + 1,
+6581:                        static_cast<int>(viewRect.height() * dpr) + 1),
+6582:                  QImage::Format_ARGB32_Premultiplied);
+6583:     if (layer.isNull()) {
+6584:         paintLabelPanelRowsBody(painter, plateRect, labelRect, rows);
+6585:         return;
+6586:     }
+6587:     layer.setDevicePixelRatio(dpr);
+6588:     layer.fill(Qt::transparent);
+6589:     {
+6590:         QPainter lp(&layer);
+6591:         lp.setRenderHint(QPainter::Antialiasing, true);
+6592:         lp.setRenderHint(QPainter::TextAntialiasing, true);
+6593:         lp.setRenderHint(QPainter::SmoothPixmapTransform, true);
+6594:         lp.save();
+6595:         lp.translate(-viewRect.topLeft()); // 本体は画面の座標のまま描ける
+6596:         paintLabelPanelRowsBody(lp, plateRect, labelRect, rows);
+6597:         lp.restore();
+6598: 
+6599:         // 上下だけを薄くする（中央は 1.0 のまま＝何も変わらない）。
+6600:         // 濃さの変化は直線ではなく二乗にしてある。直線だと帯の真ん中が
+6601:         // ちょうど半分の濃さで「灰色の帯」に見えるが、二乗にすると端の
+6602:         // 近くだけが一気に薄くなり、溶けて消えるように見える。
+6603:         const double h = viewRect.height();
+6604:         QLinearGradient mask(0.0, 0.0, 0.0, h);
+6605:         constexpr int kFadeStops = 5; // 端→内側の刻み（多いほど滑らか）
+6606:         mask.setColorAt(0.0, QColor(0, 0, 0, topFade > 0.0 ? 0 : 255));
+6607:         if (topFade > 0.0) {
+6608:             for (int i = 1; i <= kFadeStops; ++i) {
+6609:                 const double t = static_cast<double>(i) / kFadeStops;
+6610:                 mask.setColorAt(topFade * t / h,
+6611:                                 QColor(0, 0, 0, qRound(255.0 * t * t)));
+6612:             }
+6613:         }
+6614:         if (bottomFade > 0.0) {
+6615:             for (int i = kFadeStops; i >= 1; --i) {
+6616:                 const double t = static_cast<double>(i) / kFadeStops;
+6617:                 mask.setColorAt(1.0 - bottomFade * t / h,
+6618:                                 QColor(0, 0, 0, qRound(255.0 * t * t)));
+6619:             }
+6620:         }
+6621:         mask.setColorAt(1.0, QColor(0, 0, 0, bottomFade > 0.0 ? 0 : 255));
+6622:         lp.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+6623:         lp.fillRect(QRectF(0.0, 0.0, viewRect.width(), h), mask);
+6624:     }
+6625:     painter.drawImage(viewRect.topLeft(), layer);
+6626: }
+6627: 
+6628: // 行1つぶんの中身（ピン・サムネイル・種別/長さ・タイトル）を描く。
+6629: // 並べ替えでつかんだ行は、リストの中とは別にカーソルへ追従させて
+6630: // 描きたいので、ここだけ切り出して2箇所から呼べるようにしてある。
+6631: void CanvasVideo::paintPanelRowContent(QPainter &painter, const QRectF &rowRect,
+6632:                                        const PanelRow &row, bool isCurrent,
+6633:                                        double alpha, bool requestThumbs)
+6634: {
+6635:     const QFont kindFont(QStringLiteral("Arial"), 7, QFont::DemiBold);
+6636:     const QFont titleFont(QStringLiteral("Arial"), 9);
+6637:     const QFontMetrics titleFm(titleFont);
+6638: 
+6639:     // 行の左のピン。再生中だけ白く、それ以外は控えめ
+6640:     // （どれが今なのかを一列の点で追えるようにするための目印）。
+6641:     {
+6642:         const QPointF pinCenter(rowRect.left() + kRowPinCenterX,
+6643:                                 rowRect.center().y());
+6644:         painter.setPen(Qt::NoPen);
+6645:         painter.setBrush(QColor(255, 255, 255,
+6646:                                 qRound((isCurrent ? 235 : 55) * alpha)));
+6647:         const double pinR = isCurrent ? kRowPinRadius : kRowPinRadius - 0.8;
+6648:         painter.drawEllipse(pinCenter, pinR, pinR);
+6649:     }
+6650: 
+6651:     // 再生中の行は敷いて「今ここ」を示す。
+6652:     // 2026-09-12: α20だと動画の絵の上ではほぼ見えなかったので、敷きを
+6653:     // 濃くし（52）、さらに細い縁を足して輪郭が分かるようにした。
+6654:     if (isCurrent) {
+6655:         // 枠の左端はロゴの左端に揃える（kRowIconLeftX）。左右の余白は必ず
+6656:         // 同じにすること（左だけ詰めると重心がずれて見える）。
+6657:         // 【2026-09-12】左右へはみ出させないこと。行はリストの表示領域
+6658:         // （viewRect）でクリップされているので、外へ広げると角の丸みが
+6659:         // そこで切り落とされて「角が欠けた四角」に見える。
+6660:         const QRectF fill(rowRect.left()  + kRowIconLeftX,
+6661:                           rowRect.top()   + 2.0,
+6662:                           qMax(0.0, rowRect.width() - kRowIconLeftX * 2.0),
+6663:                           rowRect.height() - 4.0);
+6664:         painter.setPen(Qt::NoPen);
+6665:         painter.setBrush(QColor(255, 255, 255, qRound(52 * alpha)));
+6666:         painter.drawRoundedRect(fill, 10, 10);
+6667:         painter.setBrush(Qt::NoBrush);
+6668:         painter.setPen(QPen(QColor(255, 255, 255, qRound(70 * alpha)), 1.0));
+6669:         painter.drawRoundedRect(fill.adjusted(0.5, 0.5, -0.5, -0.5), 9.5, 9.5);
+6670:     }
+6671: 
+6672:     // サムネイル。まだ手元に無ければこの行の分だけ取りに行く。
+6673:     const QRectF thumbRect(rowRect.left() + kRowPinWidth,
+6674:                            rowRect.center().y() - kThumbHeight * 0.5,
+6675:                            kThumbWidth, kThumbHeight);
+6676:     const QImage thumb = row.thumbUrl.isEmpty()
+6677:         ? QImage() : m_panelThumbs.value(row.thumbUrl);
+6678:     painter.setPen(Qt::NoPen);
+6679:     painter.setBrush(QColor(255, 255, 255, qRound(18 * alpha)));
+6680:     painter.drawRoundedRect(thumbRect, 8, 8);
+6681:     if (!thumb.isNull()) {
+6682:         painter.save();
+6683:         QPainterPath clip;
+6684:         clip.addRoundedRect(thumbRect, 8, 8);
+6685:         painter.setClipPath(clip, Qt::IntersectClip);
+6686:         painter.setOpacity(painter.opacity() * alpha);
+6687:         // 取得時に枠ちょうど（の2倍）へ切り抜き済みなので、ここでは
+6688:         // そのまま流し込むだけ（requestPanelThumbnail()参照）。
+6689:         painter.drawImage(thumbRect, thumb);
+6690:         painter.restore();
+6691:     } else if (requestThumbs && !row.thumbUrl.isEmpty()) {
+6692:         // 2026-09-12: 要求は描画中に出さない。プラグインの
+6693:         // requestThumbnail() は最初の1回だけ数百ms固まることがある
+6694:         // （Windowsのプロキシ自動検出など、QNetworkAccessManagerの
+6695:         // 初回セットアップ。実測で描画1回が403msになっていた）。
+6696:         // ここでは欲しいURLを控えるだけにして、描き終わってから出す。
+6697:         queuePanelThumbnail(row.url, row.thumbUrl);
+6698:     }
+6699: 
+6700:     // ピン⇔サムネイルと同じ間隔をあけてタイトルへ（左右の余白が揃う）。
+6701:     const double textLeft = thumbRect.right() + kRowGap;
+6702:     // 再生中の行は右端にイコライザが乗るので、その分だけ詰める。
+6703:     const double textRight = rowRect.right() - (isCurrent ? kRowEqWidth : 0.0);
+6704:     const QRectF textArea(textLeft, rowRect.top() + 5.0,
+6705:                           qMax(10.0, textRight - textLeft),
+6706:                           rowRect.height() - 10.0);
+6707: 
+6708:     // 種別（PREV / NOW / NEXT）と長さ。
+6709:     painter.setFont(kindFont);
+6710:     QString meta = row.kind;
+6711:     if (row.durationSec > 0) {
+6712:         meta += QStringLiteral("  %1:%2")
+6713:                     .arg(row.durationSec / 60)
+6714:                     .arg(row.durationSec % 60, 2, 10, QLatin1Char('0'));
+6715:     }
+6716:     // 2026-09-12: ここだけ影を落とさない。番号と長さに影を付けると、
+6717:     // 影のぶん太って見えてタイトルより目立ってしまう（主役はタイトル）。
+6718:     painter.setPen(QColor(255, 255, 255, qRound((isCurrent ? 190 : 120) * alpha)));
+6719:     painter.drawText(QRectF(textArea.left(), textArea.top(), textArea.width(), 12.0),
+6720:                      Qt::AlignLeft | Qt::AlignVCenter, meta);
+6721: 
+6722:     // タイトル。取得できていない場合はURLで代用する。
+6723:     QString text = row.title;
+6724:     if (text.isEmpty())
+6725:         text = row.url;
+6726:     painter.setFont(titleFont);
+6727:     const QRectF titleRect(textArea.left(), textArea.top() + 12.0,
+6728:                            textArea.width(), textArea.height() - 12.0);
+6729:     // 省略結果は使い回す（幅は普段変わらないのでほぼ毎回当たる）。
+6730:     const int elideWidth = static_cast<int>(titleRect.width());
+6731:     const QString elideKey = QString::number(elideWidth) + QLatin1Char('|') + text;
+6732:     auto cached = m_panelElideCache.constFind(elideKey);
+6733:     if (cached == m_panelElideCache.constEnd()) {
+6734:         if (m_panelElideCache.size() > 200)
+6735:             m_panelElideCache.clear();
+6736:         cached = m_panelElideCache.insert(
+6737:             elideKey, titleFm.elidedText(text, Qt::ElideRight, elideWidth));
+6738:     }
+6739:     drawShadowedText(painter, titleRect, Qt::AlignLeft | Qt::AlignVCenter,
+6740:                      cached.value(),
+6741:                      QColor(255, 255, 255, qRound((isCurrent ? 240 : 200) * alpha)),
+6742:                      alpha);
+6743: }
+6744: 
+6745: void CanvasVideo::paintLabelPanelRowsBody(QPainter &painter, const QRectF &plateRect,
+6746:                                           const QRectF &labelRect,
+6747:                                           const QList<PanelRow> &rows)
+6748: {
+6749:     // 中身は板が開き切る手前から遅れて出す（伸び切る前に文字が出ると
+6750:     // 板からはみ出して見えるため）。
+6751:     const double reveal = qBound(0.0, (static_cast<double>(m_labelPanelAnim) - 0.55) / 0.45, 1.0);
+6752:     if (reveal <= 0.01)
+6753:         return;
+6754:     const double alpha = reveal * static_cast<double>(m_labelFadeAlpha);
+6755: 
+6756:     painter.save();
+6757:     // クリップの丸みは板の丸み（labelPanelPlateGeometry）と必ず揃えること。
+6758:     // ずれると角のところだけ行がはみ出す／欠ける。
+6759:     painter.setClipPath(roundedPathLR(
+6760:         plateRect,
+6761:         CanvasVideoLabelPainter::pillLeftRadius(labelRect.height()),
+6762:         labelRect.height() * 0.5));
+6763: 
+6764:     // 行が見えている領域（ヘッダの下）。ここで切り取り、はみ出した分は
+6765:     // ホイールでスクロールして見る。
+6766:     const double viewTop = plateRect.top() + labelRect.height() + kPanelPadding;
+6767:     const QRectF viewRect(plateRect.left() + kPanelPadding, viewTop,
+6768:                           plateRect.width() - kPanelPadding * 2.0,
+6769:                           qMax(0.0, plateRect.bottom() - kPanelPadding - viewTop));
+6770:     m_labelPanelViewRect      = viewRect;
+6771:     m_labelPanelContentHeight = kPanelRowHeight * rows.size();
+6772: 
+6773:     // 現在の動画が変わったら、その行が見える位置へ寄せ直す（上から2行目の
+6774:     // 位置に置く）。ユーザーがホイールで動かした分はそのまま保持したいので、
+6775:     // 「現在位置が変わったとき」だけに限る。
+6776:     int currentIndex = -1;
+6777:     for (int i = 0; i < rows.size(); ++i) {
+6778:         if (rows.at(i).kind == QStringLiteral("NOW")) { currentIndex = i; break; }
+6779:     }
+6780:     const double maxScroll = qMax(0.0, m_labelPanelContentHeight - viewRect.height());
+6781:     if (m_labelPanelScrollAnchorUrl != m_source.originalPathOrUrl) {
+6782:         const bool firstAnchor = m_labelPanelScrollAnchorUrl.isEmpty();
+6783:         m_labelPanelScrollAnchorUrl = m_source.originalPathOrUrl;
+6784:         if (currentIndex >= 0) {
+6785:             const double want =
+6786:                 qBound(0.0, kPanelRowHeight * (currentIndex - 1), maxScroll);
+6787:             // 2026-09-12: 行き先だけを動かし、実際の位置はいつもの追従
+6788:             // （updateLabelAnims の kScrollSpeed）に任せる。自動送り・
+6789:             // ◀◀/▶▶・行クリックのどれで移動しても、リストが目的の行まで
+6790:             // 流れていくように見える。
+6791:             m_labelPanelScrollTarget = want;
+6792:             // ただし、リストが見えていない間（初回・畳んでいる最中）は
+6793:             // 流す意味がないので即座に合わせる。開いた瞬間に前の位置から
+6794:             // スクロールし始めると、開く動きと喧嘩して落ち着かない。
+6795:             const bool listVisible = m_labelPanelOpen && m_labelPanelAnim > 0.05f;
+6796:             if (firstAnchor || !listVisible)
+6797:                 m_labelPanelScroll = want;
+6798:         }
+6799:     }
+6800:     m_labelPanelScrollTarget = qBound(0.0, m_labelPanelScrollTarget, maxScroll);
+6801:     m_labelPanelScroll       = qBound(0.0, m_labelPanelScroll, maxScroll);
+6802: 
+6803:     painter.setClipRect(viewRect, Qt::IntersectClip);
+6804: 
+6805:     // 並べ替え中か。gapSlot は「つかんだ行を抜いた並び」の中で隙間を
+6806:     // 空ける位置（＝いま離せばそこへ入る）。
+6807:     const bool dragging = (m_rowDragIndex >= 0 && m_rowDragMoved
+6808:                            && m_rowDragIndex < rows.size());
+6809:     // 隙間の位置は連続値（m_rowGapAnim）。整数のときは
+6810:     //   ずれ = (k >= gap) ? 1 : 0
+6811:     // だが、間の値では 0→1 をなめらかに渡すので、行が滑って退いて見える。
+6812:     const double gapPos = dragging
+6813:         ? qBound(0.0, m_rowGapAnim, static_cast<double>(qMax(0, rows.size() - 1)))
+6814:         : 0.0;
+6815: 
+6816:     for (int i = 0; i < rows.size(); ++i) {
+6817:         // 並べ替え中は、つかんでいる行を抜いた並び（＝離したときの結果）で
+6818:         // 描き、落ちる位置には1行ぶんの隙間を空ける。つかんだ行そのものは
+6819:         // このあとカーソルに追従させて別に描く。
+6820:         double slot = i;
+6821:         if (dragging) {
+6822:             if (i == m_rowDragIndex)
+6823:                 continue; // つかんでいる行はここでは描かない
+6824:             const int k = i - (i > m_rowDragIndex ? 1 : 0); // 抜いたあとの位置
+6825:             slot = k + qBound(0.0, k - gapPos + 1.0, 1.0);  // 隙間のぶん退く
+6826:         }
+6827:         const PanelRow &row = rows.at(i);
+6828:         const QRectF rowRect(viewRect.left(),
+6829:                              viewTop + kPanelRowHeight * slot
+6830:                                  - (dragging ? m_labelPanelScroll
+6831:                                              : qRound(m_labelPanelScroll)),
+6832:                              viewRect.width(), kPanelRowHeight);
+6833:         // 画面外の行は描かないし、サムネイルも取りに行かない。
+6834:         if (rowRect.bottom() < viewRect.top() - 1.0
+6835:             || rowRect.top() > viewRect.bottom() + 1.0)
+6836:             continue;
+6837:         m_labelPanelRowRects   << rowRect;
+6838:         m_labelPanelRowUrls    << row.url;
+6839:         m_labelPanelRowIndices << i;
+6840: 
+6841:         const bool isCurrent = (row.kind == QStringLiteral("NOW"));
+6842:         if (isCurrent)
+6843:             m_labelPanelNowRowRect = rowRect;
+6844: 
+6845:         paintPanelRowContent(painter, rowRect, row, isCurrent, alpha,
+6846:                              /*requestThumbs=*/true);
+6847:     }
+6848:     painter.restore();
+6849: }
+6850: 
+6851: // 描画中に見つけた「まだ手元に無いサムネイル」を控えておき、描き終わって
+6852: // から順に要求する（paintLabelPanelRows のコメント参照）。
+6853: void CanvasVideo::queuePanelThumbnail(const QString &sourceUrl, const QString &thumbUrl)
+6854: {
+6855:     if (thumbUrl.isEmpty() || m_panelThumbs.contains(thumbUrl)
+6856:         || m_panelThumbPending.contains(thumbUrl)
+6857:         || m_panelThumbFailed.contains(thumbUrl))
+6858:         return;
+6859:     for (const auto &q : m_panelThumbQueue) {
+6860:         if (q.second == thumbUrl)
+=== 7280,7520
+7280: //  2026-09-23: ラベルの長押し（PbLabelActionApi.h）
+7281: // ============================================================
+7282: namespace {
+7283: constexpr double kLabelHoldDelayMs   = 140.0;   // ふつうのクリックでゲージが出ないための遅れ
+7284: constexpr double kLabelHoldFillMs    = 620.0;   // 一周たまるまで
+7285: constexpr double kLabelHoldMovePx    = 7.0;     // これ以上動いたら長押しはやめる
+7286: constexpr double kLabelHoldTimeoutMs = 30000.0; // 結果を待つ上限
+7287: constexpr double kLabelHoldShakeMs   = 380.0;
+7288: constexpr double kLabelHoldReturnOmega = 14.0;  // 戻るときの臨界減衰バネ（融合の離脱と同じ）
+7289: // 芯は細く、その周りは本当にぼかして「もわぁ」と光らせる。
+7290: constexpr double kLabelHoldGaugeWidth = 1.1;   // 芯の太さ
+7291: constexpr double kLabelHoldGlowWidth  = 2.4;   // ぼかす前に描く線の太さ
+7292: constexpr double kLabelHoldGlowRadius = 6.0;   // ぼかしの半径(px)
+7293: constexpr double kLabelHoldGlowPad    = 14.0;  // 作業用画像の余白（半径より広く）
+7294: constexpr int    kLabelHoldGlowAlpha  = 205;   // にじみの強さ
+7295: 
+7296: // 横→縦の2回で1パス、3パスでガウスに近づく箱ぼかし。対象はラベルの台の
+7297: // 周りだけ（数百×数十px）なので、毎フレームやってもごく軽い。
+7298: void boxBlurArgb(QImage &img, int radius, int passes)
+7299: {
+7300:     if (img.isNull() || radius < 1)
+7301:         return;
+7302:     const int w = img.width(), h = img.height();
+7303:     if (w < 3 || h < 3)
+7304:         return;
+7305:     QImage tmp(img.size(), QImage::Format_ARGB32_Premultiplied);
+7306:     const int span = radius * 2 + 1;
+7307:     for (int pass = 0; pass < passes; ++pass) {
+7308:         // 横
+7309:         for (int y = 0; y < h; ++y) {
+7310:             const QRgb *src = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+7311:             QRgb *dst = reinterpret_cast<QRgb *>(tmp.scanLine(y));
+7312:             int a = 0, r = 0, g = 0, b = 0;
+7313:             for (int i = -radius; i <= radius; ++i) {
+7314:                 const QRgb p = src[qBound(0, i, w - 1)];
+7315:                 a += qAlpha(p); r += qRed(p); g += qGreen(p); b += qBlue(p);
+7316:             }
+7317:             for (int x = 0; x < w; ++x) {
+7318:                 dst[x] = qRgba(r / span, g / span, b / span, a / span);
+7319:                 const QRgb out = src[qBound(0, x - radius, w - 1)];
+7320:                 const QRgb in  = src[qBound(0, x + radius + 1, w - 1)];
+7321:                 a += qAlpha(in) - qAlpha(out); r += qRed(in) - qRed(out);
+7322:                 g += qGreen(in) - qGreen(out); b += qBlue(in) - qBlue(out);
+7323:             }
+7324:         }
+7325:         // 縦
+7326:         for (int x = 0; x < w; ++x) {
+7327:             int a = 0, r = 0, g = 0, b = 0;
+7328:             for (int i = -radius; i <= radius; ++i) {
+7329:                 const QRgb p = reinterpret_cast<const QRgb *>(
+7330:                     tmp.constScanLine(qBound(0, i, h - 1)))[x];
+7331:                 a += qAlpha(p); r += qRed(p); g += qGreen(p); b += qBlue(p);
+7332:             }
+7333:             for (int y = 0; y < h; ++y) {
+7334:                 reinterpret_cast<QRgb *>(img.scanLine(y))[x] =
+7335:                     qRgba(r / span, g / span, b / span, a / span);
+7336:                 const QRgb out = reinterpret_cast<const QRgb *>(
+7337:                     tmp.constScanLine(qBound(0, y - radius, h - 1)))[x];
+7338:                 const QRgb in = reinterpret_cast<const QRgb *>(
+7339:                     tmp.constScanLine(qBound(0, y + radius + 1, h - 1)))[x];
+7340:                 a += qAlpha(in) - qAlpha(out); r += qRed(in) - qRed(out);
+7341:                 g += qGreen(in) - qGreen(out); b += qBlue(in) - qBlue(out);
+7342:             }
+7343:         }
+7344:     }
+7345: }
+7346: constexpr double kLabelHoldHoverCueMs = 450.0;  // 合図を出すまでカーソルを置く時間
+7347: constexpr int    kLabelHoldTrackAlpha = 52;     // 道筋（まだ通っていない所）の濃さ
+7348: }
+7349: 
+7350: QString CanvasVideo::coreLabelHoldTarget()
+7351: {
+7352:     // 本体の動作で押しきったとき、ラベルがこの語に変わる（hasCoreList() と同じ表示）。
+7353:     return QStringLiteral("List");
+7354: }
+7355: 
+7356: QString CanvasVideo::coreLabelHoldHint()
+7357: {
+7358:     // 本体が持っている唯一の動作の名前。何をするかは本体が決め、使うかどうかは
+7359:     // 担当プラグイン（いなければ本体自身）が決める。
+7360:     return QStringLiteral("フォルダで List にする");
+7361: }
+7362: 
+7363: bool CanvasVideo::takeLabelHoldFire()
+7364: {
+7365:     const bool fire = m_labelHoldFirePending;
+7366:     m_labelHoldFirePending = false;
+7367:     return fire;
+7368: }
+7369: 
+7370: void CanvasVideo::updateLabelHoldPointer(double distancePx)
+7371: {
+7372:     if (m_labelHoldPhase == LabelHoldPhase::Charging && distancePx > kLabelHoldMovePx)
+7373:         m_labelHoldPhase = LabelHoldPhase::Idle;
+7374: }
+7375: 
+7376: void CanvasVideo::finishLabelHold(bool success)
+7377: {
+7378:     if (m_labelHoldPhase != LabelHoldPhase::Waiting)
+7379:         return;
+7380:     if (success) {
+7381:         m_labelHoldPhase = LabelHoldPhase::Done;
+7382:         m_labelHoldFlash = 1.0;
+7383:     } else {
+7384:         m_labelHoldPhase = LabelHoldPhase::Failed;
+7385:         m_labelHoldShakeMs = 0.0;
+7386:     }
+7387:     emit playbackUiChanged();
+7388: }
+7389: 
+7390: void CanvasVideo::tickLabelHold(double dtSec)
+7391: {
+7392:     const double dtMs = dtSec * 1000.0;
+7393:     switch (m_labelHoldPhase) {
+7394:     case LabelHoldPhase::Charging: {
+7395:         if (!m_labelPullActive || !m_labelHoldAvailableEffective) {
+7396:             m_labelHoldPhase = LabelHoldPhase::Idle;
+7397:             break;
+7398:         }
+7399:         m_labelHoldMs += dtMs;
+7400:         // 針が一定の速さで進むほうが「あとどれくらいか」が読める（直線）
+7401:         const double p = qBound(0.0, (m_labelHoldMs - kLabelHoldDelayMs) / kLabelHoldFillMs, 1.0);
+7402:         m_labelHold = qMax(m_labelHold, p);   // 戻りかけから押し直したら、そこから
+7403:         m_labelHoldVel = 0.0;
+7404:         if (p >= 1.0) {
+7405:             m_labelHold = 1.0;
+7406:             m_labelHoldPhase = LabelHoldPhase::Waiting;
+7407:             m_labelHoldWaitMs = 0.0;
+7408:             m_labelHoldFirePending = true;
+7409:             m_labelHoldSwallowRelease = true;   // 離しても固定・開閉はしない
+7410:         }
+7411:         break;
+7412:     }
+7413:     case LabelHoldPhase::Waiting:
+7414:         m_labelHold = 1.0;
+7415:         m_labelHoldWaitMs += dtMs;
+7416:         if (m_labelHoldWaitMs > kLabelHoldTimeoutMs) {
+7417:             qWarning().noquote() << QStringLiteral(
+7418:                 "[CanvasVideo %1] label hold: no answer in %2ms, giving up")
+7419:                 .arg(reinterpret_cast<quintptr>(this), 0, 16).arg(kLabelHoldTimeoutMs);
+7420:             finishLabelHold(false);
+7421:         }
+7422:         break;
+7423:     case LabelHoldPhase::Done:
+7424:         // 満タンのまま光って消える（時定数 ≒ 110ms）
+7425:         m_labelHoldFlash *= std::exp(-9.0 * dtSec);
+7426:         if (m_labelHoldFlash < 0.01) {
+7427:             m_labelHoldFlash = 0.0;
+7428:             m_labelHold = m_labelHoldVel = 0.0;
+7429:             m_labelHoldPhase = LabelHoldPhase::Idle;
+7430:         }
+7431:         break;
+7432:     case LabelHoldPhase::Failed:
+7433:     case LabelHoldPhase::Idle: {
+7434:         // ゲージは止まった状態から動き出し、行き過ぎずに0へ戻る
+7435:         const int n = qMax(1, static_cast<int>(std::ceil(dtSec * 240.0)));
+7436:         const double h = dtSec / n;
+7437:         const double w = kLabelHoldReturnOmega;
+7438:         for (int i = 0; i < n; ++i) {
+7439:             m_labelHoldVel += ((0.0 - m_labelHold) * w * w - m_labelHoldVel * 2.0 * w) * h;
+7440:             m_labelHold += m_labelHoldVel * h;
+7441:         }
+7442:         if (m_labelHold < 0.002 && std::abs(m_labelHoldVel) < 0.02) {
+7443:             m_labelHold = m_labelHoldVel = 0.0;
+7444:         } else if (m_labelHold < 0.0) {
+7445:             m_labelHold = m_labelHoldVel = 0.0;
+7446:         }
+7447:         if (m_labelHoldPhase == LabelHoldPhase::Failed) {
+7448:             m_labelHoldShakeMs += dtMs;
+7449:             if (m_labelHoldShakeMs >= kLabelHoldShakeMs) {
+7450:                 m_labelHoldShakeMs = -1.0;
+7451:                 m_labelHoldPhase = LabelHoldPhase::Idle;
+7452:             }
+7453:         }
+7454:         break;
+7455:     }
+7456:     }
+7457: 
+7458:     m_labelHoldShimmer += dtSec;
+7459:     if (m_labelHoldShimmer > 1.0e6)
+7460:         m_labelHoldShimmer = 0.0;
+7461: 
+7462:     // 押す前の合図: カーソルを置いたまま少し待つと、ゲージの道筋と言葉を出す。
+7463:     // （長押しは押してみるまで分からないので、押す前に「ここは押し続ける所」と
+7464:     //   伝える。道筋はゲージが実際に埋めていく線と同じ形。）
+7465:     const bool hoverIdle = m_labelHoldPhase == LabelHoldPhase::Idle
+7466:                         && m_labelHoldAvailableEffective && m_labelHover
+7467:                         && !m_labelPullActive && m_labelHoldShakeMs < 0.0;
+7468:     if (hoverIdle)
+7469:         m_labelHoldHoverMs += dtMs;
+7470:     else
+7471:         m_labelHoldHoverMs = 0.0;
+7472:     const bool hoverCue = hoverIdle && m_labelHoldHoverMs > kLabelHoldHoverCueMs;
+7473:     if (hoverCue)
+7474:         m_labelHoldHintShown = m_labelHoldHint;
+7475:     const bool trackOn = hoverCue
+7476:         || m_labelHoldPhase == LabelHoldPhase::Charging
+7477:         || m_labelHoldPhase == LabelHoldPhase::Waiting;
+7478:     {
+7479:         const double t = trackOn ? 1.0 : 0.0;
+7480:         m_labelHoldTrack += (t - m_labelHoldTrack) * (1.0 - std::exp(-11.0 * dtSec));
+7481:         if (std::abs(m_labelHoldTrack - t) < 0.004)
+7482:             m_labelHoldTrack = t;
+7483:     }
+7484: 
+7485:     // 言葉: ため始めてから（遅れの後）と結果待ちの間、そして押す前の合図のとき。
+7486:     // ためている間はラベルの文字そのものが入れ替わっていくので、下の言葉は
+7487:     // 押す前（合図）と結果待ちのときだけ出す。
+7488:     const bool hintOn = hoverCue || m_labelHoldPhase == LabelHoldPhase::Waiting;
+7489:     const double target = hintOn ? 1.0 : 0.0;
+7490:     m_labelHoldHintAlpha += (target - m_labelHoldHintAlpha) * (1.0 - std::exp(-12.0 * dtSec));
+7491:     if (std::abs(m_labelHoldHintAlpha - target) < 0.005)
+7492:         m_labelHoldHintAlpha = target;
+7493: }
+7494: 
+7495: bool CanvasVideo::labelHoldNeedsFrames() const
+7496: {
+7497:     return m_labelHoldPhase != LabelHoldPhase::Idle
+7498:         || m_labelHold > 0.0 || m_labelHoldHintAlpha > 0.0
+7499:         || m_labelHoldTrack > 0.0 || m_labelHoldShakeMs >= 0.0
+7500:         // 合図を出すまでの待ち時間そのものも、止まっていると進まない
+7501:         || (m_labelHoldAvailableEffective && m_labelHover
+7502:             && m_labelHoldPhase == LabelHoldPhase::Idle
+7503:             && m_labelHoldHoverMs <= kLabelHoldHoverCueMs);
+7504: }
+7505: 
+7506: void CanvasVideo::paintLabelHoldGauge(QPainter &painter, const QRectF &rect,
+7507:                                       double leftRadius, double rightRadius,
+7508:                                       double progress, double alpha,
+7509:                                       double trackAmount) const
+7510: {
+7511:     if (alpha <= 0.01 || rect.isEmpty()
+7512:         || (progress <= 0.0005 && trackAmount <= 0.01))
+7513:         return;
+7514:     const QPainterPath outline = roundedPathLR(rect, leftRadius, rightRadius);
+7515:     const double len = outline.length();
+7516:     if (len <= 2.0)
+7517:         return;
+7518:     progress = qBound(0.0, progress, 1.0);
+7519:     // 始点は再生位置の光と同じく上辺の中央（paintLabelProgressRing 参照）
+7520:     const double topRun = qMax(0.0, rect.center().x() - (rect.left() + leftRadius));
+=== CanvasVideoLabel.h
+#pragma once
+
+#include <QByteArray>
+#include <QImage>
+#include <QRectF>
+#include <QString>
+
+class QPainter;
+
+// Paints the optional media-provider label in the window-space QWidget
+// overlay. The rasterized SVG is retained per video and rebuilt only when the
+// provider changes it.
+class CanvasVideoLabelPainter
+{
+public:
+    // 描いたピル(背景)の矩形を返す。ピルを描かなかった場合は空の矩形。
+    // 呼び出し側がその背後をぼかすために使う。
+    // drawPill=false にすると台（背景）を描かず、ロゴとテキストだけを
+    // 描く。ラベルがコントローラのカードへ伸びていく演出のとき、台は
+    // CanvasVideo側が「伸びる1枚の板」として描くため、二重に描かないよう
+    // にするための切り替え。
+    // textShiftX: テキストだけを右へずらす量(px)。ロゴは動かさない。
+    // リストが開くとき、テキスト（と鍵マーク）を板の右端へ寄せて中央を
+    // 空け、そこへ簡易コントロールを置くために使う（CanvasVideo側が
+    // 「板の右端 − ラベルの右端」を渡すので、伸びる動きにそのまま追従する）。
+    // compactAnim: 0=通常（ロゴ＋テキスト）、1=最小（ロゴと丸い台だけ）。
+    // ウィンドウが狭くて島（DynamicIsland）とぶつかるとき、ラベルに場所を
+    // 譲らせるための縮退。台の幅が高さと同じ＝真円まで縮み、テキストは
+    // 台からはみ出さないようクリップされつつ消える。
+    // 台そのものは CanvasVideo 側が描くことが多い（drawPill=false）ので、
+    // あちらへ渡す矩形にも同じ式で縮めた幅を使うこと（CanvasVideo.cpp の
+    // labelRect 参照）。ずれると台とロゴの位置が合わなくなる。
+    static double compactPillWidth(double fullWidth, double pillHeight,
+                                   double compactAnim);
+
+    // morphText/morphAmount: 2026-09-23。長押しでゲージをためている間、
+    // 今の語（labelText）から morphText へ文字を入れ替えていく。
+    // 0=今の語だけ、1=入れ替え後の語だけ。台の幅は両方が収まる幅で固定する
+    // ので、入れ替えの最中に形が動かない。
+    QRectF paint(QPainter &painter, int width, int height, float fadeAlpha,
+                 const QByteArray &labelIconSvg, const QString &labelText,
+                 bool drawPill = true, double textShiftX = 0.0,
+                 double compactAnim = 0.0,
+                 const QString &morphText = QString(), double morphAmount = 0.0);
+
+    // 描かずにラベル（台）の矩形だけを求める。伸びる板の開始形状として
+    // 必要なため、paint()より前に呼べる形で切り出してある。
+    QRectF measure(int width, int height,
+                   const QByteArray &labelIconSvg, const QString &labelText,
+                   const QString &morphText = QString());
+
+    // 台の左側の角丸半径（アイコンの角丸と同心にした値）。伸びる板が
+    // 開始時にラベルと完全に一致するよう、CanvasVideo側が参照する。
+    static double pillLeftRadius(double pillHeight);
+
+    // 台の左端からロゴ（円）の中心までの距離。2026-09-12: リストの行の
+    // ピンをこのロゴの中心と同じ縦線上に置くため、CanvasVideo側が参照する。
+    // 実体の定数（kPillPaddingLeft / kIconSize）は .cpp 側にあるので、
+    // 値がずれたらビルドが止まるよう .cpp で static_assert している。
+    static constexpr double kIconCenterFromPillLeft = 17.0;
+
+    // ロゴ（円）の直径。行のサムネイルの左端をロゴの右端に揃えるために
+    // CanvasVideo側が参照する。こちらも .cpp で static_assert している。
+    static constexpr double kIconSizePx = 20.0;
+
+    // 直近のpaint()が実際に描いたラベル全体（ロゴ＋テキスト＋台の余白）の
+    // 画面座標。クリックのヒット判定に使う。paint()の戻り値と違い、台を
+    // 描かなかった（ロゴだけの）場合もロゴを含む矩形を返す。何も描かな
+    // かった場合は空。
+    QRectF lastPaintedRect() const { return m_lastPaintedRect; }
+
+    // 直近のpaint()が描いたロゴの矩形（画面座標）。描いていなければ空。
+    // CanvasVideo側が、この上へ台と同じガラスの縁を重ねて質感を揃える。
+    QRectF lastIconRect() const { return m_lastIconRect; }
+
+private:
+    void ensureIconImage(const QByteArray &svgBytes);
+
+    // paint()とmeasure()で共有するレイアウト計算結果。
+    struct Layout
+    {
+        bool    valid = false;
+        bool    hasIcon = false;
+        bool    hasText = false;
+        QRectF  pillRect;
+        QString elidedText;
+        QString elidedMorphText;
+        double  textWidth = 0.0;      // 文字の実寸
+        double  textBoxWidth = 0.0;   // 文字を置く枠（語の長さによらず一定）
+        double  iconSize = 0.0;
+        double  gap = 0.0;
+        double  margin = 0.0;
+    };
+    Layout computeLayout(int width, const QByteArray &labelIconSvg,
+                         const QString &labelText,
+                         const QString &morphText = QString());
+
+    QImage m_iconImage;
+    QByteArray m_iconSourceBytes;
+    QRectF m_lastPaintedRect;
+    QRectF m_lastIconRect;
+};
+12:#include "CanvasVideoLabel.h"
+78:    // （PbResolvedMedia::labelIconSvg/labelText参照）。再生バーと全く同じ
+82:    // CanvasVideoLabel.h/.cppに切り出してあり、ここは薄い委譲のみ。
+104:    QRectF labelScreenRect() const {
+105:        const QRectF r = m_labelPainter.lastPaintedRect();
+106:        return r.isEmpty() ? r : r.translated(0.0, m_labelPull);
+109:    // ---- ラベルのホバー（2026-09-12追加、PbResolvedMedia::labelHoverable）----
+114:    bool labelHoverable() const { return m_labelHoverableEffective; }
+115:    void setLabelHover(bool hover) { m_labelHover = hover; }
+117:    // ---- ラベルの固定（2026-09-12追加、PbResolvedMedia::labelPinnable）----
+126:    bool labelPinnable() const { return m_labelPinnableEffective; }
+129:    bool labelProgressNeedsRepaint() const;
+130:    bool labelPinned() const { return m_labelPinned; }
+131:    void setLabelPinned(bool pinned);
+134:    void setLabelSuppressedByPin(bool suppressed) { m_labelSuppressedByPin = suppressed; }
+208:    void paintPinnedLabelOverlay(QPainter &painter, int windowW, int windowH,
+211:    void beginLabelPull();
+212:    void updateLabelPull(double dyPx);
+214:    bool endLabelPull();
+217:    // cancelStaleLabelDragModes）。
+218:    void cancelLabelPull();
+219:    bool labelPullActive() const { return m_labelPullActive; }
+221:    // ---- ラベルの長押し（2026-09-23、PbLabelActionApi.h）----
+225:    bool labelHoldAvailable() const { return m_labelHoldAvailableEffective; }
+227:    bool takeLabelHoldFire();
+230:    void updateLabelHoldPointer(double distancePx);
+232:    bool labelHoldWaiting() const { return m_labelHoldPhase == LabelHoldPhase::Waiting; }
+234:    bool labelHoldSwallowRelease() const { return m_labelHoldSwallowRelease; }
+236:    void finishLabelHold(bool success);
+241:    void switchSourceByLabelHold(const QString &newUrl, bool keepPlaying,
+242:                                 const QByteArray &labelIconSvg = QByteArray(),
+243:                                 const QString &labelText = QString(),
+244:                                 bool labelHoverable = false,
+245:                                 bool labelPinnable = false,
+246:                                 bool labelProgress = false);
+249:    quint64 labelHoldEpoch() const { return m_labelHoldEpoch; }
+251:    void restoreLabelHoldState(const QString &url, quint64 epoch,
+252:                               const QJsonObject &pluginLabel);
+255:    QJsonObject buildFolderListForLabelHold() const;
+256:    bool labelHoldIsCoreAction() const { return m_labelHoldCore; }
+258:    void tickLabelAnims(double dtMs);
+261:    bool tickLabelScroll(double dtSec);
+262:    bool labelScrollAnimating() const {
+263:        return m_labelPanelAnim > 0.001f
+264:            && qAbs(m_labelPanelScrollTarget - m_labelPanelScroll) > 0.01;
+266:    bool labelAnimsNeedFrames() const;
+271:    bool labelAnimsNeedFramesExceptEqualizer() const;
+277:    QRectF labelPanelDamageRect() const;
+285:    bool labelPanelOpen() const { return m_labelPanelOpen; }
+288:    bool labelPanelSupported() const;
+290:    // 開閉状態（m_labelPanelOpen）は保持したまま、伸び縮みのアニメーション
+293:    void setLabelPanelSuppressed(bool suppressed) { m_labelPanelSuppressed = suppressed; }
+297:    // 場合の最後の逃げ道。リストを畳む（setLabelPanelSuppressed）だけでは
+301:    void setLabelCompact(bool compact) { m_labelCompact = compact; }
+305:    double labelFullRightEdge() const { return m_labelRectForPanel.right(); }
+307:    void toggleLabelPanel();
+308:    void closeLabelPanel();
+311:    QRectF labelPanelScreenRect() const { return m_labelPanelRect; }
+314:    bool handleLabelPanelClick(const QPointF &pos);
+341:    bool handleLabelPanelWheel(const QPointF &pos, int angleDelta);
