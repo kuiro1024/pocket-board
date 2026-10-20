@@ -165,9 +165,11 @@ kbd{font:500 .82rem var(--display);color:var(--ink);background:#fff;border:1px s
 footer{background:var(--paper);padding-block:36px;color:var(--mute);font-size:var(--step--1);border-top:1px solid var(--line)}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px}
 footer nav{display:flex;flex-wrap:wrap;gap:6px 20px}
-.duck-spot{display:inline-block;vertical-align:-3px;margin-left:5px;line-height:0;cursor:default}
+.duck-spot{position:relative;display:inline-block;vertical-align:-3px;margin-left:5px;line-height:0;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .duck{fill:currentColor;opacity:.32;transition:opacity .3s,fill .3s;transform-origin:50% 100%}
-.duck-spot:hover .duck{opacity:1;fill:var(--ink);animation:duck-hop .5s steps(4) 2}
+.duck-spot:hover .duck{opacity:.75}
+.quack{position:absolute;left:50%;bottom:calc(100% + 8px);translate:-50% 0;font:700 .78rem/1.5 var(--display);letter-spacing:.04em;pointer-events:none;white-space:nowrap;z-index:5}
+.quack > span{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--ink);color:var(--paper);box-shadow:0 6px 16px -6px rgba(20,30,90,.5)}
 .duck .d-rb{display:none}
 .duck-spot.awake .duck{opacity:1;filter:drop-shadow(0 0 3px rgba(255,80,200,.45))}
 .duck-spot.awake .d-norm{display:none}.duck-spot.awake .d-rb{display:inline}
@@ -961,9 +963,34 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
 })();
 </script>
 <script>
-(() => {   // 5回クワッとさせると覚醒する
-  const d = document.querySelector('.duck-spot'); if (!d) return; let n = 0;
-  d.addEventListener('pointerenter', () => { if (++n === 5) { d.classList.add('awake', 'awaking'); setTimeout(() => d.classList.remove('awaking'), 800); } });
+(() => {   // アヒル: クリックするとグワッと鳴いて走り回る。5回目で覚醒（虹色）
+  const d = document.querySelector('.duck-spot'); if (!d) return;
+  const duck = d.querySelector('.duck'); let n = 0, run = null;
+  d.addEventListener('click', () => {
+    n++;
+    const big = n === 5;
+    // 吹き出し
+    const q = document.createElement('span'); q.className = 'quack';
+    q.innerHTML = big ? '<span lang="ja">グワァァァッ！！</span><span lang="en">QUAAACK!!</span>' : '<span lang="ja">グワッ！</span><span lang="en">QUACK!</span>';
+    d.querySelectorAll('.quack').forEach(x => x.remove());   // 連打したら前の吹き出しは消す
+    d.appendChild(q);
+    q.animate([{opacity: 0, transform: 'translateY(8px) scale(.5)'}, {opacity: 1, transform: 'translateY(-2px) scale(1.15)', offset: .15},
+               {opacity: 1, transform: 'translateY(0) scale(1)', offset: .3}, {opacity: 1, transform: 'translateY(-4px)', offset: .75}, {opacity: 0, transform: 'translateY(-14px)'}],
+              {duration: big ? 1600 : 1100, easing: 'ease-out'}).finished.then(() => q.remove());
+    // 本体: ぐわっと大きくなってから、ぴょこぴょこ走っていって戻ってくる（アヒルは左向き）
+    if (run) run.cancel();
+    const dir = Math.random() < .5 ? -1 : 1, X = dir * (50 + Math.random() * 70), go = dir < 0 ? 1 : -1, back = -go, S = big ? 3.4 : 2.4;
+    const k = [{transform: 'translate(0,0) scale(1)'}, {transform: `translate(0,-2px) scale(${S}) rotate(-14deg)`, offset: .1},
+               {transform: `translate(0,-2px) scale(${S * .9}) rotate(10deg)`, offset: .16}, {transform: 'translate(0,0) scale(1)', offset: .24}];
+    for (let i = 1; i <= 8; i++) {   // 行き4歩・帰り4歩（跳ねながら）
+      const out = i <= 4, f = out ? i / 4 : (8 - i) / 4;
+      k.push({transform: `translate(${(X * f).toFixed(1)}px,${i % 2 ? -4 : 0}px) scaleX(${out ? go : back})`, offset: .24 + i * .095});
+    }
+    k[k.length - 1].offset = 1; k[k.length - 1].transform = 'translate(0,0) scaleX(1)';
+    run = duck.animate(k, {duration: big ? 2300 : 1900, easing: 'linear'});
+    run.finished.then(() => { run = null; }).catch(() => {});
+    if (big) { d.classList.add('awake', 'awaking'); setTimeout(() => d.classList.remove('awaking'), 800); }
+  });
 })();
 </script>
 <script>/* Pocket Board site — flowing background + interactive demo */
