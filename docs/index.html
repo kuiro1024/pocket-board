@@ -90,7 +90,7 @@ p{margin:0}
 .stage{position:relative;margin-top:calc(-1 * clamp(110px,19vw,270px));z-index:2}
 .stage-band{background:linear-gradient(180deg,rgba(244,246,252,0) 30%,var(--paper) 70%)}
 .window{position:relative;border-radius:18px;padding:10px;background:var(--glass);border:1px solid var(--glass-edge);
-  box-shadow:0 0 0 1px rgba(120,140,255,.25),0 -6px 40px rgba(90,120,255,.35),0 40px 80px -20px rgba(30,40,110,.35);backdrop-filter:blur(24px) saturate(1.2)}
+  box-shadow:0 0 0 1px rgba(120,140,255,.25),0 -6px 40px rgba(90,120,255,.35),0 40px 80px -20px rgba(30,40,110,.35);}
 .window video,.window img.poster{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:#e9edf8;object-fit:cover}
 .sound{position:absolute;right:18px;bottom:18px;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;cursor:pointer;font:500 .82rem var(--body)}
 .sound svg{width:16px;height:16px;fill:#fff}
@@ -140,7 +140,7 @@ kbd{font:500 .82rem var(--display);color:var(--ink);background:#fff;border:1px s
 .info dt{color:var(--mute)}
 .info dd{margin:0;font-weight:700}
 .nw{white-space:nowrap}
-.dl-panel{display:grid;gap:28px;padding:clamp(28px,5vw,56px);border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);backdrop-filter:blur(26px) saturate(1.15);box-shadow:0 30px 80px -30px rgba(30,40,110,.45)}
+.dl-panel{display:grid;gap:28px;padding:clamp(28px,5vw,56px);border-radius:24px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 30px 80px -30px rgba(30,40,110,.45)}
 @media (min-width:880px){.dl-panel{grid-template-columns:1fr 1.1fr;align-items:center;gap:56px}}
 .dl-panel > div{min-width:0}
 .dl-panel h2{font-size:var(--step-2)}
@@ -181,7 +181,7 @@ footer a:hover{color:var(--ink)}
 .sec-head.center{margin-inline:auto;text-align:center;justify-items:center}
 .demo{position:relative;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:980px){.demo{grid-template-columns:210px minmax(0,1fr) 200px;align-items:center;gap:22px}}
-.src{border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 20px 50px -24px rgba(30,40,110,.35);backdrop-filter:blur(18px);overflow:hidden;min-width:0}
+.src{border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.9);box-shadow:0 20px 50px -24px rgba(30,40,110,.35);overflow:hidden;min-width:0}
 .src-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:.75rem;color:var(--mute)}
 .src-bar i{width:8px;height:8px;border-radius:50%;background:#d6dbe9}
 .src-bar .url{margin-left:6px;flex:1;min-width:0;padding:2px 10px;border-radius:999px;background:#eef1f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -206,7 +206,7 @@ footer a:hover{color:var(--ink)}
 
 .pb-wrap{position:relative;display:grid;place-items:center;min-width:0;container-type:inline-size}
 .pb{position:relative;border-radius:12px;background:rgba(255,255,255,.26);border:1px solid rgba(255,255,255,.78);
-  box-shadow:0 0 0 1px rgba(120,140,255,.22),0 -6px 36px rgba(90,120,255,.32),0 34px 70px -24px rgba(30,40,110,.4);backdrop-filter:blur(30px) saturate(1.25);overflow:hidden;
+  box-shadow:0 0 0 1px rgba(120,140,255,.22),0 -6px 36px rgba(90,120,255,.32),0 34px 70px -24px rgba(30,40,110,.4);overflow:hidden;
   max-width:100%;touch-action:none;user-select:none;-webkit-user-select:none;transition:opacity .18s ease,scale .18s ease}
 .pb.hidden{opacity:0;scale:.96;pointer-events:none}
 .pb-body{position:relative;height:clamp(360px,52vw,520px);border-radius:11px;overflow:hidden;clip-path:inset(0 round 11px)}   /* 中身（WebGL）を窓の角丸で確実に切る。親の overflow だけだと合成レイヤーがはみ出すことがある */
@@ -220,7 +220,7 @@ footer a:hover{color:var(--ink)}
 .pb-canvas.fading,.pb-ui.fading{opacity:0}
 .pb-ui{position:absolute;left:0;top:0;pointer-events:none;transition:opacity .22s}
 .pb-island{position:absolute;left:50%;top:15px;width:240px;height:42px;transform:translateX(-50%);z-index:3;pointer-events:none;opacity:0}
-.pb-island .iblur{position:absolute;top:1px;bottom:1px;left:1px;right:1px;border-radius:21px;backdrop-filter:blur(18px)}
+.pb-island .iblur{position:absolute;top:1px;bottom:1px;left:1px;right:1px;border-radius:21px;}
 .pb-island canvas{position:absolute;left:-20px;top:-20px;width:280px;height:82px}
 .pb-recall{all:unset;position:absolute;inset:auto;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:999px;font-size:.85rem;animation:pop-in .35s cubic-bezier(.3,1.6,.5,1)}
 .export-ghost{position:fixed;z-index:1000;pointer-events:none;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:.92}
@@ -257,7 +257,6 @@ footer a:hover{color:var(--ink)}
 /* スタイルのスイッチ（島と同じガラスの台） */
 .sw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);width:min(330px,calc(100vw - 32px));height:42px;padding:0 4px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
   filter:drop-shadow(0 10px 24px rgba(20,30,90,.28));border-radius:21px}
-.sw::before{content:"";position:absolute;inset:1px;border-radius:21px;backdrop-filter:blur(18px);z-index:-1}
 .sw.dragging{cursor:grabbing}
 .sw canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .sw-thumb{position:absolute;left:0;top:4px;height:34px;border-radius:17px;pointer-events:none;will-change:transform;
@@ -269,7 +268,7 @@ footer a:hover{color:var(--ink)}
 /* ---------- ガラスの UI（白） ---------- */
 .glass{position:relative;isolation:isolate;color:#fff;border:1px solid rgba(255,255,255,.55);
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12) 55%,rgba(255,255,255,.18));
-  -webkit-backdrop-filter:blur(18px) saturate(1.45);backdrop-filter:blur(18px) saturate(1.45);
+  
   box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -1px 0 rgba(255,255,255,.25),inset 0 0 0 1px rgba(255,255,255,.08),0 10px 28px -8px rgba(20,30,90,.35);
   text-shadow:0 1px 6px rgba(20,30,90,.25);transition:transform .25s cubic-bezier(.3,1.5,.5,1),background .25s,box-shadow .25s}
 .glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
@@ -283,13 +282,13 @@ footer a:hover{color:var(--ink)}
 /* 上部バー（スクロールしても上に残る） */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:50;padding-top:env(safe-area-inset-top,0px);color:#fff;transition:background .35s,box-shadow .35s,color .35s}
 .topbar .nav{padding-block:14px;transition:padding .35s}
-.topbar.scrolled{background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 8px 30px -12px rgba(20,30,90,.25);color:var(--ink)}
+.topbar.scrolled{background:rgba(255,255,255,.88);box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 8px 30px -12px rgba(20,30,90,.25);color:var(--ink)}
 .topbar.scrolled .nav{padding-block:8px}
 .topbar.scrolled .glass{color:var(--ink);text-shadow:none;border-color:rgba(26,31,61,.12);background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(255,255,255,.45))}
 .topbar.scrolled .lang button{color:var(--ink)}
 .theme button{display:grid;place-items:center;padding:4px 8px}
 .theme svg{width:15px;height:15px;fill:currentColor}
-@media (max-width:600px){.dots{top:calc(100% + 6px);translate:-50% 0}}
+.topbar.compact .nav-right .lang{display:none}   /* 上中央のドットとぶつかる幅ではテーマと言語を隠す */
 /* 現在地のドット（上中央） */
 .topbar .nav{position:relative}
 .dots{position:absolute;left:50%;top:50%;translate:-50% -50%;display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:999px}
@@ -302,7 +301,7 @@ footer a:hover{color:var(--ink)}
 .dots button:hover::after,.dots button:focus-visible::after{opacity:1;translate:-50% 0}
 .dots button:focus-visible{outline:none}.dots button:focus-visible::before{opacity:1;box-shadow:0 0 0 3px rgba(47,111,228,.5)}
 .dots:hover,.dots:active{transform:none}
-@media (max-width:640px){.brand{font-size:0;gap:0}.nav-right .gh{display:none}}
+@media (max-width:640px){.brand{font-size:0;gap:0}}
 .topbar.scrolled .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .hero{padding-top:72px}
 .hero-copy{}
@@ -387,7 +386,7 @@ html.dark{color-scheme:dark;
 .dark .lang button,.dark .topbar.scrolled .lang button{color:#cfcfd2}
 .dark .lang button[aria-pressed="true"],.dark .topbar.scrolled .lang button[aria-pressed="true"]{background:rgba(255,255,255,.16);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .dark .sound svg{fill:#e6e6e8}
-.dark .topbar.scrolled{background:rgba(16,16,17,.62);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 8px 30px -12px rgba(0,0,0,.6)}
+.dark .topbar.scrolled{background:rgba(16,16,17,.9);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 8px 30px -12px rgba(0,0,0,.6)}
 .dark .bubble-fig[data-empty]{background:linear-gradient(135deg,#232325,#1a1a1c)}
 .dark .card-over{box-shadow:0 -18px 50px -20px rgba(0,0,0,.6)}
 </style>
@@ -501,9 +500,9 @@ html.dark{color-scheme:dark;
       <div class="demo-tools">
         <div class="sw" id="style-switch" role="radiogroup" aria-label="Glass style">
         <canvas aria-hidden="true"></canvas><span class="sw-thumb" aria-hidden="true"></span>
-        <button type="button" role="radio" data-style="standard" id="sw-standard">Standard</button>
-        <button type="button" role="radio" data-style="carved" id="sw-carved">Carved</button>
-        <button type="button" role="radio" data-style="gummy" id="sw-gummy">Gummy</button>
+        <button type="button" role="radio" data-style="standard" id="sw-standard"><span lang="ja">標準</span><span lang="en">Standard</span></button>
+        <button type="button" role="radio" data-style="carved" id="sw-carved"><span lang="ja">削り出し</span><span lang="en">Carved</span></button>
+        <button type="button" role="radio" data-style="gummy" id="sw-gummy"><span lang="ja">グミ</span><span lang="en">Gummy</span></button>
       </div>
         <button type="button" class="demo-reset glass" id="dm-reset"><span lang="ja">最初に戻す</span><span lang="en">Reset</span></button>
       </div>
@@ -778,6 +777,13 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   // 上部バー: 少しスクロールしたらガラスの帯にする
   const topbar = document.getElementById('topbar');
   const onScroll = () => topbar.classList.toggle('scrolled', scrollY > 24);
+  // 上中央のドットと右上のボタンがぶつかる幅では、テーマと言語の切り替えを隠す
+  const navRight = document.querySelector('.nav-right'), dotsBar = document.querySelector('.dots');
+  const fitNav = () => {
+    topbar.classList.remove('compact');
+    if (navRight.getBoundingClientRect().left < dotsBar.getBoundingClientRect().right + 10) topbar.classList.add('compact');
+  };
+  new ResizeObserver(fitNav).observe(topbar); document.fonts && document.fonts.ready.then(fitNav);
 
 
   // セクションの重なり: 長いセクションは最後まで読める位置で止まり、次のセクションがその上へ滑り込む
