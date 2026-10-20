@@ -167,7 +167,7 @@ kbd{font:500 .82rem var(--display);color:var(--ink);background:#fff;border:1px s
 .qa summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;font-weight:700}
 .qa summary::-webkit-details-marker{display:none}
 .qa summary::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg) translateY(-3px);transition:transform .3s}
-.qa[open] summary::after{transform:rotate(225deg) translateY(-1px)}
+.qa[open]:not(.closing) summary::after{transform:rotate(225deg) translateY(-1px)}   /* 閉じ始めたら矢印も戻す */
 .qa p{padding:0 20px 18px;color:var(--mute)}
 .qa a,.info a{color:var(--accent)}
 .qa code{font-size:.9em;padding:1px 6px;border-radius:6px;background:var(--line)}
@@ -999,6 +999,29 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   addEventListener('scroll', queueFx, {passive: true});
   addEventListener('resize', () => { layoutCards(); queueFx(); });
   allFx();
+})();
+</script>
+<script>
+(() => {   // Q&A: 開くときは高さがするっと伸びて答えがふわっと出る、閉じるときは縮む
+  document.querySelectorAll('details.qa').forEach(d => {
+    const sum = d.querySelector('summary'); let anim = null;
+    sum.addEventListener('click', e => {
+      e.preventDefault();
+      const from = d.offsetHeight, opening = !d.open || d.classList.contains('closing');
+      if (anim) anim.cancel();
+      d.style.overflow = 'hidden';
+      if (opening) {
+        d.classList.remove('closing'); d.open = true;
+        const to = d.offsetHeight;
+        anim = d.animate({height: [from + 'px', to + 'px']}, {duration: 320, easing: 'cubic-bezier(.2,.8,.2,1)'});
+        d.querySelectorAll(':scope > :not(summary)').forEach(c => c.animate([{opacity: 0, transform: 'translateY(-6px)'}, {opacity: 1, transform: 'none'}], {duration: 360, delay: 60, easing: 'ease-out', fill: 'backwards'}));
+      } else {
+        d.classList.add('closing');
+        anim = d.animate({height: [from + 'px', sum.offsetHeight + 2 + 'px']}, {duration: 240, easing: 'cubic-bezier(.4,0,.2,1)'});
+      }
+      anim.onfinish = () => { if (d.classList.contains('closing')) { d.open = false; d.classList.remove('closing'); } d.style.overflow = ''; anim = null; };
+    });
+  });
 })();
 </script>
 <script>
