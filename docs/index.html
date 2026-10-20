@@ -404,9 +404,6 @@ html.dark{color-scheme:dark;
 .dark .topbar.scrolled{background:rgba(16,16,17,.62);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 8px 30px -12px rgba(0,0,0,.6)}
 .dark .bubble-fig[data-empty]{background:linear-gradient(135deg,#232325,#1a1a1c)}
 .dark .card-over{box-shadow:0 -18px 50px -20px rgba(0,0,0,.6)}
-/* 墨が広がる切り替え（View Transitions） */
-::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
-.ink-ov{position:fixed;inset:0;z-index:9999;pointer-events:none}
 </style>
 </head>
 <body>
@@ -722,48 +719,61 @@ html.dark{color-scheme:dark;
   applyTheme(osDark.matches ? 'dark' : 'light');
   osDark.addEventListener('change', e => { if (!picked) applyTheme(e.matches ? 'dark' : 'light'); });
   new Image().src = 'assets/icon-dark.webp';
-  // 墨の形: ボタンから広がるギザギザの円。形は clip-path の多角形で表し、CSS の @keyframes に書き出して再生する
-  // （マスク画像の大きさを動かす方式は Chrome でちらつき・崩れ、Firefox 系では効かなかった。clip-path ならどのブラウザでも同じ仕組みで動く）
-  const inkStyle = document.createElement('style'); document.head.appendChild(inkStyle);
+  // 墨の切り替え: 画面のいちばん上に canvas を1枚重ね、墨は JS で毎フレーム自分で描く。
+  // View Transition や CSS マスクのようにブラウザごとに実装が違う機能は使わないので、どのブラウザでも同じ動きになる。
+  //  1) ボタンから次のテーマの色の墨が広がって画面を覆う → 2) 覆っている間に裏でテーマを切り替える → 3) 墨に穴が開いて新しい画面が現れる
   let inking = false;
   function inkSwitch(t, btn) {
     picked = true;
     if (inking) return;
     if (root.classList.contains('dark') === (t === 'dark')) { applyTheme(t); return; }
-    const VW = innerWidth, VH = innerHeight, r = btn.getBoundingClientRect(), bx = r.left + r.width / 2, by = r.top + r.height / 2;
+    inking = true;
+    const VW = innerWidth, VH = innerHeight, k = Math.min(1, (devicePixelRatio || 1) * .75);   // 墨は少し粗い解像度で十分（縁が柔らかくなって墨らしい）
+    const cv = document.createElement('canvas'); cv.width = Math.ceil(VW * k); cv.height = Math.ceil(VH * k);
+    cv.style.cssText = `position:fixed;left:0;top:0;width:${VW}px;height:${VH}px;z-index:9999;pointer-events:none`;
+    document.body.appendChild(cv);
+    const c = cv.getContext('2d'); c.scale(k, k); c.fillStyle = t === 'dark' ? '#101011' : '#f4f6fc';
+    const r = btn.getBoundingClientRect(), bx = r.left + r.width / 2, by = r.top + r.height / 2;
     const far = Math.max(Math.hypot(bx, by), Math.hypot(VW - bx, by), Math.hypot(bx, VH - by), Math.hypot(VW - bx, VH - by));
     const rnd = (() => { let s = 1 + Math.floor(Math.random() * 1e6); return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
-    // 外周の凸凹: 大きなうねり＋細かい毛羽。広がるにつれて位相が少しずつずれて、縁がうごめく
-    const hm = []; for (let k = 3; k <= 64; k++) hm.push([k, (k > 16 ? .8 : 1.6) / k * (.4 + rnd()), rnd() * 6.283, (rnd() - .5) * 2.4]);
-    const noise = (th, p) => { let s = 0; for (const [k, w, ph, sp] of hm) s += w * Math.sin(k * th + ph + p * sp); return s; };
-    const N = 220, STEPS = 32, D = 1300, amp = far * .07;
-    let mx = 1e-6; for (let i = 0; i < N; i++) mx = Math.max(mx, Math.abs(noise(i / N * 6.2832, 0)));
-    const ease = q => 1 - Math.pow(1 - q, 3);
-    let kf = '';
-    for (let s = 0; s <= STEPS; s++) {
-      const q = s / STEPS, p = ease(q), R = p * (far + amp * 1.2), g = Math.min(1, R / (amp * 3)), pts = [];
+    // 外周の凸凹: 大きなうねり＋細かい毛羽。広がるにつれて位相がずれて縁がうごめく
+    const hm = []; for (let k2 = 3; k2 <= 64; k2++) hm.push([k2, (k2 > 16 ? .8 : 1.6) / k2 * (.4 + rnd()), rnd() * 6.283, (rnd() - .5) * 2.4]);
+    const N = 240, amp = far * .07, cs = [], sn = [];
+    for (let i = 0; i < N; i++) { const th = i / N * 6.2832; cs.push(Math.cos(th)); sn.push(Math.sin(th)); }
+    const noise = (i, p) => { const th = i / N * 6.2832; let s = 0; for (const [kk, w, ph, sp] of hm) s += w * Math.sin(kk * th + ph + p * sp); return s; };
+    let mx = 1e-6; for (let i = 0; i < N; i++) mx = Math.max(mx, Math.abs(noise(i, 0)));
+    // 半径 R の墨（凸凹込み）。最後は凸凹の内側でも画面のいちばん遠い角まで届く
+    function blob(R, p) {
+      const g = Math.min(1, R / (amp * 3)); c.beginPath();
       for (let i = 0; i < N; i++) {
-        const th = i / N * 6.2832, n = Math.max(-1, Math.min(1, noise(th, p) / mx)), rr = Math.max(0, R + amp * n * g);
-        pts.push(`${(bx + Math.cos(th) * rr).toFixed(1)}px ${(by + Math.sin(th) * rr).toFixed(1)}px`);
+        const n = Math.max(-1, Math.min(1, noise(i, p) / mx)), rr = Math.max(0, R + amp * n * g), x = bx + cs[i] * rr, y = by + sn[i] * rr;
+        i ? c.lineTo(x, y) : c.moveTo(x, y);
       }
-      kf += `${(q * 100).toFixed(2)}%{clip-path:polygon(${pts.join(',')})}`;   // 最後のコマは凸凹の内側でも画面の一番遠い角まで覆う
+      c.closePath(); c.fill();
     }
-    inkStyle.textContent = `@keyframes pb-ink{${kf}}html.ink-anim::view-transition-new(root){animation:pb-ink ${D}ms linear both}.ink-ov{animation:pb-ink ${D}ms linear both}`;
-    inking = true;
-    const done = () => { root.classList.remove('ink-anim'); inking = false; };
-    if (document.startViewTransition) {
-      root.classList.add('ink-anim');
-      try { document.startViewTransition(() => applyTheme(t)).finished.catch(() => {}).finally(done); }
-      catch (e) { applyTheme(t); done(); }
-      return;
+    const RIM = [[.5, .3], [.2, .55], [0, 1]];   // 先に薄くにじむ縁 → 濃い本体
+    const T1 = 620, HOLD = 70, T2 = 560, Rmax = far + amp * 1.25, easeOut = q => 1 - Math.pow(1 - q, 3), easeInOut = q => q < .5 ? 4 * q * q * q : 1 - Math.pow(-2 * q + 2, 3) / 2;
+    const t0 = performance.now(); let switched = false;
+    function frame(now) {
+      const e = now - t0; c.clearRect(0, 0, VW, VH);
+      if (e < T1) {   // 1) 墨が広がって覆う
+        const p = easeOut(e / T1), R = p * Rmax;
+        for (const [lead, al] of RIM) { c.globalAlpha = al; blob(R + amp * lead, p); }
+      } else {
+        if (!switched) { switched = true; applyTheme(t); }   // 2) 覆い切ったところで裏で切り替え
+        c.globalAlpha = 1; c.fillRect(0, 0, VW, VH);
+        const q = Math.min(1, Math.max(0, (e - T1 - HOLD) / T2));
+        if (q > 0) {   // 3) 墨に穴が開いて新しい画面が現れる
+          const p = easeInOut(q), R = p * Rmax;
+          c.globalCompositeOperation = 'destination-out';
+          for (const [lead, al] of RIM) { c.globalAlpha = al; blob(R + amp * lead, p + 2.7); }
+          c.globalCompositeOperation = 'source-over';
+        }
+        if (q >= 1) { cv.remove(); inking = false; return; }
+      }
+      requestAnimationFrame(frame);
     }
-    // View Transition が無いブラウザ: 次の色の幕を墨の形で広げ、広がり切ったら切り替えて幕を消す
-    const ov = document.createElement('div'); ov.className = 'ink-ov'; ov.style.background = t === 'dark' ? '#101011' : '#f4f6fc';
-    ov.addEventListener('animationend', () => {
-      applyTheme(t); ov.style.animation = 'none'; ov.style.clipPath = 'none';
-      ov.animate({opacity: [1, 0]}, {duration: 350, fill: 'forwards'}).finished.catch(() => {}).finally(() => { ov.remove(); done(); });
-    }, {once: true});
-    document.body.appendChild(ov);
+    requestAnimationFrame(frame);
   }
   themeBtns.forEach(b => b.addEventListener('click', () => inkSwitch(b.dataset.theme, b)));
 
