@@ -309,14 +309,13 @@ footer a:hover{color:var(--ink)}
 .stage{transform-origin:50% 20%;will-change:transform}
 
 /* セクションが下から重なってくる（前のセクションは少し縮んで奥へ） */
-.card{position:sticky;top:var(--stick,0px);border-radius:32px 32px 0 0;box-shadow:0 -18px 50px -20px rgba(20,30,90,.22);transform-origin:50% 0;will-change:transform}
+.card{position:sticky;top:var(--stick,0px);border-radius:32px 32px 0 0;box-shadow:0 -18px 50px -20px rgba(20,30,90,.22);}
 main > .card:first-child{border-radius:0;box-shadow:none}
 /* デモは画面いっぱいで少し止まってから、紹介が重なってくる */
 .try.card{min-height:100svh;box-sizing:border-box}
 .card-over{position:relative;z-index:2;margin-top:45vh;border-radius:32px 32px 0 0;box-shadow:0 -18px 50px -20px rgba(20,30,90,.22)}
 #download{z-index:2}
 footer{position:relative;z-index:2}
-.card .card-dim{position:absolute;inset:0;background:#0b1030;opacity:0;pointer-events:none;z-index:30;border-radius:inherit}
 
 /* ---------- サイトの動き ---------- */
 .demo-help{margin-top:14px}
@@ -679,6 +678,8 @@ html.dark{color-scheme:dark;
 </footer>
 
 <script>
+// キャンバスの解像度: 拡大率（最大2）に合わせるが、1枚あたりの画素数に上限を設ける。高解像度の画面でも GPU メモリが溢れないように
+const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, Math.sqrt(cap / Math.max(1, w * h))));
 (() => {
   const root = document.documentElement;
   const STORE_JA = 'https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&gl=JP', STORE_EN = 'https://apps.microsoft.com/detail/9MZDTC61K4HM';
@@ -781,17 +782,10 @@ html.dark{color-scheme:dark;
 
   // セクションの重なり: 長いセクションは最後まで読める位置で止まり、次のセクションがその上へ滑り込む
   const cards = [...document.querySelectorAll('main > .card')];
-  cards.forEach(c => { const d = document.createElement('div'); d.className = 'card-dim'; c.appendChild(d); c._dim = d; });
   const layoutCards = () => cards.forEach(c => c.style.setProperty('--stick', Math.min(0, innerHeight - c.offsetHeight) + 'px'));
   const nexts = cards.map((c, i) => cards[i + 1] || document.getElementById('features'));
-  const stackFx = () => {   // 読み取りだけ先に済ませ、書き込みは返した関数で行う（読み書きを交互にしない）
-    const vh = innerHeight, ps = nexts.map(n => n ? Math.min(1, Math.max(0, (vh - n.getBoundingClientRect().top) / vh)) : 0);
-    return () => cards.forEach((c, i) => {
-      const p = ps[i]; if (p === c._p) return; c._p = p;
-      c.style.transform = p > 0 ? `translate3d(0,${(-p * vh * .06).toFixed(1)}px,0)` : '';   // 縮めると左右に隙間が出るので、少し上へ引くだけ
-      c._dim.style.opacity = (p * .45).toFixed(3);
-    });
-  };
+  // 前のセクションを奥へ下げて暗くする演出はやめた（画面いっぱいの層が連鎖的に増え、高解像度の Chrome で GPU メモリが溢れて崩れるため）
+  const stackFx = () => () => {};
   layoutCards();
   new ResizeObserver(layoutCards).observe(document.querySelector('main'));
   // ヒーローは奥へ引いていき、動画の窓は手前へせり出す。背景の光もスクロールで流れる
@@ -1396,7 +1390,7 @@ function initDemo() {
   /* ---------- サイズ ---------- */
   function applySize() {
     W = Math.max(1, pbBody.offsetWidth); H = Math.max(1, pbBody.offsetHeight);   // getBoundingClientRect は縮小アニメ中の大きさを返すので使わない
-    DPR = Math.min(2, devicePixelRatio || 1); g.resize(W, H, DPR); g.cv.style.width = W + 'px'; g.cv.style.height = H + 'px';
+    DPR = pxScale(W, H, 1.6e6); g.resize(W, H, DPR); g.cv.style.width = W + 'px'; g.cv.style.height = H + 'px';
     uiCv.width = Math.round(W * DPR); uiCv.height = Math.round(H * DPR); uiCv.style.width = W + 'px'; uiCv.style.height = H + 'px';
   }
   new ResizeObserver(() => { if (!focus) applySize(); kick(); }).observe(pbBody);
@@ -2165,7 +2159,7 @@ function initFigures() {
     const r = it.el.getBoundingClientRect(); if (!r.width) return;
     const cw = r.width, ch = r.height, bez = Math.min(cw, ch) * MEDIA_BEZEL_RATIO, M = Math.ceil(bez * 2.6);
     it.cw = cw; it.ch = ch; it.bez = bez; it.M = M; it.w = cw + M * 2; it.h = ch + M * 2;
-    const d = Math.min(2, devicePixelRatio || 1); it.d = d;
+    const d = pxScale(it.w, it.h, 1.1e6); it.d = d;
     it.cv.width = Math.round(it.w * d); it.cv.height = Math.round(it.h * d);
     Object.assign(it.cv.style, {left: -M + 'px', top: -M + 'px', width: it.w + 'px', height: it.h + 'px'});
   }
