@@ -725,12 +725,11 @@ html.dark{color-scheme:dark;
   // 墨の形: ボタンから広がるギザギザの円。形は clip-path の多角形で表し、CSS の @keyframes に書き出して再生する
   // （マスク画像の大きさを動かす方式は Chrome でちらつき・崩れ、Firefox 系では効かなかった。clip-path ならどのブラウザでも同じ仕組みで動く）
   const inkStyle = document.createElement('style'); document.head.appendChild(inkStyle);
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let inking = false;
   function inkSwitch(t, btn) {
     picked = true;
     if (inking) return;
-    if (root.classList.contains('dark') === (t === 'dark') || reduceMotion.matches) { applyTheme(t); return; }
+    if (root.classList.contains('dark') === (t === 'dark')) { applyTheme(t); return; }
     const VW = innerWidth, VH = innerHeight, r = btn.getBoundingClientRect(), bx = r.left + r.width / 2, by = r.top + r.height / 2;
     const far = Math.max(Math.hypot(bx, by), Math.hypot(VW - bx, by), Math.hypot(bx, VH - by), Math.hypot(VW - bx, VH - by));
     const rnd = (() => { let s = 1 + Math.floor(Math.random() * 1e6); return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
