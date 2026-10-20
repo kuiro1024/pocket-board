@@ -221,7 +221,7 @@ footer a:hover{color:var(--ink)}
   box-shadow:0 0 0 1px rgba(120,140,255,.22),0 -6px 36px rgba(90,120,255,.32),0 34px 70px -24px rgba(30,40,110,.4);backdrop-filter:blur(30px) saturate(1.25);overflow:hidden;
   max-width:100%;touch-action:none;user-select:none;-webkit-user-select:none;transition:opacity .18s ease,scale .18s ease}
 .pb.hidden{opacity:0;scale:.96;pointer-events:none}
-.pb-body{position:relative;height:clamp(360px,52vw,520px)}
+.pb-body{position:relative;height:clamp(360px,52vw,520px);border-radius:11px;clip-path:inset(0 round 11px)}   /* 中身（WebGL）を窓の角丸で確実に切る。親の overflow だけだと合成レイヤーがはみ出すことがある */
 .pb-wrap .pb-body{width:var(--pb-w,min(100cqw - 2px,760px))}   /* 親の幅（cqw）で決める。% だと中身に合わせて縮む親と循環して潰れる */
 @media (min-width:980px){.pb-wrap .pb-body{--pb-w:min(100cqw - 2px,62vw,760px)}}
 .demo.maxed{grid-template-columns:minmax(0,1fr)}
