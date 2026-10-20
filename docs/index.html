@@ -53,19 +53,7 @@ p{margin:0}
 .flow{position:fixed;inset:0;z-index:-1;background:#9fb6f2 url(assets/bg.jpg) center/cover;overflow:hidden}
 /* うにうに動く光のかたまり（形も位置もゆっくり変わり続ける） */
 .blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.blobs i{position:absolute;width:var(--s,48vmax);height:var(--s,48vmax);left:var(--x);top:var(--y);margin:calc(var(--s,48vmax) / -2) 0 0 calc(var(--s,48vmax) / -2);border-radius:50%;
-  /* ぼかしフィルタは使わず、最初からふちの柔らかいグラデーションにする（毎フレームのぼかし計算が無くなる） */
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--c) 100%,transparent) 0%,color-mix(in srgb,var(--c) 95%,transparent) 12%,color-mix(in srgb,var(--c) 80%,transparent) 24%,color-mix(in srgb,var(--c) 61%,transparent) 36%,color-mix(in srgb,var(--c) 41%,transparent) 48%,color-mix(in srgb,var(--c) 25%,transparent) 60%,color-mix(in srgb,var(--c) 14%,transparent) 72%,color-mix(in srgb,var(--c) 7%,transparent) 84%,transparent 100%);
-  mix-blend-mode:var(--m,screen);opacity:var(--o,.8);will-change:transform;
-  /* 形の変化（角丸のアニメ）はやめ、縦横の伸び縮み＋回転で「うにうに」を出す（transform だけなので軽い） */
-  animation:blob-move var(--d,16s) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
-.blobs i:nth-child(1){--x:18%;--y:22%;--c:#8f6bff;--d:17s;--s:52vmax}
-.blobs i:nth-child(2){--x:78%;--y:18%;--c:#ff8cc8;--d:21s;--dl:-12s;--s:46vmax}
-.blobs i:nth-child(3){--x:62%;--y:70%;--c:#57d6ff;--d:15s;--dl:-6s;--s:50vmax}
-.blobs i:nth-child(4){--x:22%;--y:80%;--c:#ffd36b;--d:23s;--dl:-18s;--s:40vmax;--o:.55}
-.blobs i:nth-child(5){--x:50%;--y:45%;--c:#6ff0c8;--d:19s;--dl:-24s;--s:36vmax;--o:.5;--m:soft-light}
-@keyframes blob-move{0%{transform:translate(0,0) rotate(0deg) scale(1,1)}20%{transform:translate(16vw,-12vh) rotate(80deg) scale(1.3,1.08)}40%{transform:translate(-6vw,14vh) rotate(160deg) scale(.8,.98)}60%{transform:translate(-18vw,-6vh) rotate(240deg) scale(1.22,1.02)}80%{transform:translate(4vw,-16vh) rotate(300deg) scale(.9,.84)}100%{transform:translate(12vw,10vh) rotate(360deg) scale(1.12,.96)}}
-.blobs.paused i{animation-play-state:paused}
+.blobs canvas{position:absolute;inset:0;width:100%;height:100%;display:block}   /* 光は低解像度の canvas に描いて引き伸ばす（JS） */
 /* スクロールに合わせて光の位置と色味が流れる */
 .flow > .blobs{transform:translate3d(0,calc(var(--sp,0) * -12vh),0) rotate(calc(var(--sp,0) * 50deg)) scale(1.15);will-change:transform}   /* 色を回すフィルタはやめ、位置と回転だけで流す */
 .hero::after{content:"";position:absolute;inset:0;z-index:-1;
@@ -317,7 +305,7 @@ footer a:hover{color:var(--ink)}
 @media (max-width:640px){.brand{font-size:0;gap:0}.nav-right .gh{display:none}}
 .topbar.scrolled .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .hero{padding-top:72px}
-.hero-copy{will-change:transform,opacity}
+.hero-copy{}
 .stage{transform-origin:50% 20%;will-change:transform}
 
 /* セクションが下から重なってくる（前のセクションは少し縮んで奥へ） */
@@ -332,7 +320,7 @@ footer{position:relative;z-index:2}
 
 /* ---------- サイトの動き ---------- */
 .demo-help{margin-top:14px}
-@keyframes rise{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-2deg)}}
 @keyframes sheen{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}
 @keyframes hue{to{background-position:200% 50%}}
@@ -368,7 +356,6 @@ html.dark{color-scheme:dark;
 .dark .flow::after,.dark .try::before,.dark .download::before{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(10,10,10,.7)}
 .dark .flow::after{z-index:0}.dark .flow > .blobs{z-index:1}
 .dark .try::before,.dark .download::before{z-index:0}
-.dark .blobs i{opacity:calc(var(--o,.8) * .85)}
 .dark .hero::after{background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.12) 50%,rgba(0,0,0,0) 100%)}
 .dark .try::after{background:linear-gradient(180deg,var(--paper) 0,rgba(16,16,17,.35) 160px,rgba(16,16,17,0) 30%,rgba(16,16,17,0) 75%,rgba(16,16,17,.3))}
 .dark .download::after{background:linear-gradient(180deg,var(--paper) 0%,rgba(16,16,17,0) 18%,rgba(0,0,0,.25) 100%)}
@@ -820,7 +807,6 @@ html.dark{color-scheme:dark;
       heroP = p;
       heroCopy.style.transform = `translate3d(0,${(p * -70).toFixed(1)}px,0) scale(${(1 - .06 * p).toFixed(4)})`;
       heroCopy.style.opacity = (1 - p * .95).toFixed(3);
-      heroCopy.style.filter = p > .01 ? `blur(${(p * 6).toFixed(2)}px)` : '';
     }
     const q = Math.min(1, Math.max(0, (vh - r.top) / (vh * .9)));
     if (q !== stageQ) { stageQ = q; stage.style.transform = `scale(${(.9 + .1 * q).toFixed(4)})`; }
@@ -831,7 +817,39 @@ html.dark{color-scheme:dark;
   new IntersectionObserver(es => { const e = es[0]; if (e.isIntersecting) { v.play().catch(() => {}); } else v.pause(); }).observe(v);
 
   // 画面外の光は止めておく（軽くするため）
-  document.querySelectorAll('.blobs').forEach(b => new IntersectionObserver(es => b.classList.toggle('paused', !es[0].isIntersecting)).observe(b.parentElement));
+  // 光のかたまり: 場面ごとに低解像度の canvas 1枚へ描いて引き伸ばす。
+  // 引き伸ばしで自然にぼけるのでぼかし処理は不要。重ね合わせの層も場面ごとに1枚で済む（以前は大きな層×5個×3か所）
+  const ORBS = [[18, 22, '#8f6bff', 17, -0, 52, .8], [78, 18, '#ff8cc8', 21, -12, 46, .8], [62, 70, '#57d6ff', 15, -6, 50, .8], [22, 80, '#ffd36b', 23, -18, 40, .55], [50, 45, '#6ff0c8', 19, -24, 36, .5]]
+    .map(o => [...o, [1, 3, 5].map(i => parseInt(o[2].slice(i, i + 2), 16)).join(',')]);
+  // [x%, y%, 色, 周期s, 開始のずれs, 大きさvmax, 濃さ, rgb]。動きは以前の CSS の keyframes と同じ（往復）
+  const OKF = [[0, 0, 0, 1, 1], [16, -12, 80, 1.3, 1.08], [-6, 14, 160, .8, .98], [-18, -6, 240, 1.22, 1.02], [4, -16, 300, .9, .84], [12, 10, 360, 1.12, .96]];
+  const GST = [1, .95, .8, .61, .41, .25, .14, .07, 0], DS = 6;   // DS: 何分の1の解像度で描くか
+  const orbSets = [...document.querySelectorAll('.blobs')].map(b => {
+    b.textContent = ''; const cv = document.createElement('canvas'); b.appendChild(cv);
+    const s = {b, cv, c: cv.getContext('2d'), w: 0, h: 0, on: true};
+    new IntersectionObserver(es => { s.on = es[0].isIntersecting; }).observe(b.parentElement);   // 画面外の光は描かない
+    new ResizeObserver(() => { s.w = b.offsetWidth; s.h = b.offsetHeight; cv.width = Math.max(8, Math.ceil(s.w / DS)); cv.height = Math.max(8, Math.ceil(s.h / DS)); s.last = -1; }).observe(b);
+    return s;
+  });
+  let orbT = 0;
+  function drawOrbs(ts) {
+    requestAnimationFrame(drawOrbs);
+    if (ts - orbT < 33) return; orbT = ts;   // ゆっくり動く光なので 30fps で十分
+    const vw = innerWidth / 100, vh = innerHeight / 100, vmax = Math.max(vw, vh), dk = root.classList.contains('dark') ? .85 : 1;
+    for (const s of orbSets) {
+      if (!s.on || !s.w) continue;
+      const c = s.c; c.setTransform(1 / DS, 0, 0, 1 / DS, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, s.w, s.h); c.globalCompositeOperation = 'screen';
+      for (const o of ORBS) {
+        let t = (ts / 1000 - o[4]) / o[3]; t = ((t % 2) + 2) % 2; if (t > 1) t = 2 - t;
+        const sg = Math.min(4.9999, t * 5), i = Math.floor(sg), f0 = sg - i, f = f0 * f0 * (3 - 2 * f0), A = OKF[i], B = OKF[i + 1], L = k => A[k] + (B[k] - A[k]) * f;
+        const R = o[5] * vmax / 2;
+        c.save(); c.translate(s.w * o[0] / 100 + L(0) * vw, s.h * o[1] / 100 + L(1) * vh); c.rotate(L(2) * Math.PI / 180); c.scale(L(3), L(4));
+        const g = c.createRadialGradient(0, 0, 0, 0, 0, R); GST.forEach((a, k) => g.addColorStop(k / 8, `rgba(${o[7]},${a})`));
+        c.globalAlpha = o[6] * dk; c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.2832); c.fill(); c.restore();
+      }
+    }
+  }
+  requestAnimationFrame(drawOrbs);
 
   // スクロールで入ってくる演出（画面から出たら戻して、また入るたびに動く）
   if ('IntersectionObserver' in window) {
