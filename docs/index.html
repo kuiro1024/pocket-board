@@ -45,7 +45,8 @@ a{color:inherit}
 @media (min-width:720px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
 h1,h2,h3{text-wrap:balance;line-height:1.3;font-weight:500;margin:0}
 p{margin:0}
-.lang-ja [lang="en"], .lang-en [lang="ja"]{display:none !important}
+.lang-ja [lang="en"], .lang-ja [lang="zh"], .lang-en [lang="ja"], .lang-en [lang="zh"], .lang-zh [lang="ja"], .lang-zh [lang="en"]{display:none !important}
+:root.lang-zh{--body:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",system-ui,sans-serif;--display:"Questrial","Century Gothic","PingFang SC","Microsoft YaHei",sans-serif}   /* 中国語は中国語フォントで（日本語フォントだと簡体字が欠ける） */
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 
 /* ---------- hero ---------- */
@@ -435,10 +436,10 @@ html.dark{color-scheme:dark;
     <nav class="nav" aria-label="main">
       <a class="brand" href="#top"><img class="logo" src="assets/icon.webp" alt="" width="40" height="40">Pocket Board</a>
       <div class="dots glass" id="dots" role="tablist" aria-label="Sections">
-        <button type="button" data-go="top" data-ja="はじめに" data-en="Top"></button>
-        <button type="button" data-go="try" data-ja="デモ" data-en="Try it"></button>
-        <button type="button" data-go="features" data-ja="紹介" data-en="Features"></button>
-        <button type="button" data-go="download" data-ja="ダウンロード" data-en="Download"></button>
+        <button type="button" data-go="top" data-ja="はじめに" data-en="Top" data-zh="首页"></button>
+        <button type="button" data-go="try" data-ja="デモ" data-en="Try it" data-zh="试用"></button>
+        <button type="button" data-go="features" data-ja="紹介" data-en="Features" data-zh="介绍"></button>
+        <button type="button" data-go="download" data-ja="ダウンロード" data-en="Download" data-zh="下载"></button>
       </div>
       <div class="nav-right">
         <div class="lang theme glass" role="group" aria-label="Theme">
@@ -448,6 +449,7 @@ html.dark{color-scheme:dark;
         <div class="lang glass" role="group" aria-label="Language">
           <button type="button" id="lang-ja" data-lang="ja" aria-pressed="true">JA</button>
           <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" id="lang-zh" data-lang="zh" aria-pressed="false">CN</button>
         </div>
         <a class="gh glass" href="https://x.com/Peach4702527919" target="_blank" rel="noopener" aria-label="X (Twitter)">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -462,25 +464,25 @@ html.dark{color-scheme:dark;
   <div class="wrap">
 
     <div class="hero-copy" id="top">
-      <p class="kicker"><span lang="ja">動画も。音声も。画像も。</span><span lang="en" class="en">Your Video, Audio, and Images</span></p>
-      <h1><span lang="ja">すべてをひとつのキャンバスに。</span><span lang="en" class="en">All on One Canvas.</span></h1>
+      <p class="kicker"><span lang="ja">動画も。音声も。画像も。</span><span lang="en" class="en">Your Video, Audio, and Images</span><span lang="zh" class="en">视频、音频、图片，</span></p>
+      <h1><span lang="ja">すべてをひとつのキャンバスに。</span><span lang="en" class="en">All on One Canvas.</span><span lang="zh" class="en">全部放进一张画布。</span></h1>
       <div class="lockup"><img class="logo" src="assets/icon.webp" alt="" width="112" height="112"><span>Pocket Board</span></div>
       <div class="cta">
         <a class="btn btn-primary" href="https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&amp;gl=JP" id="store-link" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#f25022" d="M3 3h8.5v8.5H3z"/><path fill="#7fba00" d="M12.5 3H21v8.5h-8.5z"/><path fill="#00a4ef" d="M3 12.5h8.5V21H3z"/><path fill="#ffb900" d="M12.5 12.5H21V21h-8.5z"/></svg>
-          <span lang="ja">Microsoft Store で入手</span><span lang="en">Get it from Microsoft Store</span>
+          <span lang="ja">Microsoft Store で入手</span><span lang="en">Get it from Microsoft Store</span><span lang="zh">从 Microsoft Store 获取</span>
         </a>
         <a class="btn btn-ghost glass" href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 3a1 1 0 011 1v9.6l3.3-3.3a1 1 0 111.4 1.4l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.4L11 13.6V4a1 1 0 011-1zM5 19a1 1 0 100 2h14a1 1 0 100-2H5z"/></svg>
-          <span lang="ja">インストーラ（v1.3.0）</span><span lang="en">Installer (v1.3.0)</span>
+          <span lang="ja">インストーラ（v1.3.0）</span><span lang="en">Installer (v1.3.0)</span><span lang="zh">安装程序（v1.3.0）</span>
         </a>
       </div>
       <div class="facts">
-        <span lang="ja">無料</span><span lang="en">Free</span>
-        <span lang="ja">MIT ライセンスのオープンソース</span><span lang="en">Open source under MIT</span>
-        <span lang="ja">トレイに常駐</span><span lang="en">Lives in your tray</span>
+        <span lang="ja">無料</span><span lang="en">Free</span><span lang="zh">免费</span>
+        <span lang="ja">MIT ライセンスのオープンソース</span><span lang="en">Open source under MIT</span><span lang="zh">MIT 许可开源</span>
+        <span lang="ja">トレイに常駐</span><span lang="en">Lives in your tray</span><span lang="zh">常驻系统托盘</span>
       </div>
-      <p class="visits" id="visits" hidden><span class="v-in"><i class="v-dot" aria-hidden="true"></i><span lang="ja">あなたは <b class="v-n">0</b> 回目の訪問者です！</span><span lang="en">You're visitor <b class="v-n">#0</b>!</span></span></p>
+      <p class="visits" id="visits" hidden><span class="v-in"><i class="v-dot" aria-hidden="true"></i><span lang="ja">あなたは <b class="v-n">0</b> 回目の訪問者です！</span><span lang="en">You're visitor <b class="v-n">#0</b>!</span><span lang="zh">你是第 <b class="v-n">0</b> 位访客！</span></span></p>
     </div>
   </div>
 </header>
@@ -490,7 +492,7 @@ html.dark{color-scheme:dark;
     <video id="promo" src="assets/promo.mp4" poster="assets/poster.webp" autoplay muted loop playsinline preload="metadata"></video>
     <button class="sound glass" id="sound" type="button" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
-      <span id="sound-label"><span lang="ja">音を出す</span><span lang="en">Sound on</span></span>
+      <span id="sound-label"><span lang="ja">音を出す</span><span lang="en">Sound on</span><span lang="zh">开启声音</span></span>
     </button>
   </div>
 </div></div>
@@ -501,14 +503,14 @@ html.dark{color-scheme:dark;
     <div class="wrap">
       <div class="sec-head center">
         <p class="eyebrow eyebrow-iri">Try it</p>
-        <h2><span lang="ja">ここで触ってみる</span><span lang="en">Try it right here</span></h2>
-        <p><span lang="ja">左右のサイトやファイルを、真ん中の Pocket Board へドラッグしてみてください。ガラスの描画も操作も、本物と同じ作りで動いています。</span><span lang="en">Drag the site and files on either side into Pocket Board. The glass and the controls work the same way as the real app.</span></p>
+        <h2><span lang="ja">ここで触ってみる</span><span lang="en">Try it right here</span><span lang="zh">在这里试一试</span></h2>
+        <p><span lang="ja">左右のサイトやファイルを、真ん中の Pocket Board へドラッグしてみてください。ガラスの描画も操作も、本物と同じ作りで動いています。</span><span lang="en">Drag the site and files on either side into Pocket Board. The glass and the controls work the same way as the real app.</span><span lang="zh">把左右两边的网站和文件拖进中间的 Pocket Board 试试看。玻璃效果和操作都与正式版完全相同。</span></p>
       </div>
       <div class="demo" id="demo">
         <div class="src src-browser">
           <div class="src-bar"><i></i><i></i><i></i><span class="url">lumen.gallery</span></div>
           <div class="src-list">
-            <button type="button" class="item wide" id="it-site" data-key="site"><span data-thumb="site"></span><small><span lang="ja">サイトのリンク</span><span lang="en">Website link</span></small></button>
+            <button type="button" class="item wide" id="it-site" data-key="site"><span data-thumb="site"></span><small><span lang="ja">サイトのリンク</span><span lang="en">Website link</span><span lang="zh">网站链接</span></small></button>
             <button type="button" class="item" id="it-sunset" data-key="sunset"><span data-thumb="sunset"></span><small>sunset.png</small></button>
             <button type="button" class="item" id="it-spheres" data-key="spheres"><span data-thumb="spheres"></span><small>spheres.jpg</small></button>
           </div>
@@ -521,10 +523,10 @@ html.dark{color-scheme:dark;
               <div class="pb-island" aria-hidden="true"><div class="iblur"></div><canvas></canvas></div>
             </div>
           </div>
-          <button type="button" class="pb-recall glass strong" id="dm-recall" hidden><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd><span lang="ja">で呼び出す</span><span lang="en">to bring it back</span></button>
+          <button type="button" class="pb-recall glass strong" id="dm-recall" hidden><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd><span lang="ja">で呼び出す</span><span lang="en">to bring it back</span><span lang="zh">唤出</span></button>
         </div>
         <div class="src src-explorer">
-          <div class="src-bar"><span class="ttl"><span lang="ja">エクスプローラー</span><span lang="en">Explorer</span></span></div>
+          <div class="src-bar"><span class="ttl"><span lang="ja">エクスプローラー</span><span lang="en">Explorer</span><span lang="zh">资源管理器</span></span></div>
           <div class="src-list">
             <button type="button" class="item" id="it-ocean" data-key="ocean"><span data-thumb="ocean"></span><small>ocean.mp4</small></button>
             <button type="button" class="item" id="it-orbs" data-key="orbs"><span data-thumb="orbs"></span><small>orbs.mp4</small></button>
@@ -537,24 +539,24 @@ html.dark{color-scheme:dark;
       <div class="demo-tools">
         <div class="sw" id="style-switch" role="radiogroup" aria-label="Glass style">
         <canvas aria-hidden="true"></canvas><span class="sw-thumb" aria-hidden="true"></span>
-        <button type="button" role="radio" data-style="standard" id="sw-standard"><span lang="ja">標準</span><span lang="en">Standard</span></button>
-        <button type="button" role="radio" data-style="carved" id="sw-carved"><span lang="ja">削り出し</span><span lang="en">Carved</span></button>
-        <button type="button" role="radio" data-style="gummy" id="sw-gummy"><span lang="ja">グミ</span><span lang="en">Gummy</span></button>
+        <button type="button" role="radio" data-style="standard" id="sw-standard"><span lang="ja">標準</span><span lang="en">Standard</span><span lang="zh">标准</span></button>
+        <button type="button" role="radio" data-style="carved" id="sw-carved"><span lang="ja">削り出し</span><span lang="en">Carved</span><span lang="zh">雕刻</span></button>
+        <button type="button" role="radio" data-style="gummy" id="sw-gummy"><span lang="ja">グミ</span><span lang="en">Gummy</span><span lang="zh">软糖</span></button>
       </div>
-        <button type="button" class="demo-reset glass" id="dm-reset"><span lang="ja">最初に戻す</span><span lang="en">Reset</span></button>
+        <button type="button" class="demo-reset glass" id="dm-reset"><span lang="ja">最初に戻す</span><span lang="en">Reset</span><span lang="zh">重置</span></button>
       </div>
       <div class="demo-help">
         <dl class="hk">
-          <dt><span lang="ja">ドラッグ＆ドロップ</span><span lang="en">Drag in</span></dt><dd><span lang="ja">左右から入れる</span><span lang="en">from either side</span></dd>
-          <dt><span lang="ja">クリック</span><span lang="en">Click</span></dt><dd><span lang="ja">動画を再生</span><span lang="en">play a video</span></dd>
-          <dt><span lang="ja">ダブルクリック</span><span lang="en">Double-click</span></dt><dd><span lang="ja">全画面 ⇄ 戻す</span><span lang="en">full view ⇄ back</span></dd>
-          <dt><span lang="ja">2回目を押したままドラッグ</span><span lang="en">Double-click, hold, drag</span></dt><dd><span lang="ja">エクスプローラーへ書き出す</span><span lang="en">export to Explorer</span></dd>
+          <dt><span lang="ja">ドラッグ＆ドロップ</span><span lang="en">Drag in</span><span lang="zh">拖放</span></dt><dd><span lang="ja">左右から入れる</span><span lang="en">from either side</span><span lang="zh">从左右两边拖入</span></dd>
+          <dt><span lang="ja">クリック</span><span lang="en">Click</span><span lang="zh">单击</span></dt><dd><span lang="ja">動画を再生</span><span lang="en">play a video</span><span lang="zh">播放视频</span></dd>
+          <dt><span lang="ja">ダブルクリック</span><span lang="en">Double-click</span><span lang="zh">双击</span></dt><dd><span lang="ja">全画面 ⇄ 戻す</span><span lang="en">full view ⇄ back</span><span lang="zh">全屏 ⇄ 还原</span></dd>
+          <dt><span lang="ja">2回目を押したままドラッグ</span><span lang="en">Double-click, hold, drag</span><span lang="zh">第二下按住拖动</span></dt><dd><span lang="ja">エクスプローラーへ書き出す</span><span lang="en">export to Explorer</span><span lang="zh">导出到资源管理器</span></dd>
         </dl>
         <dl class="hk">
-          <dt><span lang="ja">中ボタンドラッグ</span><span lang="en">Middle-drag</span></dt><dd><span lang="ja">キャンバスを動かす</span><span lang="en">move the canvas</span></dd>
-          <dt><span lang="ja">ホイール</span><span lang="en">Wheel</span></dt><dd><span lang="ja">ズーム</span><span lang="en">zoom</span></dd>
-          <dt><span lang="ja">右ドラッグ</span><span lang="en">Right-drag</span></dt><dd><span lang="ja">ウィンドウを動かす</span><span lang="en">move the window</span></dd>
-          <dt><span lang="ja">上の真ん中</span><span lang="en">Top center</span></dt><dd><span lang="ja">島が出る</span><span lang="en">shows the island</span></dd>
+          <dt><span lang="ja">中ボタンドラッグ</span><span lang="en">Middle-drag</span><span lang="zh">中键拖动</span></dt><dd><span lang="ja">キャンバスを動かす</span><span lang="en">move the canvas</span><span lang="zh">移动画布</span></dd>
+          <dt><span lang="ja">ホイール</span><span lang="en">Wheel</span><span lang="zh">滚轮</span></dt><dd><span lang="ja">ズーム</span><span lang="en">zoom</span><span lang="zh">缩放</span></dd>
+          <dt><span lang="ja">右ドラッグ</span><span lang="en">Right-drag</span><span lang="zh">右键拖动</span></dt><dd><span lang="ja">ウィンドウを動かす</span><span lang="en">move the window</span><span lang="zh">移动窗口</span></dd>
+          <dt><span lang="ja">上の真ん中</span><span lang="en">Top center</span><span lang="zh">屏幕顶部中央</span></dt><dd><span lang="ja">島が出る</span><span lang="en">shows the island</span><span lang="zh">显示灵动岛</span></dd>
         </dl>
       </div>
     </div>
@@ -563,19 +565,19 @@ html.dark{color-scheme:dark;
     <div class="wrap">
       <div class="sec-head">
         <p class="eyebrow eyebrow-iri">Features</p>
-        <h2><span lang="ja">置いて、眺めて、いつでも。</span><span lang="en">Drop it. See it. Anytime.</span></h2>
-        <p><span lang="ja">ブラウザでもエクスプローラーでも、見つけたものはそのままドラッグ。キャンバスの上でバブルになって、いつでも取り出せます。</span><span lang="en">Drag anything from your browser or Explorer. It becomes a bubble on the canvas, ready whenever you need it.</span></p>
+        <h2><span lang="ja">置いて、眺めて、いつでも。</span><span lang="en">Drop it. See it. Anytime.</span><span lang="zh">放进来，看得见，随时取用。</span></h2>
+        <p><span lang="ja">ブラウザでもエクスプローラーでも、見つけたものはそのままドラッグ。キャンバスの上でバブルになって、いつでも取り出せます。</span><span lang="en">Drag anything from your browser or Explorer. It becomes a bubble on the canvas, ready whenever you need it.</span><span lang="zh">无论是浏览器还是资源管理器，找到的东西直接拖进来。它会变成画布上的气泡，随时都能取出。</span></p>
       </div>
 
       <div class="scenes">
         <article class="scene">
           <div class="bubble-fig" data-video="assets/feat-drop.mp4"><img src="assets/feat-drop.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">なんでもドラッグ＆ドロップ</span><span lang="en">Drag and drop anything</span></h3>
-            <p><span lang="ja">ローカルの画像や動画はもちろん、Web の画像・動画・ページのリンク、フォルダやアプリまで。置いたものはガラスのバブルとして並びます。</span><span lang="en">Local images and videos, web images, videos and links, even folders and apps. Everything you drop lines up as a glass bubble.</span></p>
+            <h3><span lang="ja">なんでもドラッグ＆ドロップ</span><span lang="en">Drag and drop anything</span><span lang="zh">什么都能拖进来</span></h3>
+            <p><span lang="ja">ローカルの画像や動画はもちろん、Web の画像・動画・ページのリンク、フォルダやアプリまで。置いたものはガラスのバブルとして並びます。</span><span lang="en">Local images and videos, web images, videos and links, even folders and apps. Everything you drop lines up as a glass bubble.</span><span lang="zh">本地的图片和视频自不必说，网页上的图片、视频、页面链接，甚至文件夹和应用都可以。放进来的东西会排成一个个玻璃气泡。</span></p>
             <div class="chips">
               <span class="chip" lang="ja">画像</span><span class="chip" lang="ja">動画</span><span class="chip" lang="ja">Web リンク</span><span class="chip" lang="ja">フォルダ</span><span class="chip" lang="ja">アプリ</span>
-              <span class="chip" lang="en">Images</span><span class="chip" lang="en">Videos</span><span class="chip" lang="en">Links</span><span class="chip" lang="en">Folders</span><span class="chip" lang="en">Apps</span>
+              <span class="chip" lang="en">Images</span><span class="chip" lang="zh">图片</span><span class="chip" lang="en">Videos</span><span class="chip" lang="zh">视频</span><span class="chip" lang="en">Links</span><span class="chip" lang="zh">网页链接</span><span class="chip" lang="en">Folders</span><span class="chip" lang="zh">文件夹</span><span class="chip" lang="en">Apps</span><span class="chip" lang="zh">应用</span>
             </div>
           </div>
         </article>
@@ -583,40 +585,40 @@ html.dark{color-scheme:dark;
         <article class="scene">
           <div class="bubble-fig" data-video="assets/feat-play.mp4"><img src="assets/feat-play.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">キャンバスの上でそのまま再生</span><span lang="en">Play videos right on the canvas</span></h3>
-            <p><span lang="ja">動画はクリックで再生。複数の動画を同時に流せるので、参考映像を並べて見比べるのにも向いています。ダブルクリックで、そのバブルだけを大きく表示します。</span><span lang="en">Click a video to play it. Several can play at once, so you can compare references side by side. Double-click to bring one bubble up full size.</span></p>
+            <h3><span lang="ja">キャンバスの上でそのまま再生</span><span lang="en">Play videos right on the canvas</span><span lang="zh">直接在画布上播放</span></h3>
+            <p><span lang="ja">動画はクリックで再生。複数の動画を同時に流せるので、参考映像を並べて見比べるのにも向いています。ダブルクリックで、そのバブルだけを大きく表示します。</span><span lang="en">Click a video to play it. Several can play at once, so you can compare references side by side. Double-click to bring one bubble up full size.</span><span lang="zh">单击即可播放视频。可以同时播放多个视频，很适合把参考素材并排对比。双击可以单独放大这个气泡。</span></p>
           </div>
         </article>
 
         <article class="scene">
           <div class="bubble-fig" data-video="assets/feat-export.mp4"><img src="assets/feat-export.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">ほかのアプリへドラッグで戻す</span><span lang="en">Drag back out to other apps</span></h3>
-            <p><span lang="ja">置いておいたバブルは、動画編集ソフトのタイムラインや 3D ソフトのビューポートへそのままドラッグできます。素材の置き場と作業場を行き来するのがぐっと楽になります。</span><span lang="en">Drag a bubble straight into a video editor's timeline or a 3D app's viewport. Moving between your stash and your work gets much easier.</span></p>
+            <h3><span lang="ja">ほかのアプリへドラッグで戻す</span><span lang="en">Drag back out to other apps</span><span lang="zh">拖回其他应用</span></h3>
+            <p><span lang="ja">置いておいたバブルは、動画編集ソフトのタイムラインや 3D ソフトのビューポートへそのままドラッグできます。素材の置き場と作業場を行き来するのがぐっと楽になります。</span><span lang="en">Drag a bubble straight into a video editor's timeline or a 3D app's viewport. Moving between your stash and your work gets much easier.</span><span lang="zh">放好的气泡可以直接拖到视频剪辑软件的时间线或 3D 软件的视口里。在素材库和工作区之间来回切换轻松多了。</span></p>
           </div>
         </article>
 
         <article class="scene">
           <div class="bubble-fig" data-video="assets/feat-recall.mp4"><img src="assets/feat-recall.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">いつでも呼び出せる</span><span lang="en">Always one shortcut away</span></h3>
-            <p><span lang="ja">Windows の起動と一緒にトレイへ常駐。好きなショートカットキーで、作業中のどこからでもすぐに開けます。たくさん置いても、ズームで全体を見渡せます。</span><span lang="en">Starts with Windows and waits in the tray. Open it from anywhere with the shortcut you choose, and zoom out to see everything at once.</span></p>
-            <div class="keys"><span lang="ja">例：</span><span lang="en">e.g.</span> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd></div>
+            <h3><span lang="ja">いつでも呼び出せる</span><span lang="en">Always one shortcut away</span><span lang="zh">随时一键唤出</span></h3>
+            <p><span lang="ja">Windows の起動と一緒にトレイへ常駐。好きなショートカットキーで、作業中のどこからでもすぐに開けます。たくさん置いても、ズームで全体を見渡せます。</span><span lang="en">Starts with Windows and waits in the tray. Open it from anywhere with the shortcut you choose, and zoom out to see everything at once.</span><span lang="zh">随 Windows 启动并常驻托盘。用你喜欢的快捷键，在任何工作中都能立刻打开。放得再多，也能缩放查看全局。</span></p>
+            <div class="keys"><span lang="ja">例：</span><span lang="en">e.g.</span><span lang="zh">例如：</span> <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd></div>
           </div>
         </article>
         <article class="scene">
           <div class="bubble-fig" data-video="assets/feat-list.mp4|assets/feat-fusion.mp4"><img src="assets/feat-list.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">リスト再生</span><span lang="en">List playback</span></h3>
-            <p><span lang="ja">置いた動画と同じフォルダにある動画や、プラグインから追加したメディアを一覧で表示。リストから選んで、そのまま次々と再生できます。</span><span lang="en">Show the other videos in the same folder as the one you dropped, or media added from a plugin, as a list. Pick from it and keep playing one after another.</span></p>
+            <h3><span lang="ja">リスト再生</span><span lang="en">List playback</span><span lang="zh">列表播放</span></h3>
+            <p><span lang="ja">置いた動画と同じフォルダにある動画や、プラグインから追加したメディアを一覧で表示。リストから選んで、そのまま次々と再生できます。</span><span lang="en">Show the other videos in the same folder as the one you dropped, or media added from a plugin, as a list. Pick from it and keep playing one after another.</span><span lang="zh">以列表显示与所放视频同一文件夹中的其他视频，或通过插件添加的媒体。从列表中选择即可接连播放。</span></p>
           </div>
         </article>
 
         <article class="scene">
           <div class="bubble-fig" data-src="assets/feat-plugin.webp"><img src="assets/feat-plugin.webp" alt="" loading="lazy"></div>
           <div>
-            <h3><span lang="ja">プラグインで広げる</span><span lang="en">Extend it with plugins</span></h3>
-            <p><span lang="ja">標準では対応していない動画サービスやメディア、新しい機能をプラグインで追加できます。</span><span lang="en">Add video services, media types and features that aren't supported out of the box with plugins.</span></p>
+            <h3><span lang="ja">プラグインで広げる</span><span lang="en">Extend it with plugins</span><span lang="zh">用插件扩展</span></h3>
+            <p><span lang="ja">標準では対応していない動画サービスやメディア、新しい機能をプラグインで追加できます。</span><span lang="en">Add video services, media types and features that aren't supported out of the box with plugins.</span><span lang="zh">默认不支持的视频网站、媒体类型和新功能，都可以通过插件添加。</span></p>
           </div>
         </article>
       </div>
@@ -628,24 +630,24 @@ html.dark{color-scheme:dark;
     <div class="wrap">
       <div class="dl-panel">
         <div>
-          <h2><span lang="ja">無料でダウンロード</span><span lang="en">Download for free</span></h2>
-          <p class="sub"><span lang="ja">Microsoft Store 版は自動でアップデートされます。ソースコードは GitHub で公開しています。</span><span lang="en">The Microsoft Store version updates automatically. The source code is on GitHub.</span></p>
-          <a class="kofi" href="https://ko-fi.com/studio_peach" target="_blank" rel="noopener">☕ <span lang="ja">Ko-fi でコーヒー1杯の応援をお願いします！</span><span lang="en">Buy me a coffee on Ko-fi!</span></a>
+          <h2><span lang="ja">無料でダウンロード</span><span lang="en">Download for free</span><span lang="zh">免费下载</span></h2>
+          <p class="sub"><span lang="ja">Microsoft Store 版は自動でアップデートされます。ソースコードは GitHub で公開しています。</span><span lang="en">The Microsoft Store version updates automatically. The source code is on GitHub.</span><span lang="zh">Microsoft Store 版会自动更新。源代码已在 GitHub 公开。</span></p>
+          <a class="kofi" href="https://ko-fi.com/studio_peach" target="_blank" rel="noopener">☕ <span lang="ja">Ko-fi でコーヒー1杯の応援をお願いします！</span><span lang="en">Buy me a coffee on Ko-fi!</span><span lang="zh">欢迎在 Ko-fi 请我喝杯咖啡！</span></a>
         </div>
         <div class="dl-list">
           <a class="dl" href="https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&amp;gl=JP" target="_blank" rel="noopener">
             <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8.5v8.5H3zM12.5 3H21v8.5h-8.5zM3 12.5h8.5V21H3zM12.5 12.5H21V21h-8.5z"/></svg></span>
-            <span><b>Microsoft Store</b><small lang="ja">おすすめ・自動アップデート</small><small lang="en">Recommended · auto-updates</small></span>
+            <span><b>Microsoft Store</b><small lang="ja">おすすめ・自動アップデート</small><small lang="en">Recommended · auto-updates</small><small lang="zh">推荐 · 自动更新</small></span>
             <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
           </a>
           <a class="dl" href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">
             <span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a1 1 0 011 1v9.6l3.3-3.3a1 1 0 111.4 1.4l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.4L11 13.6V4a1 1 0 011-1zM5 19a1 1 0 100 2h14a1 1 0 100-2H5z"/></svg></span>
-            <span><b lang="ja">インストーラ</b><b lang="en">Installer</b><small>PocketBoardSetup.exe · v1.3.0</small></span>
+            <span><b lang="ja">インストーラ</b><b lang="en">Installer</b><b lang="zh">安装程序</b><small>PocketBoardSetup.exe · v1.3.0</small></span>
             <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
           </a>
           <a class="dl" href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">
             <span class="ic"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>
-            <span><b lang="ja">ソースコード</b><b lang="en">Source code</b><small lang="ja">GitHub · プラグインで機能を追加できます</small><small lang="en">GitHub · extend it with plugins</small></span>
+            <span><b lang="ja">ソースコード</b><b lang="en">Source code</b><b lang="zh">源代码</b><small lang="ja">GitHub · プラグインで機能を追加できます</small><small lang="en">GitHub · extend it with plugins</small><small lang="zh">GitHub · 可用插件扩展功能</small></span>
             <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 5.3a1 1 0 011.4 0l6 6a1 1 0 010 1.4l-6 6a1 1 0 11-1.4-1.4L14.6 12 9.3 6.7a1 1 0 010-1.4z"/></svg>
           </a>
         </div>
@@ -657,44 +659,44 @@ html.dark{color-scheme:dark;
       <div>
         <div class="sec-head">
           <p class="eyebrow eyebrow-iri">Q&amp;A</p>
-          <h2><span lang="ja">よくある質問</span><span lang="en">Questions</span></h2>
+          <h2><span lang="ja">よくある質問</span><span lang="en">Questions</span><span lang="zh">常见问题</span></h2>
         </div>
         <div class="qa-list">
           <details class="qa">
-            <summary><span lang="ja">無料で使えますか？</span><span lang="en">Is it free?</span></summary>
-            <p><span lang="ja">はい、すべての機能を無料で使えます。ソースコードも MIT ライセンスで GitHub に公開しています。</span><span lang="en">Yes. Every feature is free, and the source code is on GitHub under the MIT License.</span></p>
+            <summary><span lang="ja">無料で使えますか？</span><span lang="en">Is it free?</span><span lang="zh">可以免费使用吗？</span></summary>
+            <p><span lang="ja">はい、すべての機能を無料で使えます。ソースコードも MIT ライセンスで GitHub に公開しています。</span><span lang="en">Yes. Every feature is free, and the source code is on GitHub under the MIT License.</span><span lang="zh">可以，所有功能都免费。源代码也以 MIT 许可在 GitHub 公开。</span></p>
           </details>
           <details class="qa">
-            <summary><span lang="ja">Microsoft Store 版とインストーラ版の違いは？</span><span lang="en">Store version or installer?</span></summary>
-            <p><span lang="ja">中身は同じです。Store 版は自動でアップデートされます。インストーラ版は GitHub の Releases から <code>PocketBoardSetup.exe</code> をダウンロードして入れます。</span><span lang="en">They are the same app. The Store version updates itself; the installer (<code>PocketBoardSetup.exe</code>) is on the GitHub Releases page.</span></p>
+            <summary><span lang="ja">Microsoft Store 版とインストーラ版の違いは？</span><span lang="en">Store version or installer?</span><span lang="zh">Microsoft Store 版和安装程序版有什么区别？</span></summary>
+            <p><span lang="ja">中身は同じです。Store 版は自動でアップデートされます。インストーラ版は GitHub の Releases から <code>PocketBoardSetup.exe</code> をダウンロードして入れます。</span><span lang="en">They are the same app. The Store version updates itself; the installer (<code>PocketBoardSetup.exe</code>) is on the GitHub Releases page.</span><span lang="zh">两者内容完全相同。Store 版会自动更新；安装程序版请从 GitHub 的 Releases 下载 <code>PocketBoardSetup.exe</code> 安装。</span></p>
           </details>
           <details class="qa">
-            <summary><span lang="ja">どんな OS で使えますか？</span><span lang="en">Which OS does it run on?</span></summary>
-            <p><span lang="ja">Windows 用のアプリです（動作確認は Windows 11）。Mac と Linux 版はありません。</span><span lang="en">It is a Windows app (tested on Windows 11). There are no Mac or Linux versions.</span></p>
+            <summary><span lang="ja">どんな OS で使えますか？</span><span lang="en">Which OS does it run on?</span><span lang="zh">支持哪些操作系统？</span></summary>
+            <p><span lang="ja">Windows 用のアプリです（動作確認は Windows 11）。Mac と Linux 版はありません。</span><span lang="en">It is a Windows app (tested on Windows 11). There are no Mac or Linux versions.</span><span lang="zh">这是 Windows 应用（已在 Windows 11 上测试）。没有 Mac 和 Linux 版本。</span></p>
           </details>
           <details class="qa">
-            <summary><span lang="ja">どんなものを置けますか？</span><span lang="en">What can I put on it?</span></summary>
-            <p><span lang="ja">パソコンの動画・画像、Web の画像・動画・ページのリンク、フォルダやアプリまで置けます。動画はいくつでも同時に再生できます。</span><span lang="en">Local videos and images, web images, videos and page links, even folders and apps. Several videos can play at once.</span></p>
+            <summary><span lang="ja">どんなものを置けますか？</span><span lang="en">What can I put on it?</span><span lang="zh">可以放哪些东西？</span></summary>
+            <p><span lang="ja">パソコンの動画・画像、Web の画像・動画・ページのリンク、フォルダやアプリまで置けます。動画はいくつでも同時に再生できます。</span><span lang="en">Local videos and images, web images, videos and page links, even folders and apps. Several videos can play at once.</span><span lang="zh">电脑里的视频和图片，网页上的图片、视频和页面链接，甚至文件夹和应用都可以。多个视频可以同时播放。</span></p>
           </details>
           <details class="qa">
-            <summary><span lang="ja">呼び出すショートカットは変えられますか？</span><span lang="en">Can I change the shortcut?</span></summary>
-            <p><span lang="ja">はい。設定で好きなキーの組み合わせに変えられます。</span><span lang="en">Yes. You can set any key combination in Settings.</span></p>
+            <summary><span lang="ja">呼び出すショートカットは変えられますか？</span><span lang="en">Can I change the shortcut?</span><span lang="zh">可以更改唤出快捷键吗？</span></summary>
+            <p><span lang="ja">はい。設定で好きなキーの組み合わせに変えられます。</span><span lang="en">Yes. You can set any key combination in Settings.</span><span lang="zh">可以，在设置中改成任意按键组合。</span></p>
           </details>
           <details class="qa">
-            <summary><span lang="ja">対応していない動画サイトや機能を足したい</span><span lang="en">Can I add services or features?</span></summary>
-            <p><span lang="ja">プラグインで追加できます。入れ方と作り方は <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.ja.md" target="_blank" rel="noopener">プラグインガイド</a> にまとめています。</span><span lang="en">Yes, with plugins. See the <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" target="_blank" rel="noopener">plugin guide</a> for how to install and build them.</span></p>
+            <summary><span lang="ja">対応していない動画サイトや機能を足したい</span><span lang="en">Can I add services or features?</span><span lang="zh">想添加尚不支持的视频网站或功能</span></summary>
+            <p><span lang="ja">プラグインで追加できます。入れ方と作り方は <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.ja.md" target="_blank" rel="noopener">プラグインガイド</a> にまとめています。</span><span lang="en">Yes, with plugins. See the <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" target="_blank" rel="noopener">plugin guide</a> for how to install and build them.</span><span lang="zh">可以通过插件添加。安装和制作方法请参阅<a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" target="_blank" rel="noopener">插件指南</a>（英文）。</span></p>
           </details>
         </div>
       </div>
       <aside class="info">
-        <h3><span lang="ja">情報</span><span lang="en">About</span></h3>
+        <h3><span lang="ja">情報</span><span lang="en">About</span><span lang="zh">信息</span></h3>
         <dl>
-            <dt><span lang="ja">作者</span><span lang="en">Made by</span></dt><dd><span lang="ja">Peach <span class="nw">(<a href="https://x.com/Peach4702527919" target="_blank" rel="noopener">@Peach4702527919</a>)</span></span><span lang="en">Peach (<a href="https://x.com/Peach4702527919" target="_blank" rel="noopener">@Peach4702527919</a>)</span></dd>
-            <dt><span lang="ja">最新バージョン</span><span lang="en">Latest version</span></dt><dd><span lang="ja"><a href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">v1.3.0</a></span><span lang="en"><a href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">v1.3.0</a></span></dd>
-            <dt><span lang="ja">対応 OS</span><span lang="en">Platform</span></dt><dd><span lang="ja">Windows</span><span lang="en">Windows</span></dd>
-            <dt><span lang="ja">価格</span><span lang="en">Price</span></dt><dd><span lang="ja">無料</span><span lang="en">Free</span></dd>
-            <dt><span lang="ja">ライセンス</span><span lang="en">License</span></dt><dd><span lang="ja">MIT</span><span lang="en">MIT</span></dd>
-            <dt><span lang="ja">ソースコード</span><span lang="en">Source code</span></dt><dd><span lang="ja"><a href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">GitHub</a></span><span lang="en"><a href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">GitHub</a></span></dd>
+            <dt><span lang="ja">作者</span><span lang="en">Made by</span><span lang="zh">作者</span></dt><dd><span lang="ja">Peach <span class="nw">(<a href="https://x.com/Peach4702527919" target="_blank" rel="noopener">@Peach4702527919</a>)</span></span><span lang="en">Peach (<a href="https://x.com/Peach4702527919" target="_blank" rel="noopener">@Peach4702527919</a>)</span><span lang="zh">Peach (<a href="https://x.com/Peach4702527919" target="_blank" rel="noopener">@Peach4702527919</a>)</span></dd>
+            <dt><span lang="ja">最新バージョン</span><span lang="en">Latest version</span><span lang="zh">最新版本</span></dt><dd><span lang="ja"><a href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">v1.3.0</a></span><span lang="en"><a href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">v1.3.0</a></span><span lang="zh"><a href="https://github.com/kuiro1024/pocket-board/releases/tag/v1.3.0" target="_blank" rel="noopener">v1.3.0</a></span></dd>
+            <dt><span lang="ja">対応 OS</span><span lang="en">Platform</span><span lang="zh">支持系统</span></dt><dd><span lang="ja">Windows</span><span lang="en">Windows</span><span lang="zh">Windows</span></dd>
+            <dt><span lang="ja">価格</span><span lang="en">Price</span><span lang="zh">价格</span></dt><dd><span lang="ja">無料</span><span lang="en">Free</span><span lang="zh">免费</span></dd>
+            <dt><span lang="ja">ライセンス</span><span lang="en">License</span><span lang="zh">许可证</span></dt><dd><span lang="ja">MIT</span><span lang="en">MIT</span><span lang="zh">MIT</span></dd>
+            <dt><span lang="ja">ソースコード</span><span lang="en">Source code</span><span lang="zh">源代码</span></dt><dd><span lang="ja"><a href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">GitHub</a></span><span lang="en"><a href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">GitHub</a></span><span lang="zh"><a href="https://github.com/kuiro1024/pocket-board" target="_blank" rel="noopener">GitHub</a></span></dd>
         </dl>
       </aside>
     </div>
@@ -703,12 +705,12 @@ html.dark{color-scheme:dark;
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Peach<span class="duck-spot" title="ｸﾜｯ"><svg class="duck" viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" shape-rendering="crispEdges"><g class="d-norm"><path d="M4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1z"/><path opacity=".75" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><path opacity=".5" d="M3 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM14 7h1v1h-1zM2 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM1 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM1 11h1v1h-1zM2 12h1v1h-1zM8 12h1v1h-1zM16 12h1v1h-1zM2 13h1v1h-1zM9 13h1v1h-1zM15 13h1v1h-1zM2 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM3 15h1v1h-1zM16 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1z"/><rect x="2" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="3" width="1" height="1" fill="#e07a00"/><rect x="4" y="3" width="1" height="1" fill="#e07a00"/></g><g class="d-rb"><rect x="4" y="0" width="1" height="1" style="--i:4"/><rect x="5" y="0" width="1" height="1" style="--i:5"/><rect x="6" y="0" width="1" height="1" style="--i:6"/><rect x="3" y="1" width="1" height="1" style="--i:3.5"/><rect x="4" y="1" width="1" height="1" style="--i:4.5"/><rect x="5" y="1" width="1" height="1" style="--i:5.5"/><rect x="6" y="1" width="1" height="1" style="--i:6.5"/><rect x="7" y="1" width="1" height="1" style="--i:7.5"/><rect x="4" y="2" width="1" height="1" style="--i:5"/><rect x="5" y="2" width="1" height="1" style="--i:6"/><rect x="7" y="2" width="1" height="1" style="--i:8"/><rect x="5" y="3" width="1" height="1" style="--i:6.5"/><rect x="6" y="3" width="1" height="1" style="--i:7.5"/><rect x="7" y="3" width="1" height="1" style="--i:8.5"/><rect x="3" y="4" width="1" height="1" class="sh" style="--i:5"/><rect x="4" y="4" width="1" height="1" style="--i:6"/><rect x="5" y="4" width="1" height="1" style="--i:7"/><rect x="6" y="4" width="1" height="1" style="--i:8"/><rect x="7" y="4" width="1" height="1" style="--i:9"/><rect x="3" y="5" width="1" height="1" class="sh" style="--i:5.5"/><rect x="4" y="5" width="1" height="1" class="sh" style="--i:6.5"/><rect x="5" y="5" width="1" height="1" style="--i:7.5"/><rect x="6" y="5" width="1" height="1" style="--i:8.5"/><rect x="3" y="6" width="1" height="1" class="sh" style="--i:6"/><rect x="4" y="6" width="1" height="1" class="sh" style="--i:7"/><rect x="5" y="6" width="1" height="1" class="sh" style="--i:8"/><rect x="6" y="6" width="1" height="1" style="--i:9"/><rect x="2" y="7" width="1" height="1" class="sh" style="--i:5.5"/><rect x="3" y="7" width="1" height="1" class="sh" style="--i:6.5"/><rect x="4" y="7" width="1" height="1" class="sh" style="--i:7.5"/><rect x="5" y="7" width="1" height="1" style="--i:8.5"/><rect x="6" y="7" width="1" height="1" style="--i:9.5"/><rect x="14" y="7" width="1" height="1" class="sh" style="--i:17.5"/><rect x="2" y="8" width="1" height="1" class="sh" style="--i:6"/><rect x="3" y="8" width="1" height="1" style="--i:7"/><rect x="4" y="8" width="1" height="1" style="--i:8"/><rect x="5" y="8" width="1" height="1" style="--i:9"/><rect x="6" y="8" width="1" height="1" style="--i:10"/><rect x="7" y="8" width="1" height="1" style="--i:11"/><rect x="8" y="8" width="1" height="1" style="--i:12"/><rect x="13" y="8" width="1" height="1" class="sh" style="--i:17"/><rect x="14" y="8" width="1" height="1" class="sh" style="--i:18"/><rect x="15" y="8" width="1" height="1" class="sh" style="--i:19"/><rect x="1" y="9" width="1" height="1" class="sh" style="--i:5.5"/><rect x="2" y="9" width="1" height="1" style="--i:6.5"/><rect x="3" y="9" width="1" height="1" style="--i:7.5"/><rect x="4" y="9" width="1" height="1" style="--i:8.5"/><rect x="5" y="9" width="1" height="1" style="--i:9.5"/><rect x="6" y="9" width="1" height="1" style="--i:10.5"/><rect x="7" y="9" width="1" height="1" style="--i:11.5"/><rect x="8" y="9" width="1" height="1" style="--i:12.5"/><rect x="9" y="9" width="1" height="1" style="--i:13.5"/><rect x="10" y="9" width="1" height="1" style="--i:14.5"/><rect x="12" y="9" width="1" height="1" style="--i:16.5"/><rect x="13" y="9" width="1" height="1" style="--i:17.5"/><rect x="14" y="9" width="1" height="1" style="--i:18.5"/><rect x="15" y="9" width="1" height="1" class="sh" style="--i:19.5"/><rect x="16" y="9" width="1" height="1" class="sh" style="--i:20.5"/><rect x="1" y="10" width="1" height="1" class="sh" style="--i:6"/><rect x="2" y="10" width="1" height="1" style="--i:7"/><rect x="3" y="10" width="1" height="1" style="--i:8"/><rect x="4" y="10" width="1" height="1" style="--i:9"/><rect x="5" y="10" width="1" height="1" style="--i:10"/><rect x="6" y="10" width="1" height="1" style="--i:11"/><rect x="7" y="10" width="1" height="1" style="--i:12"/><rect x="8" y="10" width="1" height="1" style="--i:13"/><rect x="9" y="10" width="1" height="1" style="--i:14"/><rect x="10" y="10" width="1" height="1" style="--i:15"/><rect x="11" y="10" width="1" height="1" style="--i:16"/><rect x="12" y="10" width="1" height="1" style="--i:17"/><rect x="13" y="10" width="1" height="1" style="--i:18"/><rect x="14" y="10" width="1" height="1" style="--i:19"/><rect x="15" y="10" width="1" height="1" style="--i:20"/><rect x="16" y="10" width="1" height="1" style="--i:21"/><rect x="1" y="11" width="1" height="1" class="sh" style="--i:6.5"/><rect x="2" y="11" width="1" height="1" style="--i:7.5"/><rect x="3" y="11" width="1" height="1" style="--i:8.5"/><rect x="4" y="11" width="1" height="1" style="--i:9.5"/><rect x="5" y="11" width="1" height="1" style="--i:10.5"/><rect x="6" y="11" width="1" height="1" style="--i:11.5"/><rect x="7" y="11" width="1" height="1" style="--i:12.5"/><rect x="8" y="11" width="1" height="1" style="--i:13.5"/><rect x="9" y="11" width="1" height="1" style="--i:14.5"/><rect x="10" y="11" width="1" height="1" style="--i:15.5"/><rect x="11" y="11" width="1" height="1" style="--i:16.5"/><rect x="12" y="11" width="1" height="1" style="--i:17.5"/><rect x="13" y="11" width="1" height="1" style="--i:18.5"/><rect x="14" y="11" width="1" height="1" style="--i:19.5"/><rect x="15" y="11" width="1" height="1" style="--i:20.5"/><rect x="16" y="11" width="1" height="1" style="--i:21.5"/><rect x="2" y="12" width="1" height="1" class="sh" style="--i:8"/><rect x="3" y="12" width="1" height="1" style="--i:9"/><rect x="4" y="12" width="1" height="1" style="--i:10"/><rect x="5" y="12" width="1" height="1" style="--i:11"/><rect x="6" y="12" width="1" height="1" style="--i:12"/><rect x="7" y="12" width="1" height="1" style="--i:13"/><rect x="8" y="12" width="1" height="1" class="sh" style="--i:14"/><rect x="9" y="12" width="1" height="1" style="--i:15"/><rect x="10" y="12" width="1" height="1" style="--i:16"/><rect x="11" y="12" width="1" height="1" style="--i:17"/><rect x="12" y="12" width="1" height="1" style="--i:18"/><rect x="13" y="12" width="1" height="1" style="--i:19"/><rect x="14" y="12" width="1" height="1" style="--i:20"/><rect x="15" y="12" width="1" height="1" style="--i:21"/><rect x="16" y="12" width="1" height="1" class="sh" style="--i:22"/><rect x="2" y="13" width="1" height="1" class="sh" style="--i:8.5"/><rect x="3" y="13" width="1" height="1" style="--i:9.5"/><rect x="4" y="13" width="1" height="1" style="--i:10.5"/><rect x="5" y="13" width="1" height="1" style="--i:11.5"/><rect x="6" y="13" width="1" height="1" style="--i:12.5"/><rect x="7" y="13" width="1" height="1" style="--i:13.5"/><rect x="8" y="13" width="1" height="1" style="--i:14.5"/><rect x="9" y="13" width="1" height="1" class="sh" style="--i:15.5"/><rect x="10" y="13" width="1" height="1" style="--i:16.5"/><rect x="11" y="13" width="1" height="1" style="--i:17.5"/><rect x="12" y="13" width="1" height="1" style="--i:18.5"/><rect x="13" y="13" width="1" height="1" style="--i:19.5"/><rect x="14" y="13" width="1" height="1" style="--i:20.5"/><rect x="15" y="13" width="1" height="1" class="sh" style="--i:21.5"/><rect x="16" y="13" width="1" height="1" style="--i:22.5"/><rect x="2" y="14" width="1" height="1" class="sh" style="--i:9"/><rect x="3" y="14" width="1" height="1" style="--i:10"/><rect x="4" y="14" width="1" height="1" style="--i:11"/><rect x="5" y="14" width="1" height="1" style="--i:12"/><rect x="6" y="14" width="1" height="1" style="--i:13"/><rect x="7" y="14" width="1" height="1" style="--i:14"/><rect x="8" y="14" width="1" height="1" style="--i:15"/><rect x="9" y="14" width="1" height="1" style="--i:16"/><rect x="10" y="14" width="1" height="1" class="sh" style="--i:17"/><rect x="11" y="14" width="1" height="1" class="sh" style="--i:18"/><rect x="12" y="14" width="1" height="1" class="sh" style="--i:19"/><rect x="13" y="14" width="1" height="1" class="sh" style="--i:20"/><rect x="14" y="14" width="1" height="1" class="sh" style="--i:21"/><rect x="15" y="14" width="1" height="1" style="--i:22"/><rect x="16" y="14" width="1" height="1" style="--i:23"/><rect x="3" y="15" width="1" height="1" class="sh" style="--i:10.5"/><rect x="4" y="15" width="1" height="1" style="--i:11.5"/><rect x="5" y="15" width="1" height="1" style="--i:12.5"/><rect x="6" y="15" width="1" height="1" style="--i:13.5"/><rect x="7" y="15" width="1" height="1" style="--i:14.5"/><rect x="8" y="15" width="1" height="1" style="--i:15.5"/><rect x="9" y="15" width="1" height="1" style="--i:16.5"/><rect x="10" y="15" width="1" height="1" style="--i:17.5"/><rect x="11" y="15" width="1" height="1" style="--i:18.5"/><rect x="12" y="15" width="1" height="1" style="--i:19.5"/><rect x="13" y="15" width="1" height="1" style="--i:20.5"/><rect x="14" y="15" width="1" height="1" style="--i:21.5"/><rect x="15" y="15" width="1" height="1" style="--i:22.5"/><rect x="16" y="15" width="1" height="1" class="sh" style="--i:23.5"/><rect x="4" y="16" width="1" height="1" class="sh" style="--i:12"/><rect x="5" y="16" width="1" height="1" class="sh" style="--i:13"/><rect x="6" y="16" width="1" height="1" style="--i:14"/><rect x="7" y="16" width="1" height="1" style="--i:15"/><rect x="8" y="16" width="1" height="1" style="--i:16"/><rect x="9" y="16" width="1" height="1" style="--i:17"/><rect x="10" y="16" width="1" height="1" style="--i:18"/><rect x="11" y="16" width="1" height="1" style="--i:19"/><rect x="12" y="16" width="1" height="1" style="--i:20"/><rect x="13" y="16" width="1" height="1" style="--i:21"/><rect x="14" y="16" width="1" height="1" class="sh" style="--i:22"/><rect x="15" y="16" width="1" height="1" class="sh" style="--i:23"/><rect x="6" y="17" width="1" height="1" class="sh" style="--i:14.5"/><rect x="7" y="17" width="1" height="1" class="sh" style="--i:15.5"/><rect x="8" y="17" width="1" height="1" class="sh" style="--i:16.5"/><rect x="9" y="17" width="1" height="1" class="sh" style="--i:17.5"/><rect x="10" y="17" width="1" height="1" class="sh" style="--i:18.5"/><rect x="11" y="17" width="1" height="1" class="sh" style="--i:19.5"/><rect x="12" y="17" width="1" height="1" class="sh" style="--i:20.5"/><rect x="13" y="17" width="1" height="1" class="sh" style="--i:21.5"/><path fill="#f07a12" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><rect x="6" y="2" width="1" height="1" fill="#0b0b10"/><rect x="2" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="3" width="1" height="1" fill="#e07a00"/><rect x="4" y="3" width="1" height="1" fill="#e07a00"/></g></svg></span> · <span lang="ja">MIT ライセンス</span><span lang="en">MIT License</span><button type="button" class="dex-btn" hidden aria-label="Duck collection"><img alt=""><span></span></button><span class="quacks" hidden></span></span>
+    <span>© 2026 Peach<span class="duck-spot" title="ｸﾜｯ"><svg class="duck" viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" shape-rendering="crispEdges"><g class="d-norm"><path d="M4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM8 8h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM12 9h1v1h-1zM13 9h1v1h-1zM14 9h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM16 11h1v1h-1zM3 12h1v1h-1zM4 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM10 12h1v1h-1zM11 12h1v1h-1zM12 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM11 13h1v1h-1zM12 13h1v1h-1zM13 13h1v1h-1zM14 13h1v1h-1zM16 13h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM15 14h1v1h-1zM16 14h1v1h-1zM4 15h1v1h-1zM5 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM13 15h1v1h-1zM14 15h1v1h-1zM15 15h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM13 16h1v1h-1z"/><path opacity=".75" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><path opacity=".5" d="M3 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM14 7h1v1h-1zM2 8h1v1h-1zM13 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM1 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM1 11h1v1h-1zM2 12h1v1h-1zM8 12h1v1h-1zM16 12h1v1h-1zM2 13h1v1h-1zM9 13h1v1h-1zM15 13h1v1h-1zM2 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM12 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM3 15h1v1h-1zM16 15h1v1h-1zM4 16h1v1h-1zM5 16h1v1h-1zM14 16h1v1h-1zM15 16h1v1h-1zM6 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM9 17h1v1h-1zM10 17h1v1h-1zM11 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1z"/><rect x="2" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="3" width="1" height="1" fill="#e07a00"/><rect x="4" y="3" width="1" height="1" fill="#e07a00"/></g><g class="d-rb"><rect x="4" y="0" width="1" height="1" style="--i:4"/><rect x="5" y="0" width="1" height="1" style="--i:5"/><rect x="6" y="0" width="1" height="1" style="--i:6"/><rect x="3" y="1" width="1" height="1" style="--i:3.5"/><rect x="4" y="1" width="1" height="1" style="--i:4.5"/><rect x="5" y="1" width="1" height="1" style="--i:5.5"/><rect x="6" y="1" width="1" height="1" style="--i:6.5"/><rect x="7" y="1" width="1" height="1" style="--i:7.5"/><rect x="4" y="2" width="1" height="1" style="--i:5"/><rect x="5" y="2" width="1" height="1" style="--i:6"/><rect x="7" y="2" width="1" height="1" style="--i:8"/><rect x="5" y="3" width="1" height="1" style="--i:6.5"/><rect x="6" y="3" width="1" height="1" style="--i:7.5"/><rect x="7" y="3" width="1" height="1" style="--i:8.5"/><rect x="3" y="4" width="1" height="1" class="sh" style="--i:5"/><rect x="4" y="4" width="1" height="1" style="--i:6"/><rect x="5" y="4" width="1" height="1" style="--i:7"/><rect x="6" y="4" width="1" height="1" style="--i:8"/><rect x="7" y="4" width="1" height="1" style="--i:9"/><rect x="3" y="5" width="1" height="1" class="sh" style="--i:5.5"/><rect x="4" y="5" width="1" height="1" class="sh" style="--i:6.5"/><rect x="5" y="5" width="1" height="1" style="--i:7.5"/><rect x="6" y="5" width="1" height="1" style="--i:8.5"/><rect x="3" y="6" width="1" height="1" class="sh" style="--i:6"/><rect x="4" y="6" width="1" height="1" class="sh" style="--i:7"/><rect x="5" y="6" width="1" height="1" class="sh" style="--i:8"/><rect x="6" y="6" width="1" height="1" style="--i:9"/><rect x="2" y="7" width="1" height="1" class="sh" style="--i:5.5"/><rect x="3" y="7" width="1" height="1" class="sh" style="--i:6.5"/><rect x="4" y="7" width="1" height="1" class="sh" style="--i:7.5"/><rect x="5" y="7" width="1" height="1" style="--i:8.5"/><rect x="6" y="7" width="1" height="1" style="--i:9.5"/><rect x="14" y="7" width="1" height="1" class="sh" style="--i:17.5"/><rect x="2" y="8" width="1" height="1" class="sh" style="--i:6"/><rect x="3" y="8" width="1" height="1" style="--i:7"/><rect x="4" y="8" width="1" height="1" style="--i:8"/><rect x="5" y="8" width="1" height="1" style="--i:9"/><rect x="6" y="8" width="1" height="1" style="--i:10"/><rect x="7" y="8" width="1" height="1" style="--i:11"/><rect x="8" y="8" width="1" height="1" style="--i:12"/><rect x="13" y="8" width="1" height="1" class="sh" style="--i:17"/><rect x="14" y="8" width="1" height="1" class="sh" style="--i:18"/><rect x="15" y="8" width="1" height="1" class="sh" style="--i:19"/><rect x="1" y="9" width="1" height="1" class="sh" style="--i:5.5"/><rect x="2" y="9" width="1" height="1" style="--i:6.5"/><rect x="3" y="9" width="1" height="1" style="--i:7.5"/><rect x="4" y="9" width="1" height="1" style="--i:8.5"/><rect x="5" y="9" width="1" height="1" style="--i:9.5"/><rect x="6" y="9" width="1" height="1" style="--i:10.5"/><rect x="7" y="9" width="1" height="1" style="--i:11.5"/><rect x="8" y="9" width="1" height="1" style="--i:12.5"/><rect x="9" y="9" width="1" height="1" style="--i:13.5"/><rect x="10" y="9" width="1" height="1" style="--i:14.5"/><rect x="12" y="9" width="1" height="1" style="--i:16.5"/><rect x="13" y="9" width="1" height="1" style="--i:17.5"/><rect x="14" y="9" width="1" height="1" style="--i:18.5"/><rect x="15" y="9" width="1" height="1" class="sh" style="--i:19.5"/><rect x="16" y="9" width="1" height="1" class="sh" style="--i:20.5"/><rect x="1" y="10" width="1" height="1" class="sh" style="--i:6"/><rect x="2" y="10" width="1" height="1" style="--i:7"/><rect x="3" y="10" width="1" height="1" style="--i:8"/><rect x="4" y="10" width="1" height="1" style="--i:9"/><rect x="5" y="10" width="1" height="1" style="--i:10"/><rect x="6" y="10" width="1" height="1" style="--i:11"/><rect x="7" y="10" width="1" height="1" style="--i:12"/><rect x="8" y="10" width="1" height="1" style="--i:13"/><rect x="9" y="10" width="1" height="1" style="--i:14"/><rect x="10" y="10" width="1" height="1" style="--i:15"/><rect x="11" y="10" width="1" height="1" style="--i:16"/><rect x="12" y="10" width="1" height="1" style="--i:17"/><rect x="13" y="10" width="1" height="1" style="--i:18"/><rect x="14" y="10" width="1" height="1" style="--i:19"/><rect x="15" y="10" width="1" height="1" style="--i:20"/><rect x="16" y="10" width="1" height="1" style="--i:21"/><rect x="1" y="11" width="1" height="1" class="sh" style="--i:6.5"/><rect x="2" y="11" width="1" height="1" style="--i:7.5"/><rect x="3" y="11" width="1" height="1" style="--i:8.5"/><rect x="4" y="11" width="1" height="1" style="--i:9.5"/><rect x="5" y="11" width="1" height="1" style="--i:10.5"/><rect x="6" y="11" width="1" height="1" style="--i:11.5"/><rect x="7" y="11" width="1" height="1" style="--i:12.5"/><rect x="8" y="11" width="1" height="1" style="--i:13.5"/><rect x="9" y="11" width="1" height="1" style="--i:14.5"/><rect x="10" y="11" width="1" height="1" style="--i:15.5"/><rect x="11" y="11" width="1" height="1" style="--i:16.5"/><rect x="12" y="11" width="1" height="1" style="--i:17.5"/><rect x="13" y="11" width="1" height="1" style="--i:18.5"/><rect x="14" y="11" width="1" height="1" style="--i:19.5"/><rect x="15" y="11" width="1" height="1" style="--i:20.5"/><rect x="16" y="11" width="1" height="1" style="--i:21.5"/><rect x="2" y="12" width="1" height="1" class="sh" style="--i:8"/><rect x="3" y="12" width="1" height="1" style="--i:9"/><rect x="4" y="12" width="1" height="1" style="--i:10"/><rect x="5" y="12" width="1" height="1" style="--i:11"/><rect x="6" y="12" width="1" height="1" style="--i:12"/><rect x="7" y="12" width="1" height="1" style="--i:13"/><rect x="8" y="12" width="1" height="1" class="sh" style="--i:14"/><rect x="9" y="12" width="1" height="1" style="--i:15"/><rect x="10" y="12" width="1" height="1" style="--i:16"/><rect x="11" y="12" width="1" height="1" style="--i:17"/><rect x="12" y="12" width="1" height="1" style="--i:18"/><rect x="13" y="12" width="1" height="1" style="--i:19"/><rect x="14" y="12" width="1" height="1" style="--i:20"/><rect x="15" y="12" width="1" height="1" style="--i:21"/><rect x="16" y="12" width="1" height="1" class="sh" style="--i:22"/><rect x="2" y="13" width="1" height="1" class="sh" style="--i:8.5"/><rect x="3" y="13" width="1" height="1" style="--i:9.5"/><rect x="4" y="13" width="1" height="1" style="--i:10.5"/><rect x="5" y="13" width="1" height="1" style="--i:11.5"/><rect x="6" y="13" width="1" height="1" style="--i:12.5"/><rect x="7" y="13" width="1" height="1" style="--i:13.5"/><rect x="8" y="13" width="1" height="1" style="--i:14.5"/><rect x="9" y="13" width="1" height="1" class="sh" style="--i:15.5"/><rect x="10" y="13" width="1" height="1" style="--i:16.5"/><rect x="11" y="13" width="1" height="1" style="--i:17.5"/><rect x="12" y="13" width="1" height="1" style="--i:18.5"/><rect x="13" y="13" width="1" height="1" style="--i:19.5"/><rect x="14" y="13" width="1" height="1" style="--i:20.5"/><rect x="15" y="13" width="1" height="1" class="sh" style="--i:21.5"/><rect x="16" y="13" width="1" height="1" style="--i:22.5"/><rect x="2" y="14" width="1" height="1" class="sh" style="--i:9"/><rect x="3" y="14" width="1" height="1" style="--i:10"/><rect x="4" y="14" width="1" height="1" style="--i:11"/><rect x="5" y="14" width="1" height="1" style="--i:12"/><rect x="6" y="14" width="1" height="1" style="--i:13"/><rect x="7" y="14" width="1" height="1" style="--i:14"/><rect x="8" y="14" width="1" height="1" style="--i:15"/><rect x="9" y="14" width="1" height="1" style="--i:16"/><rect x="10" y="14" width="1" height="1" class="sh" style="--i:17"/><rect x="11" y="14" width="1" height="1" class="sh" style="--i:18"/><rect x="12" y="14" width="1" height="1" class="sh" style="--i:19"/><rect x="13" y="14" width="1" height="1" class="sh" style="--i:20"/><rect x="14" y="14" width="1" height="1" class="sh" style="--i:21"/><rect x="15" y="14" width="1" height="1" style="--i:22"/><rect x="16" y="14" width="1" height="1" style="--i:23"/><rect x="3" y="15" width="1" height="1" class="sh" style="--i:10.5"/><rect x="4" y="15" width="1" height="1" style="--i:11.5"/><rect x="5" y="15" width="1" height="1" style="--i:12.5"/><rect x="6" y="15" width="1" height="1" style="--i:13.5"/><rect x="7" y="15" width="1" height="1" style="--i:14.5"/><rect x="8" y="15" width="1" height="1" style="--i:15.5"/><rect x="9" y="15" width="1" height="1" style="--i:16.5"/><rect x="10" y="15" width="1" height="1" style="--i:17.5"/><rect x="11" y="15" width="1" height="1" style="--i:18.5"/><rect x="12" y="15" width="1" height="1" style="--i:19.5"/><rect x="13" y="15" width="1" height="1" style="--i:20.5"/><rect x="14" y="15" width="1" height="1" style="--i:21.5"/><rect x="15" y="15" width="1" height="1" style="--i:22.5"/><rect x="16" y="15" width="1" height="1" class="sh" style="--i:23.5"/><rect x="4" y="16" width="1" height="1" class="sh" style="--i:12"/><rect x="5" y="16" width="1" height="1" class="sh" style="--i:13"/><rect x="6" y="16" width="1" height="1" style="--i:14"/><rect x="7" y="16" width="1" height="1" style="--i:15"/><rect x="8" y="16" width="1" height="1" style="--i:16"/><rect x="9" y="16" width="1" height="1" style="--i:17"/><rect x="10" y="16" width="1" height="1" style="--i:18"/><rect x="11" y="16" width="1" height="1" style="--i:19"/><rect x="12" y="16" width="1" height="1" style="--i:20"/><rect x="13" y="16" width="1" height="1" style="--i:21"/><rect x="14" y="16" width="1" height="1" class="sh" style="--i:22"/><rect x="15" y="16" width="1" height="1" class="sh" style="--i:23"/><rect x="6" y="17" width="1" height="1" class="sh" style="--i:14.5"/><rect x="7" y="17" width="1" height="1" class="sh" style="--i:15.5"/><rect x="8" y="17" width="1" height="1" class="sh" style="--i:16.5"/><rect x="9" y="17" width="1" height="1" class="sh" style="--i:17.5"/><rect x="10" y="17" width="1" height="1" class="sh" style="--i:18.5"/><rect x="11" y="17" width="1" height="1" class="sh" style="--i:19.5"/><rect x="12" y="17" width="1" height="1" class="sh" style="--i:20.5"/><rect x="13" y="17" width="1" height="1" class="sh" style="--i:21.5"/><path fill="#f07a12" d="M1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1z"/><rect x="6" y="2" width="1" height="1" fill="#0b0b10"/><rect x="2" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="2" width="1" height="1" fill="#ff9f1c"/><rect x="3" y="3" width="1" height="1" fill="#e07a00"/><rect x="4" y="3" width="1" height="1" fill="#e07a00"/></g></svg></span> · <span lang="ja">MIT ライセンス</span><span lang="en">MIT License</span><span lang="zh">MIT 许可证</span><button type="button" class="dex-btn" hidden aria-label="Duck collection"><img alt=""><span></span></button><span class="quacks" hidden></span></span>
     <nav aria-label="footer">
       <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.ja.md" lang="ja" target="_blank" rel="noopener">プラグインガイド</a>
-      <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" lang="en" target="_blank" rel="noopener">Plugin guide</a>
-      <a href="https://github.com/kuiro1024/pocket-board#license" target="_blank" rel="noopener"><span lang="ja">サードパーティのライセンス</span><span lang="en">Third-party licenses</span></a>
-      <a href="https://github.com/kuiro1024/pocket-board/issues" target="_blank" rel="noopener"><span lang="ja">不具合の報告</span><span lang="en">Report an issue</span></a>
+      <a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" lang="en" target="_blank" rel="noopener">Plugin guide</a><a href="https://github.com/kuiro1024/pocket-board/blob/main/docs/plugins.md" lang="zh" target="_blank" rel="noopener">插件指南</a>
+      <a href="https://github.com/kuiro1024/pocket-board#license" target="_blank" rel="noopener"><span lang="ja">サードパーティのライセンス</span><span lang="en">Third-party licenses</span><span lang="zh">第三方许可证</span></a>
+      <a href="https://github.com/kuiro1024/pocket-board/issues" target="_blank" rel="noopener"><span lang="ja">不具合の報告</span><span lang="en">Report an issue</span><span lang="zh">报告问题</span></a>
     </nav>
   </div>
 </footer>
@@ -718,16 +720,17 @@ html.dark{color-scheme:dark;
 const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, Math.sqrt(cap / Math.max(1, w * h))));
 (() => {
   const root = document.documentElement;
-  const STORE_JA = 'https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&gl=JP', STORE_EN = 'https://apps.microsoft.com/detail/9MZDTC61K4HM';
+  const STORE_ZH = 'https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=zh-cn&gl=CN', STORE_JA = 'https://apps.microsoft.com/detail/9MZDTC61K4HM?hl=ja-jp&gl=JP', STORE_EN = 'https://apps.microsoft.com/detail/9MZDTC61K4HM';
   function setLang(l) {
-    root.classList.remove('lang-ja', 'lang-en'); root.classList.add('lang-' + l); root.lang = l;
+    root.classList.remove('lang-ja', 'lang-en', 'lang-zh'); root.classList.add('lang-' + l); root.lang = l === 'zh' ? 'zh-CN' : l;
     document.querySelectorAll('.lang:not(.theme) button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === l));
     document.querySelectorAll('.dots button').forEach(b => { b.dataset.label = b.dataset[l]; b.setAttribute('aria-label', b.dataset[l]); });
-    document.querySelectorAll('a[href*="apps.microsoft.com"]').forEach(a => a.href = l === 'ja' ? STORE_JA : STORE_EN);
+    document.querySelectorAll('a[href*="apps.microsoft.com"]').forEach(a => a.href = l === 'ja' ? STORE_JA : l === 'zh' ? STORE_ZH : STORE_EN);
     try { localStorage.setItem('pb-lang', l); } catch (e) {}
   }
   let saved = null; try { saved = localStorage.getItem('pb-lang'); } catch (e) {}
-  setLang(saved || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'));
+  const nl = (navigator.language || 'ja').toLowerCase();
+  setLang(['ja', 'en', 'zh'].includes(saved) ? saved : nl.startsWith('ja') ? 'ja' : nl.startsWith('zh') ? 'zh' : 'en');
   document.querySelectorAll('.lang:not(.theme) button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
   // Light / Dark（墨がぶわっと広がって切り替わる）
@@ -807,7 +810,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   snd.addEventListener('click', () => {
     v.muted = !v.muted; if (!v.muted) v.play().catch(() => {});
     snd.setAttribute('aria-pressed', !v.muted);
-    document.getElementById('sound-label').innerHTML = v.muted ? '<span lang="ja">音を出す</span><span lang="en">Sound on</span>' : '<span lang="ja">消音</span><span lang="en">Mute</span>';
+    document.getElementById('sound-label').innerHTML = v.muted ? '<span lang="ja">音を出す</span><span lang="en">Sound on</span><span lang="zh">开启声音</span>' : '<span lang="ja">消音</span><span lang="en">Mute</span><span lang="zh">静音</span>';
   });
 
 
@@ -835,7 +838,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
       }
       if (!n) throw 0;
       window.PB_VISIT = {n, fresh}; dispatchEvent(new CustomEvent('pbvisit', {detail: window.PB_VISIT}));   // キリ番の隠しネタ用
-      const nums = visitsEl.querySelectorAll('.v-n'), show = v => { const t = Math.round(v).toLocaleString('en-US'); nums[0].textContent = t; nums[1].textContent = '#' + t; };
+      const nums = visitsEl.querySelectorAll('.v-n'), show = v => { const t = Math.round(v).toLocaleString('en-US'); nums.forEach(x => { x.textContent = x.closest('[lang="en"]') ? '#' + t : t; }); };
       show(0); visitsEl.classList.add('on');
       const t0 = performance.now(), D = 1100;   // 0 からカウントアップ
       const step = now => { const q = Math.min(1, (now - t0) / D); show(n * (1 - Math.pow(1 - q, 3))); if (q < 1) requestAnimationFrame(step); };
@@ -1027,7 +1030,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
 </script>
 <script>
 (() => {   // アヒルと隠しネタ。普段は何も動かさず、起きたときだけ動く（演出用の canvas も使う間だけ置く）
-  const root = document.documentElement, T = (j, e) => root.classList.contains('lang-ja') ? j : e;
+  const root = document.documentElement, T = (j, e, z) => root.classList.contains('lang-ja') ? j : root.classList.contains('lang-zh') && z !== undefined ? z : e;   // 日本語・英語・中国語
   const LS = {get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }};
   const COUNTER = window.PB_COUNTER_URL || '';
   const q = new URLSearchParams(location.search);
@@ -1105,7 +1108,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
                {opacity: 1, transform: 'translateY(0) scale(1)', offset: .3}, {opacity: 1, transform: 'translateY(-4px)', offset: .75}, {opacity: 0, transform: 'translateY(-14px)'}],
               {duration: ms, easing: 'ease-out'}).finished.then(() => b.remove());
   }
-  const QUACK = '<span lang="ja">グワッ！</span><span lang="en">QUACK!</span>';
+  const QUACK = '<span lang="ja">グワッ！</span><span lang="en">QUACK!</span><span lang="zh">嘎！</span>';
 
   /* ================= 演出いろいろ ================= */
   function duckBurst(ox, oy, n, palette) {   // アヒルが飛び出す（上向きに散って、重力で落ちる）
@@ -1164,18 +1167,18 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   }
 
   /* ================= アヒル図鑑 ================= */
-  const DEX = [   // [id, 体の色, 影の色, 名前(ja), 名前(en), ヒント(ja), ヒント(en)]
-    ['first', '#ffd23f', '#e3a21a', 'はじめてのグワッ', 'First Quack', 'フッターのアヒルを押してみよう', 'Poke the duck in the footer'],
-    ['awake', '#ff8fc7', '#d65e9a', '覚醒アヒル', 'Awakened Duck', 'もっと押すと…？', 'Keep poking…'],
-    ['bubble', '#bfe3ff', '#7fb3e0', '泡アヒル', 'Bubble Duck', 'ロゴは押せる', 'The logo can be poked'],
-    ['parade', '#fff6dc', '#d8c69c', '行進アヒル', 'Parade Duck', '↑↑↓↓…', '↑↑↓↓…'],
-    ['spam', '#7fd8ff', '#3f9fd0', '連打アヒル', 'Button-Masher Duck', 'テーマを押しまくる', 'Mash the theme toggle'],
-    ['night', '#7c80e0', '#4b4fa8', '夜ふかしアヒル', 'Night Owl Duck', '夜中に来てみて', 'Visit late at night'],
-    ['back', '#ffb48a', '#d9825a', 'おかえりアヒル', 'Welcome-Back Duck', 'よそ見して戻ってくる', 'Look away, then come back'],
-    ['walker', '#9be38a', '#5fae4f', 'お散歩アヒル', 'Wandering Duck', 'じっと待っていると…', 'Sit still for a while…'],
-    ['lost', '#c8c8cf', '#8e8e99', '迷子アヒル', 'Lost Duck', 'ないページへ行ってみる', "Go somewhere that doesn't exist"],
-    ['bye', '#ffd0e2', '#e09bb6', 'いってらっしゃいアヒル', 'See-You Duck', 'ダウンロードへ', 'Head off to download'],
-    ['kiri', '#ffe680', '#e0b400', 'キリ番アヒル', 'Lucky Number Duck', 'キリのいい番号を引く', 'Land a lucky visitor number'],
+  const DEX = [   // [id, 体の色, 影の色, 名前(ja), 名前(en), ヒント(ja), ヒント(en), 名前(zh), ヒント(zh)]
+    ['first', '#ffd23f', '#e3a21a', 'はじめてのグワッ', 'First Quack', 'フッターのアヒルを押してみよう', 'Poke the duck in the footer', '第一声嘎', '戳一下页脚的小鸭子'],
+    ['awake', '#ff8fc7', '#d65e9a', '覚醒アヒル', 'Awakened Duck', 'もっと押すと…？', 'Keep poking…', '觉醒鸭', '再多戳几下…？'],
+    ['bubble', '#bfe3ff', '#7fb3e0', '泡アヒル', 'Bubble Duck', 'ロゴは押せる', 'The logo can be poked', '泡泡鸭', 'Logo 是可以戳的'],
+    ['parade', '#fff6dc', '#d8c69c', '行進アヒル', 'Parade Duck', '↑↑↓↓…', '↑↑↓↓…', '游行鸭', '↑↑↓↓…'],
+    ['spam', '#7fd8ff', '#3f9fd0', '連打アヒル', 'Button-Masher Duck', 'テーマを押しまくる', 'Mash the theme toggle', '连打鸭', '狂按主题切换'],
+    ['night', '#7c80e0', '#4b4fa8', '夜ふかしアヒル', 'Night Owl Duck', '夜中に来てみて', 'Visit late at night', '夜猫子鸭', '深夜来看看'],
+    ['back', '#ffb48a', '#d9825a', 'おかえりアヒル', 'Welcome-Back Duck', 'よそ見して戻ってくる', 'Look away, then come back', '欢迎回来鸭', '离开一下再回来'],
+    ['walker', '#9be38a', '#5fae4f', 'お散歩アヒル', 'Wandering Duck', 'じっと待っていると…', 'Sit still for a while…', '散步鸭', '静静等一会儿…'],
+    ['lost', '#c8c8cf', '#8e8e99', '迷子アヒル', 'Lost Duck', 'ないページへ行ってみる', "Go somewhere that doesn't exist", '迷路鸭', '去一个不存在的页面'],
+    ['bye', '#ffd0e2', '#e09bb6', 'いってらっしゃいアヒル', 'See-You Duck', 'ダウンロードへ', 'Head off to download', '一路顺风鸭', '去下载吧'],
+    ['kiri', '#ffe680', '#e0b400', 'キリ番アヒル', 'Lucky Number Duck', 'キリのいい番号を引く', 'Land a lucky visitor number', '幸运号码鸭', '抽中一个整齐的访客编号'],
   ];
   let got = new Set(); try { got = new Set(JSON.parse(LS.get('pb-dex') || '[]').filter(id => DEX.some(d => d[0] === id))); } catch (e) {}
   const dexBtn = document.querySelector('.dex-btn');
@@ -1191,12 +1194,12 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   function found(id) {
     const d = DEX.find(x => x[0] === id); if (!d || got.has(id)) return;
     got.add(id); LS.set('pb-dex', JSON.stringify([...got]));
-    toast(T(`アヒル図鑑に登録：${d[3]}（${got.size}/${DEX.length}）`, `New duck: ${d[4]} (${got.size}/${DEX.length})`), 3600, spriteURL(d[1], d[2]));
+    toast(T(`アヒル図鑑に登録：${d[3]}（${got.size}/${DEX.length}）`, `New duck: ${d[4]} (${got.size}/${DEX.length})`, `鸭子图鉴新收录：${d[7]}（${got.size}/${DEX.length}）`), 3600, spriteURL(d[1], d[2]));
     updateDexBtn(true);
     if (complete()) setTimeout(() => {   // コンプリート: 金のアヒル
       confetti(); duckBurst(innerWidth / 2, innerHeight * .8, 40, GOLD);
       if (footDuck) footDuck.classList.add('gold');
-      toast(T('🏆 コンプリート！金のアヒルが仲間になった', '🏆 Complete! The golden duck joins you'), 5200, spriteURL(...GOLD));
+      toast(T('🏆 コンプリート！金のアヒルが仲間になった', '🏆 Complete! The golden duck joins you', '🏆 全部收集！金色鸭子加入了'), 5200, spriteURL(...GOLD));
     }, 1400);
   }
   window.pbDex = found;
@@ -1205,11 +1208,11 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     if (dexPanel) return closeDex();
     const p = document.createElement('div'); p.className = 'dex'; p.setAttribute('role', 'dialog');
     const head = document.createElement('div'); head.className = 'dex-head';
-    head.innerHTML = `<b>${T('アヒル図鑑', 'Duck Collection')}</b><span>${got.size} / ${DEX.length}</span>`;
-    const x = document.createElement('button'); x.type = 'button'; x.className = 'dex-x'; x.textContent = '×'; x.setAttribute('aria-label', T('閉じる', 'Close')); x.onclick = closeDex; head.appendChild(x);
+    head.innerHTML = `<b>${T('アヒル図鑑', 'Duck Collection', '鸭子图鉴')}</b><span>${got.size} / ${DEX.length}</span>`;
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'dex-x'; x.textContent = '×'; x.setAttribute('aria-label', T('閉じる', 'Close', '关闭')); x.onclick = closeDex; head.appendChild(x);
     const grid = document.createElement('div'); grid.className = 'dex-grid';
-    const cards = DEX.map(d => { const has = got.has(d[0]); return [has, `<div class="dex-card${has ? '' : ' no'}"><img alt="" src="${has ? spriteURL(d[1], d[2]) : spriteURL('rgba(120,124,150,.32)', 'rgba(120,124,150,.32)', false)}"><b>${has ? T(d[3], d[4]) : '？？？'}</b>${has ? '' : `<small>${T(d[5], d[6])}</small>`}</div>`]; });
-    if (complete()) cards.push([true, `<div class="dex-card gold"><img alt="" src="${spriteURL(...GOLD)}"><b>${T('金のアヒル', 'Golden Duck')}</b><small>${T('コンプリート記念', 'For completing the set')}</small></div>`]);
+    const cards = DEX.map(d => { const has = got.has(d[0]); return [has, `<div class="dex-card${has ? '' : ' no'}"><img alt="" src="${has ? spriteURL(d[1], d[2]) : spriteURL('rgba(120,124,150,.32)', 'rgba(120,124,150,.32)', false)}"><b>${has ? T(d[3], d[4], d[7]) : '？？？'}</b>${has ? '' : `<small>${T(d[5], d[6], d[8])}</small>`}</div>`]; });
+    if (complete()) cards.push([true, `<div class="dex-card gold"><img alt="" src="${spriteURL(...GOLD)}"><b>${T('金のアヒル', 'Golden Duck', '金色鸭子')}</b><small>${T('コンプリート記念', 'For completing the set', '全部收集纪念')}</small></div>`]);
     grid.innerHTML = cards.map(c => c[1]).join('');
     p.append(head, grid); document.body.appendChild(p); dexPanel = p;
     p.animate([{opacity: 0, transform: 'translate(-50%,14px) scale(.96)'}, {opacity: 1, transform: 'translate(-50%,0) scale(1)'}], {duration: 260, easing: 'cubic-bezier(.2,1.2,.4,1)', fill: 'forwards'});
@@ -1231,7 +1234,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     if (!quackEl || qTotal === null) return;
     quackEl.hidden = false;
     const v = (qTotal + qPend).toLocaleString('en-US');
-    quackEl.innerHTML = `<span lang="ja">みんなで <b>${v}</b> グワッ</span><span lang="en"><b>${v}</b> quacks so far</span>`;   // 言語を切り替えても合うように両方
+    quackEl.innerHTML = `<span lang="ja">みんなで <b>${v}</b> グワッ</span><span lang="en"><b>${v}</b> quacks so far</span><span lang="zh">大家一共嘎了 <b>${v}</b> 声</span>`;   // 言語を切り替えても合うように両方
   }
   function quackGet() { if (!COUNTER || qTotal !== null) return; fetch(COUNTER + '/quack').then(r => r.json()).then(j => { if (qTotal === null) { qTotal = j.n; showQuacks(); } }).catch(() => {}); }
   function quackSend(beacon) {   // まとめて送る（1回で最大20）
@@ -1251,7 +1254,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
       if (e.target.closest('.quack')) return;
       n++; found('first'); addQuack();
       const big = n === 5;
-      quackBubble(footDuck, big ? '<span lang="ja">グワァァァッ！！</span><span lang="en">QUAAACK!!</span>' : QUACK, big ? 1600 : 1100);
+      quackBubble(footDuck, big ? '<span lang="ja">グワァァァッ！！</span><span lang="en">QUAAACK!!</span><span lang="zh">嘎嘎嘎——！！</span>' : QUACK, big ? 1600 : 1100);
       if (run) run.cancel();
       const dir = Math.random() < .5 ? -1 : 1, X = dir * (50 + Math.random() * 70), go = dir < 0 ? 1 : -1, back = -go, S = big ? 3.4 : 2.4;
       const k = [{transform: 'translate(0,0) scale(1)'}, {transform: `translate(0,-2px) scale(${S}) rotate(-14deg)`, offset: .1},
@@ -1368,7 +1371,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
       confetti();
       const b = document.querySelector('#visits .v-in'); if (b) { const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top, 16); }
       document.getElementById('visits').classList.add('kiri');
-      toast(T(`🎉 キリ番ゲット！ ${n.toLocaleString('en-US')} 回目の訪問者です`, `🎉 Lucky number! You're visitor #${n.toLocaleString('en-US')}`), 5000);
+      toast(T(`🎉 キリ番ゲット！ ${n.toLocaleString('en-US')} 回目の訪問者です`, `🎉 Lucky number! You're visitor #${n.toLocaleString('en-US')}`, `🎉 幸运号码！你是第 ${n.toLocaleString('en-US')} 位访客`), 5000);
       if (!force) found('kiri');
     }, 1300);   // カウントアップが終わるころに
   }
@@ -1378,15 +1381,15 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   const baseTitle = document.title; let backT = 0, wentDL = false;
   document.addEventListener('visibilitychange', () => {
     clearTimeout(backT);
-    if (document.hidden) { document.title = T('🦆 もどってきて…', '🦆 Come back…'); return; }
-    document.title = T('🦆 おかえり！', '🦆 Welcome back!'); backT = setTimeout(() => { document.title = baseTitle; }, 1800);
+    if (document.hidden) { document.title = T('🦆 もどってきて…', '🦆 Come back…', '🦆 快回来…'); return; }
+    document.title = T('🦆 おかえり！', '🦆 Welcome back!', '🦆 欢迎回来！'); backT = setTimeout(() => { document.title = baseTitle; }, 1800);
     found('back');
-    if (wentDL) { wentDL = false; setTimeout(() => toast(T('おかえり！インストールできた？', 'Welcome back! Did the install go OK?'), 3800, spriteURL('#ffd0e2', '#e09bb6')), 500); }
+    if (wentDL) { wentDL = false; setTimeout(() => toast(T('おかえり！インストールできた？', 'Welcome back! Did the install go OK?', '欢迎回来！安装顺利吗？'), 3800, spriteURL('#ffd0e2', '#e09bb6')), 500); }
   });
   document.addEventListener('click', e => {   // ダウンロード系のリンクを押したら見送る
     const a = e.target.closest && e.target.closest('a[href*="apps.microsoft.com"], a[href*="/releases"]'); if (!a) return;
     wentDL = true; found('bye');
-    toast(T('いってらっしゃい！', 'See you! Enjoy Pocket Board'), 3200, spriteURL('#ffd0e2', '#e09bb6'));
+    toast(T('いってらっしゃい！', 'See you! Enjoy Pocket Board', '一路顺风！祝你用得开心'), 3200, spriteURL('#ffd0e2', '#e09bb6'));
   });
 
   /* ================= ロゴを連打するとぷるぷる → 10回目ではじける ================= */
@@ -1418,7 +1421,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   addEventListener('keydown', e => {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     ki = k === K[ki] ? ki + 1 : k === 'ArrowUp' ? (ki === 2 ? 2 : 1) : 0;
-    if (ki === K.length) { ki = 0; parade(); toast(T('🦆 アヒル行進中！', '🦆 Duck parade!'), 3000); found('parade'); }
+    if (ki === K.length) { ki = 0; parade(); toast(T('🦆 アヒル行進中！', '🦆 Duck parade!', '🦆 鸭子游行中！'), 3000); found('parade'); }
   });
 
   /* ================= 開発者ツールを開いた人へ ================= */
@@ -1433,7 +1436,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   /* ================= 深夜（0〜4時）に来た人へ ================= */
   if (new Date().getHours() < 4) {
     let seen = false; try { seen = !!sessionStorage.getItem('pb-night'); sessionStorage.setItem('pb-night', '1'); } catch (e) {}
-    if (!seen) setTimeout(() => { toast(T('🌙 夜ふかしですね。ほどほどに', "🌙 Up late? Don't stay up too long"), 5000, spriteURL('#7c80e0', '#4b4fa8')); found('night'); }, 3500);
+    if (!seen) setTimeout(() => { toast(T('🌙 夜ふかしですね。ほどほどに', "🌙 Up late? Don't stay up too long", '🌙 还在熬夜呀，别太晚了'), 5000, spriteURL('#7c80e0', '#4b4fa8')); found('night'); }, 3500);
   }
 
   /* ================= テーマ切り替えを連打するとアヒルが大量に飛び出して、テーマが変わる ================= */
@@ -1444,7 +1447,7 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
     if (taps.length < 6) return;
     taps = []; e.stopPropagation();   // この1回は通常の切り替えの代わりに、アヒルに切り替えてもらう
     const r = b.getBoundingClientRect(); duckBurst(r.left + r.width / 2, r.top + r.height / 2, 70);
-    toast(T('🦆🦆🦆 押しすぎです！', '🦆🦆🦆 Too many clicks!'), 2600); found('spam');
+    toast(T('🦆🦆🦆 押しすぎです！', '🦆🦆🦆 Too many clicks!', '🦆🦆🦆 按太多啦！'), 2600); found('spam');
     setTimeout(() => window.pbFlipTheme && window.pbFlipTheme(b), 250);
   }, true);
 })();
