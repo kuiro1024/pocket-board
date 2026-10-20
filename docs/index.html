@@ -406,6 +406,7 @@ html.dark{color-scheme:dark;
 .dark .card-over{box-shadow:0 -18px 50px -20px rgba(0,0,0,.6)}
 /* 墨が広がる切り替え（View Transitions） */
 ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+.ink-ov{position:fixed;inset:0;z-index:9999;pointer-events:none;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 html.ink-anim::view-transition-new(root){-webkit-mask-image:var(--ink-mask);mask-image:var(--ink-mask);-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 </style>
 </head>
@@ -715,10 +716,12 @@ html.ink-anim::view-transition-new(root){-webkit-mask-image:var(--ink-mask);mask
     root.classList.toggle('dark', t === 'dark');
     themeBtns.forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === t));
     document.querySelectorAll('img.logo').forEach(i => i.src = t === 'dark' ? 'assets/icon-dark.webp' : 'assets/icon.webp');
-    try { localStorage.setItem('pb-theme', t); } catch (e) {}
   }
-  let savedTheme = null; try { savedTheme = localStorage.getItem('pb-theme'); } catch (e) {}
-  applyTheme(savedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  // 最初のテーマはブラウザ／Windows の設定に合わせる（手で切り替えたらそのページを見ている間だけ優先。設定が変わればそれにも追従）
+  try { localStorage.removeItem('pb-theme'); } catch (e) {}
+  const osDark = matchMedia('(prefers-color-scheme: dark)'); let picked = false;
+  applyTheme(osDark.matches ? 'dark' : 'light');
+  osDark.addEventListener('change', e => { if (!picked) applyTheme(e.matches ? 'dark' : 'light'); });
   new Image().src = 'assets/icon-dark.webp';
   // 墨の形: 下から立ち上がるギザギザの前線（低解像度で描いてマスクに使う）
   const inkCv = document.createElement('canvas'), inkCtx = inkCv.getContext('2d');
@@ -739,22 +742,38 @@ html.ink-anim::view-transition-new(root){-webkit-mask-image:var(--ink-mask);mask
     });
     c.globalAlpha = 1;
   }
+  let inking = false;
   function inkSwitch(t, btn) {
-    if (!document.startViewTransition || (root.classList.contains('dark') === (t === 'dark'))) { applyTheme(t); return; }
+    picked = true;
+    if (inking) return;
+    if (root.classList.contains('dark') === (t === 'dark')) { applyTheme(t); return; }
     const W = 320, H = Math.max(120, Math.round(320 * innerHeight / innerWidth)); inkCv.width = W; inkCv.height = H;
     const r = btn.getBoundingClientRect(), ox = (r.left + r.width / 2) / innerWidth * W, oy = (r.top + r.height / 2) / innerHeight * H;
     const rnd = (() => { let s = 1 + Math.floor(Math.random() * 1e6); return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
     const hm = []; for (let k = 3; k <= 140; k++) hm.push([k, (k > 20 ? .9 : 1.6) / k * (.4 + rnd()), rnd() * 6.283, (rnd() - .5) * 3]);
+    const D = 1300, ease = k => 1 - Math.pow(1 - k, 2.4);
+    if (!document.startViewTransition || /Firefox\//.test(navigator.userAgent)) {
+      // View Transition が無い（または擬似要素へのマスクが効かない）ブラウザ: 次の色の幕を墨の形で広げ、広がり切ったら切り替えて幕を消す
+      inking = true;
+      const ov = document.createElement('div'); ov.className = 'ink-ov'; ov.style.background = t === 'dark' ? '#101011' : '#f4f6fc'; document.body.appendChild(ov);
+      const setOv = p => { drawInk(p, ox, oy, W, H, hm); const u = `url(${inkCv.toDataURL()})`; ov.style.webkitMaskImage = u; ov.style.maskImage = u; };
+      setOv(0); const t0 = performance.now();
+      const step = now => { const k = Math.min(1, (now - t0) / D); setOv(ease(k));
+        if (k < 1) return requestAnimationFrame(step);
+        applyTheme(t); ov.style.transition = 'opacity .35s'; requestAnimationFrame(() => { ov.style.opacity = '0'; });
+        setTimeout(() => { ov.remove(); inking = false; }, 400); };
+      requestAnimationFrame(step); return;
+    }
     const setMask = p => { drawInk(p, ox, oy, W, H, hm); root.style.setProperty('--ink-mask', `url(${inkCv.toDataURL()})`); };
-    setMask(0); root.classList.add('ink-anim');
+    setMask(0); root.classList.add('ink-anim'); inking = true;
     const vt = document.startViewTransition(() => applyTheme(t));
     vt.ready.then(() => new Promise(res => {
-      const t0 = performance.now(), D = 1300;
+      const t0 = performance.now();
       // アニメーションが無いと遷移がすぐ終わるので、同じ長さの空アニメーションで保持する
       root.animate({opacity: [1, 1]}, {duration: D + 50, pseudoElement: '::view-transition-new(root)'});
-      const step = now => { const k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 2.4); setMask(e); if (k < 1) requestAnimationFrame(step); else res(); };
+      const step = now => { const k = Math.min(1, (now - t0) / D); setMask(ease(k)); if (k < 1) requestAnimationFrame(step); else res(); };
       requestAnimationFrame(step);
-    })).catch(() => {}).finally(() => { root.classList.remove('ink-anim'); root.style.removeProperty('--ink-mask'); });
+    })).catch(() => {}).finally(() => { root.classList.remove('ink-anim'); root.style.removeProperty('--ink-mask'); inking = false; });
   }
   themeBtns.forEach(b => b.addEventListener('click', () => inkSwitch(b.dataset.theme, b)));
 
