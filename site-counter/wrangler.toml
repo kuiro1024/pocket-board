@@ -1,0 +1,8 @@
+name = "pb-counter"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pb-counter"
+database_id = "ここに d1 create で表示された database_id を貼る"
