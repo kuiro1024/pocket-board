@@ -50,7 +50,7 @@ p{margin:0}
 
 /* ---------- hero ---------- */
 .hero{position:relative;color:#fff;isolation:isolate;padding-bottom:clamp(140px,22vw,300px)}
-.flow{position:fixed;inset:0;z-index:-1;background:#9fb6f2 url(assets/bg.jpg) center/cover;overflow:hidden}
+.flow{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:-1;background:#9fb6f2 url(assets/bg.jpg) center/cover;overflow:hidden}
 /* うにうに動く光のかたまり（形も位置もゆっくり変わり続ける） */
 .blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .blobs canvas{position:absolute;inset:0;width:100%;height:100%;display:block}   /* 光は低解像度の canvas に描いて引き伸ばす（JS） */
@@ -119,8 +119,6 @@ kbd{font:500 .82rem var(--display);color:var(--ink);background:#fff;border:1px s
 /* ダウンロード */
 .download{position:relative;isolation:isolate;color:var(--ink);overflow:hidden;background:#c9b6f0 url(assets/bg.jpg) center/cover}
 .download > .wrap{position:relative;z-index:1}
-.blobs.flip{transform:scaleX(-1)}
-.download::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,#eef1fb 0%,rgba(238,241,251,0) 18%,rgba(30,36,90,.2) 100%)}
 .faq{position:relative;z-index:2;background:var(--paper);padding-block:clamp(64px,8vw,110px)}
 .faq-grid{display:grid;gap:40px}
 @media (min-width:900px){.faq-grid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:64px;align-items:start}}
@@ -164,8 +162,8 @@ footer nav{display:flex;flex-wrap:wrap;gap:6px 20px}
 .duck .d-rb{display:none}
 .duck-spot.awake .duck{opacity:1;filter:drop-shadow(0 0 3px rgba(255,80,200,.45))}
 .duck-spot.awake .d-norm{display:none}.duck-spot.awake .d-rb{display:inline}
-.d-rb rect:not([fill]){animation:duck-rb 1.6s linear infinite;animation-delay:calc(var(--i) * -.09s)}
-.d-rb rect.sh{animation-name:duck-rb-d}
+.duck-spot.awake .d-rb rect:not([fill]){animation:duck-rb 1.6s linear infinite;animation-delay:calc(var(--i) * -.09s)}   /* 目覚めているときだけ動かす */
+.duck-spot.awake .d-rb rect.sh{animation-name:duck-rb-d}
 .duck-spot.awaking .duck{animation:duck-awake .7s cubic-bezier(.2,1.6,.4,1)}
 @keyframes duck-rb{0%{fill:#ff2a4d}14%{fill:#ff8a1f}28%{fill:#ffe11f}42%{fill:#3bf06a}57%{fill:#1fd6ff}71%{fill:#2a52ff}85%{fill:#b62aff}100%{fill:#ff2a4d}}
 @keyframes duck-rb-d{0%{fill:#a8122e}14%{fill:#a85410}28%{fill:#a89210}42%{fill:#1a9c40}57%{fill:#108aa8}71%{fill:#1630a8}85%{fill:#7414a8}100%{fill:#a8122e}}
@@ -176,7 +174,6 @@ footer a:hover{color:var(--ink)}
 
 /* ---------- 触れるデモ ---------- */
 .try{position:relative;isolation:isolate;overflow:hidden;background:#a9b9f5 url(assets/bg.jpg) center/cover}
-.try::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,var(--paper) 0,rgba(244,246,252,.55) 160px,rgba(244,246,252,.12) 30%,rgba(244,246,252,.12) 75%,rgba(244,246,252,.4))}
 .try > .wrap{position:relative;z-index:1}
 .sec-head.center{margin-inline:auto;text-align:center;justify-items:center}
 .demo{position:relative;display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
@@ -326,7 +323,7 @@ footer{position:relative;z-index:2}
 .hero-copy > :nth-child(1){--i:0}.hero-copy > :nth-child(2){--i:1}.hero-copy > :nth-child(3){--i:2}.hero-copy > :nth-child(4){--i:3}.hero-copy > :nth-child(5){--i:4}
 .lockup img{animation:float 6s ease-in-out infinite}
 .stage .window{animation:rise 1.1s cubic-bezier(.2,.8,.2,1) .55s both}
-.eyebrow-iri{background:linear-gradient(90deg,#4f7bff,#a86bff,#ff6fb1,#ffb35c,#4fd1c5,#4f7bff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:hue 8s linear infinite}
+.eyebrow-iri{background:linear-gradient(90deg,#4f7bff,#a86bff,#ff6fb1,#ffb35c,#4fd1c5,#4f7bff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:hue 8s linear infinite;will-change:transform}   /* 自分だけの小さな層にして、虹色が流れても周り（セクション全体）を描き直さない */
 .btn-primary{position:relative;overflow:hidden}
 .btn-primary::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(120,160,255,.35),transparent);transform:translateX(-120%) skewX(-18deg);animation:sheen 4.5s ease-in-out 1.6s infinite}
 .dl-panel{position:relative;overflow:hidden}
@@ -351,12 +348,9 @@ footer{position:relative;z-index:2}
 html.dark{color-scheme:dark;
   --paper:#101011;--ink:#ececec;--mute:#a3a3a6;--line:rgba(255,255,255,.10);
   --glass:rgba(34,34,36,.6);--glass-edge:rgba(255,255,255,.14);--accent:#9ab8ff}
-.dark .flow::after,.dark .try::before,.dark .download::before{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(10,10,10,.7)}
+.dark .flow::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(10,10,10,.7)}
 .dark .flow::after{z-index:0}.dark .flow > .blobs{z-index:1}
-.dark .try::before,.dark .download::before{z-index:0}
 .dark .hero::after{background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.12) 50%,rgba(0,0,0,0) 100%)}
-.dark .try::after{background:linear-gradient(180deg,var(--paper) 0,rgba(16,16,17,.35) 160px,rgba(16,16,17,0) 30%,rgba(16,16,17,0) 75%,rgba(16,16,17,.3))}
-.dark .download::after{background:linear-gradient(180deg,var(--paper) 0%,rgba(16,16,17,0) 18%,rgba(0,0,0,.25) 100%)}
 .dark .stage-band{background:linear-gradient(180deg,rgba(16,16,17,0) 30%,var(--paper) 70%)}
 .dark .window{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 -6px 40px rgba(255,255,255,.06),0 40px 80px -20px rgba(0,0,0,.7)}
 .dark kbd{background:#242426;border-color:rgba(255,255,255,.12)}
@@ -824,32 +818,80 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   // [x%, y%, 色, 周期s, 開始のずれs, 大きさvmax, 濃さ, rgb]。動きは以前の CSS の keyframes と同じ（往復）
   const OKF = [[0, 0, 0, 1, 1], [16, -12, 80, 1.3, 1.08], [-6, 14, 160, .8, .98], [-18, -6, 240, 1.22, 1.02], [4, -16, 300, .9, .84], [12, 10, 360, 1.12, .96]];
   const GST = [1, .95, .8, .61, .41, .25, .14, .07, 0], DS = 6;   // DS: 何分の1の解像度で描くか
+  // デモとダウンロードの背景は「背景画像 → (ダーク) 暗い幕 → 光 → 上下のなじませ」を以前の CSS と同じ順でこの canvas 1枚に描く。
+  // 重ねる層が場面ごとに1枚で済み、上に乗った層の描き直しも起きない
+  const bgImg = new Image(); bgImg.src = 'assets/bg.jpg';
+  const SEC_GRAD = {
+    try: {light: [[0, '#f4f6fc'], ['160px', 'rgba(244,246,252,.55)'], [.3, 'rgba(244,246,252,.12)'], [.75, 'rgba(244,246,252,.12)'], [1, 'rgba(244,246,252,.4)']],
+          dark: [[0, '#101011'], ['160px', 'rgba(16,16,17,.35)'], [.3, 'rgba(16,16,17,0)'], [.75, 'rgba(16,16,17,0)'], [1, 'rgba(16,16,17,.3)']]},
+    download: {light: [[0, '#eef1fb'], [.18, 'rgba(238,241,251,0)'], [1, 'rgba(30,36,90,.2)']],
+               dark: [[0, '#101011'], [.18, 'rgba(16,16,17,0)'], [1, 'rgba(0,0,0,.25)']]},
+  };
   const orbSets = [...document.querySelectorAll('.blobs')].map(b => {
     b.textContent = ''; const cv = document.createElement('canvas'); b.appendChild(cv);
-    const s = {b, cv, c: cv.getContext('2d'), w: 0, h: 0, on: true};
-    new IntersectionObserver(es => { s.on = es[0].isIntersecting; }).observe(b.parentElement);   // 画面外の光は描かない
-    new ResizeObserver(() => { s.w = b.offsetWidth; s.h = b.offsetHeight; cv.width = Math.max(8, Math.ceil(s.w / DS)); cv.height = Math.max(8, Math.ceil(s.h / DS)); s.last = -1; }).observe(b);
+    const sec = SEC_GRAD[b.parentElement.id] ? b.parentElement.id : null;
+    const s = {b, cv, c: cv.getContext('2d'), w: 0, h: 0, on: true, sec, flip: b.classList.contains('flip'), o: sec ? document.createElement('canvas') : null};
+    new IntersectionObserver(es => { s.on = es[0].isIntersecting; if (s.on) startOrbs(); }).observe(b.parentElement);   // 画面外の光は描かない
+    new ResizeObserver(() => {
+      const w = b.offsetWidth, h = b.offsetHeight, cw = Math.max(8, Math.ceil(w / DS)), ch = Math.max(8, Math.ceil(h / DS));
+      s.w = w; s.h = h;
+      if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; if (s.o) { s.o.width = cw; s.o.height = ch; } if (s.on) drawSet(s, performance.now()); }   // 大きさを変えると canvas は空になるので、その場で描き直す
+    }).observe(b);
     return s;
   });
-  let orbT = 0;
+  bgImg.onload = () => orbSets.forEach(s => s.on && drawSet(s, performance.now()));
+  let orbT = 0, orbRaf = 0;
+  function startOrbs() { if (!orbRaf) orbRaf = requestAnimationFrame(drawOrbs); }
   function drawOrbs(ts) {
-    requestAnimationFrame(drawOrbs);
+    orbRaf = 0;
+    if (!orbSets.some(s => s.on)) return;   // 見えている光が無ければループを止める（見えたら IntersectionObserver が再開）
+    orbRaf = requestAnimationFrame(drawOrbs);
     if (ts - orbT < 33) return; orbT = ts;   // ゆっくり動く光なので 30fps で十分
-    const vw = innerWidth / 100, vh = innerHeight / 100, vmax = Math.max(vw, vh), dk = root.classList.contains('dark') ? .85 : 1;
-    for (const s of orbSets) {
-      if (!s.on || !s.w) continue;
-      const c = s.c; c.setTransform(1 / DS, 0, 0, 1 / DS, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, s.w, s.h); c.globalCompositeOperation = 'screen';
-      for (const o of ORBS) {
-        let t = (ts / 1000 - o[4]) / o[3]; t = ((t % 2) + 2) % 2; if (t > 1) t = 2 - t;
-        const sg = Math.min(4.9999, t * 5), i = Math.floor(sg), f0 = sg - i, f = f0 * f0 * (3 - 2 * f0), A = OKF[i], B = OKF[i + 1], L = k => A[k] + (B[k] - A[k]) * f;
-        const R = o[5] * vmax / 2;
-        c.save(); c.translate(s.w * o[0] / 100 + L(0) * vw, s.h * o[1] / 100 + L(1) * vh); c.rotate(L(2) * Math.PI / 180); c.scale(L(3), L(4));
-        const g = c.createRadialGradient(0, 0, 0, 0, 0, R); GST.forEach((a, k) => g.addColorStop(k / 8, `rgba(${o[7]},${a})`));
-        c.globalAlpha = o[6] * dk; c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.2832); c.fill(); c.restore();
-      }
+    for (const s of orbSets) if (s.on) drawSet(s, ts);
+  }
+  function drawOrbsTo(c, s, ts, vw, vh, vmax, dk) {
+    for (const o of ORBS) {
+      let t = (ts / 1000 - o[4]) / o[3]; t = ((t % 2) + 2) % 2; if (t > 1) t = 2 - t;
+      const sg = Math.min(4.9999, t * 5), i = Math.floor(sg), f0 = sg - i, f = f0 * f0 * (3 - 2 * f0), A = OKF[i], B = OKF[i + 1], L = k => A[k] + (B[k] - A[k]) * f;
+      const R = o[5] * vmax / 2;
+      c.save(); c.translate(s.w * o[0] / 100 + L(0) * vw, s.h * o[1] / 100 + L(1) * vh); c.rotate(L(2) * Math.PI / 180); c.scale(L(3), L(4));
+      const g = c.createRadialGradient(0, 0, 0, 0, 0, R); GST.forEach((a, k) => g.addColorStop(k / 8, `rgba(${o[7]},${a})`));
+      c.globalAlpha = o[6] * dk; c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 6.2832); c.fill(); c.restore();
     }
   }
-  requestAnimationFrame(drawOrbs);
+  function drawSet(s, ts) {
+    if (!s.w) return;
+    const dark = root.classList.contains('dark'), vw = innerWidth / 100, vh = innerHeight / 100, vmax = Math.max(vw, vh), dk = dark ? .85 : 1;
+    const c = s.c, W = s.w, H = s.h, sc = 1 / DS;
+    if (!s.sec) {   // 固定の背景（ヒーロー）: 光だけ。背景画像と暗い幕は CSS 側
+      c.setTransform(sc, 0, 0, sc, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, W, H); c.globalCompositeOperation = 'screen';
+      drawOrbsTo(c, s, ts, vw, vh, vmax, dk); return;
+    }
+    // 光は別の canvas に描いてから重ねる（光どうしは screen、背景にはふつうに重なる。以前の CSS と同じ合成）
+    const o = s.o.getContext('2d');
+    if (s.flip) o.setTransform(-sc, 0, 0, sc, s.o.width, 0); else o.setTransform(sc, 0, 0, sc, 0, 0);   // ダウンロードは光を左右反転
+    o.globalCompositeOperation = 'source-over'; o.clearRect(0, 0, W, H); o.globalCompositeOperation = 'screen';
+    drawOrbsTo(o, s, ts, vw, vh, vmax, dk);
+    // 変わらない部分（背景画像＋暗い幕／上下のなじませ）は大きさ・テーマが変わったときだけ作り直し、毎コマは貼るだけ
+    const key = `${s.o.width}x${s.o.height}|${dark}|${bgImg.naturalWidth}`;
+    if (s.key !== key) {
+      s.key = key;
+      const mk = () => { const x = document.createElement('canvas'); x.width = s.o.width; x.height = s.o.height; const cx = x.getContext('2d'); cx.setTransform(sc, 0, 0, sc, 0, 0); return [x, cx]; };
+      const [base, bx] = mk(), [top, tx] = mk();
+      if (bgImg.naturalWidth) {   // 背景画像（center / cover）
+        const k = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight), dw = bgImg.naturalWidth * k, dh = bgImg.naturalHeight * k;
+        bx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      } else { bx.fillStyle = '#b3b8f0'; bx.fillRect(0, 0, W, H); }
+      if (dark) { bx.fillStyle = 'rgba(10,10,10,.7)'; bx.fillRect(0, 0, W, H); }
+      const g = tx.createLinearGradient(0, 0, 0, H), st = SEC_GRAD[s.sec][dark ? 'dark' : 'light'];
+      st.forEach(([p, col], i) => g.addColorStop(typeof p === 'string' ? Math.min(parseFloat(p) / H, st[i + 1][0]) : p, col));
+      tx.fillStyle = g; tx.fillRect(0, 0, W, H);
+      s.base = base; s.top = top;
+    }
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.drawImage(s.base, 0, 0); c.drawImage(s.o, 0, 0); c.drawImage(s.top, 0, 0);
+  }
+  startOrbs();
 
   // スクロールで入ってくる演出（画面から出たら戻して、また入るたびに動く）
   if ('IntersectionObserver' in window) {
