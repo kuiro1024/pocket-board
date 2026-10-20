@@ -793,8 +793,13 @@ const pxScale = (w, h, cap) => Math.max(.5, Math.min(2, devicePixelRatio || 1, M
   if (COUNTER_URL && visitsEl) {
     visitsEl.hidden = false;   // 先に場所だけ取る（数が届いたときに下の動画がずれないように）
     (async () => {
-      let n = 0, fresh = false; try { n = +sessionStorage.getItem('pb-visit') || 0; } catch (e) {}
-      if (!n) {
+      // 自分のアクセスを数えない: 一度 ?nocount=1 を付けて開くと、このブラウザでは数を増やさず今の数を見るだけになる（?nocount=0 で解除）
+      const nc = new URLSearchParams(location.search).get('nocount');
+      try { if (nc === '1') localStorage.setItem('pb-nocount', '1'); else if (nc === '0') localStorage.removeItem('pb-nocount'); } catch (e) {}
+      let me = false; try { me = localStorage.getItem('pb-nocount') === '1'; } catch (e) {}
+      let n = 0, fresh = false; try { if (!me) n = +sessionStorage.getItem('pb-visit') || 0; } catch (e) {}
+      if (me) n = (await (await fetch(COUNTER_URL + '/visit')).json()).n;
+      else if (!n) {
         fresh = true;
         const r = await fetch(COUNTER_URL + '/visit', {method: 'POST'}); n = (await r.json()).n;
         try { sessionStorage.setItem('pb-visit', n); } catch (e) {}
